@@ -151,6 +151,16 @@ fn main() {
 
     let path_length = compute_path_length(&path);
     println!("Length: {:?}", path_length);
-    let samples = construct_sample_points(&path, path_length, 512);
+    let mut samples = construct_sample_points(&path, path_length, 512);
     println!("Samples Length: {:?}", samples.len());
+
+    let mut planner = FftPlanner::<f32>::new();
+    let fft = planner.plan_fft_forward(512);
+
+    fft.process(&mut samples);
+
+    let fft_size = 512;
+    for i in 0..10 {
+        println!("Freq +{:?}: {:?}, \t -{:?}: {:?}", i, samples[i], i, samples[fft_size - 1 - i]);
+    }
 }
