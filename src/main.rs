@@ -141,6 +141,9 @@ fn construct_sample_points(path: &Path, total_length: f32, n_sample: u32) -> Vec
 }
 
 fn main() {
+    // TODO: Add param
+    // TODO: Retrieve svg from web or local file
+
     // Start with a path.
     let mut builder = Path::builder();
     builder.begin(point(0.0, 0.0));
@@ -163,4 +166,6 @@ fn main() {
     for i in 0..10 {
         println!("Freq +{:?}: {:?}, \t -{:?}: {:?}", i, samples[i], i, samples[fft_size - 1 - i]);
     }
+
+    // TODO: Output the result somewhere to draw it
 }
