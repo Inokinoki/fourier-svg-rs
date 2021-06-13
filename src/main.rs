@@ -55,8 +55,9 @@ fn construct_sample_points(path: &Path, total_length: f32, n_sample: u32) -> Vec
     for evt in flattened_iter {
         match evt {
             PathEvent::Begin { at } => {
-                // TODO: Add as the first one
-                println!("Add sample point {:?} at 0", itered_index);
+                // Add as the first one
+                samples.push(Complex{ re: at.x, im: at.y });
+                // println!("Add sample point {:?} at 0", itered_index);
                 itered_index += 1;
             }
             PathEvent::Line { from, to } => {
@@ -110,4 +111,5 @@ fn main() {
     let path_length = compute_path_length(&path);
     println!("Length: {:?}", path_length);
     let samples = construct_sample_points(&path, path_length, 512);
+    println!("Samples Length: {:?}", samples.len());
 }
