@@ -22,11 +22,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "float-cmp"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75224bec9bfe1a65e2d34132933f2de7fe79900c96a0174307554244ece8150e"
+
+[[package]]
 name = "fourier-svg"
 version = "0.1.0"
 dependencies = [
  "lyon",
  "lyon_path",
+ "lyon_svg",
  "rustfft",
 ]
 
@@ -68,6 +75,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73ee0fb521dc29aadb761c7bb405848673f0115d0d4f99399cc6d6e01aee80a3"
 dependencies = [
  "lyon_geom",
+]
+
+[[package]]
+name = "lyon_svg"
+version = "0.17.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2df4e974ee362e67be881e68d6c853d9a11193490950aa8ca3754c0ff1cf919"
+dependencies = [
+ "lyon_path",
+ "svgtypes",
 ]
 
 [[package]]
@@ -142,10 +159,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "siphasher"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b8de496cf83d4ed58b6be86c3a275b8602f6ffe98d3024a869e124147a9a3ac"
+
+[[package]]
 name = "strength_reduce"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a3ff2f71c82567c565ba4b3009a9350a96a7269eaa4001ebedae926230bc2254"
+
+[[package]]
+name = "svgtypes"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c536faaff1a10837cfe373142583f6e27d81e96beba339147e77b67c9f260ff"
+dependencies = [
+ "float-cmp",
+ "siphasher",
+]
 
 [[package]]
 name = "transpose"

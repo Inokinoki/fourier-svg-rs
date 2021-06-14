@@ -4,6 +4,7 @@ use lyon_path::iterator::*;
 use lyon_path::math::{point, vector};
 use lyon_path::geom::BezierSegment;
 use lyon_path::{Path, PathEvent};
+use lyon_svg::path_utils::build_path;
 
 fn compute_path_length(path: &Path) -> f32 {
     // A simple std::iter::Iterator<PathEvent>,
@@ -150,6 +151,18 @@ fn path_to_fft(path: Path, n_sample: usize) -> Vec<Complex<f32>> {
     fft.process(&mut samples);
 
     samples
+}
+
+fn build_path_from_svg(svg_commands: &str) -> Path {
+    let svg_builder = Path::builder().with_svg();
+    match build_path(svg_builder, svg_commands) {
+        Ok (path) => {
+            return path;
+        }
+        _ => {
+            panic!();
+        }
+    }
 }
 
 fn main() {
