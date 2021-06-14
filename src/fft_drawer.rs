@@ -2,9 +2,9 @@ use rustfft::num_complex::Complex;
 
 #[derive(Clone, Debug)]
 pub struct DrawData {
-    frequency: f32,
-    radius: f32,
-    angle: f32,
+    pub frequency: f32,
+    pub radius: f32,
+    pub angle: f32,
 }
 
 impl DrawData {

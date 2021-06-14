@@ -181,7 +181,17 @@ fn main() {
 
     let fft_result = path_to_fft(path, 512);
     let fft_size = 512;
-    for i in 0..10 {
-        println!("Freq +{:?}: {:?}, \t -{:?}: {:?}", i, fft_result[i], i, fft_result[fft_size - 1 - i]);
+
+    // Temporally output to json
+    let zero_freq = fft_drawer::DrawData::new_from_complex(0 as f32, fft_result[0] + fft_result[fft_size - 1]);
+    println!("[\\\n{{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}},", zero_freq.frequency, zero_freq.radius, zero_freq.angle);
+    for i in 1..10 {
+        let pos_freq = fft_drawer::DrawData::new_from_complex(i as f32, fft_result[i]);
+        let neg_freq = fft_drawer::DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - 1 - i]);
+        println!("{{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}}, {{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}},\\",
+            pos_freq.frequency, pos_freq.radius, pos_freq.angle,
+            neg_freq.frequency, neg_freq.radius, neg_freq.angle
+        );
     }
+    println!("]");
 }
