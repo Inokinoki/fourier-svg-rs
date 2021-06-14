@@ -35,7 +35,7 @@ fn compute_path_length(path: &Path) -> f32 {
     total_length
 }
 
-fn construct_sample_points(path: &Path, total_length: f32, n_sample: u32) -> Vec<Complex<f32>> {
+fn construct_sample_points(path: &Path, total_length: f32, n_sample: usize) -> Vec<Complex<f32>> {
     let mut samples = Vec::new();
 
     // A simple std::iter::Iterator<PathEvent>,
@@ -140,6 +140,18 @@ fn construct_sample_points(path: &Path, total_length: f32, n_sample: u32) -> Vec
     samples
 }
 
+fn path_to_fft(path: Path, n_sample: usize) -> Vec<Complex<f32>> {
+    let path_length = compute_path_length(&path);
+    let mut samples = construct_sample_points(&path, path_length, n_sample);
+
+    let mut planner = FftPlanner::<f32>::new();
+    let fft = planner.plan_fft_forward(n_sample);
+
+    fft.process(&mut samples);
+
+    samples
+}
+
 fn main() {
     // TODO: Add param
     // TODO: Retrieve svg from web or local file
@@ -152,20 +164,9 @@ fn main() {
     builder.end(true);
     let path = builder.build();
 
-    let path_length = compute_path_length(&path);
-    println!("Length: {:?}", path_length);
-    let mut samples = construct_sample_points(&path, path_length, 512);
-    println!("Samples Length: {:?}", samples.len());
-
-    let mut planner = FftPlanner::<f32>::new();
-    let fft = planner.plan_fft_forward(512);
-
-    fft.process(&mut samples);
-
+    let fft_result = path_to_fft(path, 512);
     let fft_size = 512;
     for i in 0..10 {
-        println!("Freq +{:?}: {:?}, \t -{:?}: {:?}", i, samples[i], i, samples[fft_size - 1 - i]);
+        println!("Freq +{:?}: {:?}, \t -{:?}: {:?}", i, fft_result[i], i, fft_result[fft_size - 1 - i]);
     }
-
-    // TODO: Output the result somewhere to draw it
 }
