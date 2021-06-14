@@ -6,6 +6,8 @@ use lyon_path::geom::BezierSegment;
 use lyon_path::{Path, PathEvent};
 use lyon_svg::path_utils::build_path;
 
+mod fft_drawer;
+
 fn compute_path_length(path: &Path) -> f32 {
     // A simple std::iter::Iterator<PathEvent>,
     let simple_iter = path.iter();
