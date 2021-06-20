@@ -7,6 +7,11 @@ use lyon_path::{Path, PathEvent};
 use lyon_svg::path_utils::build_path;
 
 mod fft_drawer;
+mod visualizer;
+
+// Visualizer
+use visualizer::Visualizer;
+use visualizer::html_visualizer::HTMLVisualizer;
 
 fn compute_path_length(path: &Path) -> f32 {
     // A simple std::iter::Iterator<PathEvent>,
@@ -206,15 +211,14 @@ z";
     let mut fft_result = path_to_fft(path, fft_size);
 
     // Temporally output to json
-    let zero_freq = fft_drawer::DrawData::new_from_complex(0 as f32, fft_result[0]);
-    println!("[\\\n{{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}},", zero_freq.frequency, zero_freq.radius, zero_freq.angle);
+    let mut data = Vec::new();
+    data.push(fft_drawer::DrawData::new_from_complex(0 as f32, fft_result[0]));
+    // TODO: Can change from param
     for i in 1..100 {
-        let pos_freq = fft_drawer::DrawData::new_from_complex(i as f32, fft_result[i]);
-        let neg_freq = fft_drawer::DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - i]);
-        println!("{{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}}, {{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}},",
-            pos_freq.frequency, pos_freq.radius, pos_freq.angle,
-            neg_freq.frequency, neg_freq.radius, neg_freq.angle
-        );
+        data.push(fft_drawer::DrawData::new_from_complex(i as f32, fft_result[i]));
+        data.push(fft_drawer::DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - i]));
     }
-    println!("]");
+
+    let html_visualizer = HTMLVisualizer::new("output.html".to_string());
+    html_visualizer.render(data);
 }
