@@ -247,7 +247,7 @@ fn main() {
     let mut data = Vec::new();
     data.push(fft_drawer::DrawData::new_from_complex(0 as f32, fft_result[0]));
     // Can change from param
-    for i in 1..(num_wave / 2) {
+    for i in 1..((num_wave + 1) / 2) {
         data.push(fft_drawer::DrawData::new_from_complex(i as f32, fft_result[i]));
         data.push(fft_drawer::DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - i]));
     }
