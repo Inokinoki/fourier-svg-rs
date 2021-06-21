@@ -12,6 +12,9 @@ use path_util::{
     path_to_fft
 };
 
+use svg::node::element::tag::Path;
+use svg::parser::Event;
+
 use clap::{Arg, App, AppSettings};
 
 fn main() {
@@ -52,13 +55,23 @@ fn main() {
     let arg_wave = matches.value_of("Number of waves").unwrap_or("201");
 
     // Retrieve svg from web or local file
-    let svg_string: &str;
+    let mut svg_string: String = "".to_string();
     if arg_svg_file.len() > 0 {
-        // TODO: Read path from svg file
-        return;
+        // Read path from svg file
+        let mut content = String::new();
+        for event in svg::open(arg_svg_file, &mut content).unwrap() {
+            match event {
+                Event::Tag(Path, _, attributes) => {
+                    svg_string = attributes.get("d").unwrap().to_string();
+                    // svg_string = data;
+                    break;
+                }
+                _ => {}
+            }
+        }
     } else if arg_path.len() > 0 {
         // Read path from svg path string
-        svg_string = arg_path;
+        svg_string = arg_path.to_string();
     } else {
         println!("No SVG path provided.");
         return;
@@ -72,7 +85,7 @@ fn main() {
         num_wave = num_sample;
     }
 
-    let path = build_path_from_svg(svg_string);
+    let path = build_path_from_svg(&svg_string);
 
     let fft_size = num_sample;
     let fft_result = path_to_fft(path, fft_size);
