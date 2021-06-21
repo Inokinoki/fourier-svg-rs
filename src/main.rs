@@ -178,7 +178,7 @@ fn build_path_from_svg(svg_commands: &str) -> Path {
     }
 }
 
-use clap::{Arg, App, SubCommand};
+use clap::{Arg, App, AppSettings};
 
 fn main() {
     // Add param
@@ -186,6 +186,7 @@ fn main() {
         .version("1.0.0")
         .author("Inoki <veyx.shaw@gmail.com>")
         .about("Draw a path in SVG format using Fourier Transform")
+        .setting(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::with_name("SVG Path")
             .short("p")
             .long("path")
