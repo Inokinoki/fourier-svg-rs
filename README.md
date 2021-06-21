@@ -1,8 +1,8 @@
-# Fourier SVG Drawer
+# Fourier SVG Painter
 
 Use Fournier Transform to draw an SVG Path.
 
-// TODO: Add a preview
+![Preview for a kiwi](preview.gif)
 
 ## Build
 
