@@ -18,7 +18,7 @@ impl HTMLVisualizer {
 
 impl Visualizer for HTMLVisualizer {
     fn render(&self, data: Vec<fft_drawer::DrawData>) -> bool {
-        let mut fourier_json_data: String = data.iter()
+        let fourier_json_data: String = data.iter()
             .map(|d| format!("{{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}},", d.frequency, d.radius, d.angle))
             .collect();
         // Strip the last comma

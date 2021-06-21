@@ -1,5 +1,3 @@
-use lyon_path::{Path, PathEvent};
-
 mod fft_drawer;
 mod visualizer;
 mod path_util;
@@ -58,7 +56,7 @@ fn main() {
     if arg_svg_file.len() > 0 {
         // TODO: Read path from svg file
         return;
-    } else if (arg_path.len() > 0) {
+    } else if arg_path.len() > 0 {
         // Read path from svg path string
         svg_string = arg_path;
     } else {
