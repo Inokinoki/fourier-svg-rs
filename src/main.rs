@@ -178,8 +178,60 @@ fn build_path_from_svg(svg_commands: &str) -> Path {
     }
 }
 
+use clap::{Arg, App, SubCommand};
+
 fn main() {
-    // TODO: Add param
+    // Add param
+    let app = App::new("Fourier SVG Drawer")
+        .version("1.0.0")
+        .author("Inoki <veyx.shaw@gmail.com>")
+        .about("Draw a path in SVG format using Fourier Transform")
+        .arg(Arg::with_name("SVG Path")
+            .short("p")
+            .long("path")
+            .help("Draw an SVG path in string")
+            .takes_value(true))
+        .arg(Arg::with_name("SVG file")
+            .short("f")
+            .long("file")
+            .help("Draw the first SVG path in file")
+            .takes_value(true))
+        .arg(Arg::with_name("Number of sample points")
+            .short("s")
+            .long("sample")
+            .help("Use how many sample points to draw the path")
+            .takes_value(true))
+        .arg(Arg::with_name("Number of waves")
+            .short("w")
+            .long("wave")
+            .help("Use how many waves to draw the path")
+            .takes_value(true));
+    let matches = app.get_matches();
+
+    // SVG source args
+    let arg_path = matches.value_of("SVG Path").unwrap_or("");
+    let arg_svg_file = matches.value_of("SVG file").unwrap_or("");
+
+    // FFT config args
+    let arg_sample = matches.value_of("Number of sample points").unwrap_or("10240");
+    let arg_wave = matches.value_of("Number of waves").unwrap_or("201");
+
+    if arg_svg_file.len() > 0 {
+        // TODO: Read path from svg file
+        return;
+    } else if (arg_path.len() > 0) {
+        // TODO: Read path from svg path string
+        return;
+    }
+
+    let num_sample = arg_wave.parse::<usize>().unwrap_or(10240);
+    let mut num_wave = arg_wave.parse::<usize>().unwrap_or(201);
+
+    // Make sure num_sample >= num_wave
+    if num_sample < num_wave {
+        num_wave = num_sample;
+    }
+
     // TODO: Retrieve svg from web or local file
 
     // Start with a path.
@@ -207,18 +259,19 @@ z";
 
     let path = build_path_from_svg(svg_string);
 
-    let fft_size = 10240;
+    let fft_size = num_sample;
     let mut fft_result = path_to_fft(path, fft_size);
 
     // Temporally output to json
     let mut data = Vec::new();
     data.push(fft_drawer::DrawData::new_from_complex(0 as f32, fft_result[0]));
-    // TODO: Can change from param
-    for i in 1..100 {
+    // Can change from param
+    for i in 1..(num_wave / 2) {
         data.push(fft_drawer::DrawData::new_from_complex(i as f32, fft_result[i]));
         data.push(fft_drawer::DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - i]));
     }
 
+    // TODO: Add an option to choose a different visualizer
     let html_visualizer = HTMLVisualizer::new("output.html".to_string());
     html_visualizer.render(data);
 }

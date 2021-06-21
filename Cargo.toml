@@ -1,6 +1,6 @@
 [package]
 name = "fourier-svg"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Inoki <veyx.shaw@gmail.com>"]
 edition = "2018"
 
@@ -11,3 +11,4 @@ rustfft = "6.0"
 lyon = "0.17"
 lyon_path = "0.17"
 lyon_svg = "0.17"
+clap = "2"
