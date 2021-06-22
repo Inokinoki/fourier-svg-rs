@@ -23,7 +23,7 @@ cargo run -- -f ./test.svg
 Or a string with SVG path format:
 
 ```
-cargo run -- -p $(cat ./test.svg.txt)
+cargo run -- -p "$(cat ./test.svg.txt)"
 ```
 
 Without panic, there should be an `output.html` file containing the render result. Open it with a browser that supports canvas, and you will see the animation.
