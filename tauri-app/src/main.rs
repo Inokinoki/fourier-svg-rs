@@ -585,9 +585,6 @@ fn run_tauri_app(initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_w
 
     println!("HTML written to: {:?}", html_path);
 
-    // Set OUT_DIR for Tauri's generate_context!()
-    std::env::set_var("OUT_DIR", env!("CARGO_MANIFEST_DIR"));
-
     // Build and run Tauri app programmatically
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![process_drawing])
@@ -602,7 +599,7 @@ fn run_tauri_app(initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_w
             window.eval("console.log('Fourier Visualizer loaded')")?;
             Ok(())
         })
-        .run(tauri::generate_context!())
+        .run(tauri::generate_context!("tauri.conf.json"))
         .expect("error while running tauri application");
 }
 
