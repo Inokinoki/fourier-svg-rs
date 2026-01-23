@@ -47,13 +47,18 @@ jobs:
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build
-        run: cargo build --verbose
+        run: cargo build --workspace --verbose
 
-      - name: Build with all features
-        run: cargo build --all-features --verbose
+      - name: Build all packages (without tauri feature on Linux)
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            cargo build --workspace -p fourier-cli -p gpui-app --verbose
+          else
+            cargo build --workspace --all-features --verbose
+          fi
 
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --workspace --verbose
 
   lint:
     name: Lint

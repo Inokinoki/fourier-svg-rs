@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Fourier SVG Visualizer",
+  "version": "1.0.0",
+  "identifier": "com.fourier-svg.app",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "devUrl": "../",
+    "frontendDist": "../"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Fourier SVG Visualizer",
+        "width": 1050,
+        "height": 650,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": false
+  }
+}

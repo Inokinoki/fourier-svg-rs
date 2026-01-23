@@ -21,7 +21,7 @@ use fourier_svg::{
 #[cfg(feature = "tauri")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "tauri")]
-use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::{WebviewUrl, WebviewWindowBuilder};
 
 #[cfg(feature = "tauri")]
 #[derive(Clone, Serialize, Deserialize)]
@@ -535,6 +535,7 @@ fn generate_html() -> String {
     </script>
 </body>
 </html>"#
+    .to_string()
 }
 
 #[cfg(feature = "tauri")]
@@ -588,7 +589,7 @@ fn run_tauri_app(initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_w
         .invoke_handler(tauri::generate_handler![process_drawing])
         .setup(move |app| {
             let window =
-                WebviewWindowBuilder::new(app, "fourier", WebviewUrl::from(html_path.clone()))
+                WebviewWindowBuilder::new(app, "fourier", WebviewUrl::App(html_path.clone()))
                     .title("Fourier SVG Visualizer - Interactive")
                     .inner_size(1050.0, 650.0)
                     .resizable(true)
