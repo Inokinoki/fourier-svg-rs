@@ -78,12 +78,9 @@ fn main() {
             // Read path from svg file
             let mut content = String::new();
             for event in svg::open(arg_svg_file, &mut content).unwrap() {
-                match event {
-                    Event::Tag(Path, _, attributes) => {
-                        svg_string = attributes.get("d").unwrap().to_string();
-                        break;
-                    }
-                    _ => {}
+                if let Event::Tag(Path, _, attributes) = event {
+                    svg_string = attributes.get("d").unwrap().to_string();
+                    break;
                 }
             }
         } else if !arg_path.is_empty() {
@@ -110,7 +107,7 @@ fn main() {
         // Build DrawData from FFT result
         let mut result = Vec::new();
         result.push(DrawData::new_from_complex(0 as f32, fft_result[0]));
-        for i in 1..((num_wave + 1) / 2) {
+        for i in 1..num_wave.div_ceil(2) {
             result.push(DrawData::new_from_complex(i as f32, fft_result[i]));
             result.push(DrawData::new_from_complex(
                 (0 - i as i32) as f32,
