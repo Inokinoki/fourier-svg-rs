@@ -5,9 +5,7 @@
   "identifier": "com.fourier-svg.app",
   "build": {
     "beforeDevCommand": "",
-    "beforeBuildCommand": "",
-    "devUrl": "../",
-    "frontendDist": "../"
+    "beforeBuildCommand": ""
   },
   "app": {
     "windows": [
