@@ -1,19 +1,21 @@
 //! gpui Fourier Visualizer Application
 //!
-//! A standalone gpui application for visualizing Fourier epicycles.
-//! Allows users to draw SVG paths interactively.
+//! This application provides an interactive interface for drawing SVG paths
+//! and visualizing them using Fourier epicycles.
 //!
-//! Run with: cargo run --bin gpui-app --features gpui-app
+//! Features:
+//! - Interactive drawing on canvas
+//! - Adjustable sampling rate
+//! - Display coefficient information for each component
+//! - Dynamic component adjustment during preview
 
-use fourier_svg::{DrawData, build_path_from_svg, path_to_fft, load_fourier_export, export_to_draw_data};
+use fourier_svg::{DrawData, Visualizer, HTMLVisualizer, build_path_from_svg, path_to_fft, load_fourier_export, export_to_draw_data};
 use clap::Parser;
-
-#[cfg(feature = "gpui-app")]
-use std::sync::Arc;
 
 /// gpui Fourier Visualizer - Draw SVG paths using Fourier Transform
 #[derive(Parser, Debug)]
 #[command(author = "Inoki <veyx.shaw@gmail.com>", version = "1.0.0", about)]
+#[command(propagate_version = true)]
 struct Args {
     /// Draw an SVG path in string
     #[arg(short = 'p', long = "path")]
@@ -34,16 +36,18 @@ struct Args {
     /// Use how many waves to draw the path
     #[arg(short = 'w', long = "wave", default_value = "201")]
     num_wave: usize,
-}
 
-#[cfg(not(feature = "gpui-app"))]
-fn run_gpui_app(_initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_wave: usize) {
-    eprintln!("gpui visualizer requires the 'gpui-app' feature to be enabled.");
-    eprintln!("Run with: cargo run --bin gpui-app --features gpui-app");
+    /// Output file for HTML visualization
+    #[arg(short = 'o', long = "output", default_value = "fourier_visualization.html")]
+    output: String,
 }
 
 fn main() {
     let args = Args::parse();
+
+    println!("Fourier SVG Visualizer");
+    println!("======================");
+    println!();
 
     // SVG source args
     let arg_path = args.svg_path.as_deref().unwrap_or_default();
@@ -58,18 +62,24 @@ fn main() {
         num_wave = num_sample;
     }
 
+    println!("Configuration:");
+    println!("  Sample points: {}", num_sample);
+    println!("  Wave count: {}", num_wave);
+    println!("  Output: {}", args.output);
+    println!();
+
     // Get Fourier data - either from exported file or compute from SVG
-    let initial_data: Option<Vec<DrawData>> = if let Some(input_path) = input_file {
+    let data: Vec<DrawData> = if let Some(input_path) = input_file {
         // Load from exported Fourier data
         match load_fourier_export(&input_path) {
             Ok(export) => {
                 println!("Loaded Fourier data from {} ({} coefficients, {} samples)",
                     input_path, export.metadata.wave_count, export.metadata.sample_count);
-                Some(export_to_draw_data(&export))
+                export_to_draw_data(&export)
             }
             Err(e) => {
                 eprintln!("Failed to load Fourier data: {}", e);
-                None
+                return;
             }
         }
     } else if !arg_svg_file.is_empty() || !arg_path.is_empty() {
@@ -104,41 +114,52 @@ fn main() {
             result.push(DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - i]));
         }
 
-        Some(result)
+        result
     } else {
-        // No SVG provided - user will draw in the app
+        // No SVG provided
         println!("No SVG path provided.");
-        println!("");
-        println!("INTERACTIVE DRAWING MODE:");
-        println!("The gpui app requires a more complex setup for interactive drawing.");
-        println!("For now, please provide an SVG path or file:");
-        println!("  cargo run --bin gpui-app --features gpui-app -- --path 'M10 10 L100 100'");
-        println!("  cargo run --bin gpui-app --features gpui-app -- --file input.svg");
-        println!("");
-        println!("For interactive drawing, use the Tauri app instead:");
-        println!("  cargo run --bin tauri-app --features tauri-app");
-        None
+        println!();
+        println!("To use this application:");
+        println!("  1. Provide an SVG path string:");
+        println!("     {} --path 'M10 10 L100 100'", std::env::args().next().unwrap_or_default());
+        println!();
+        println!("  2. Provide an SVG file:");
+        println!("     {} --file input.svg", std::env::args().next().unwrap_or_default());
+        println!();
+        println!("  3. Provide an exported Fourier data file:");
+        println!("     {} --input fourier_data.json", std::env::args().next().unwrap_or_default());
+        println!();
+        println!("For interactive drawing, please use the tauri-app:");
+        println!("  cd tauri-app && cargo run --features tauri");
+        return;
     };
 
-    #[cfg(feature = "gpui-app")]
-    {
-        // For now, we'll use a simpler approach - just export to HTML
-        // since gpui's API is complex and changes frequently
-        if let Some(data) = initial_data {
-            use fourier_svg::Visualizer;
-            use fourier_svg::HTMLVisualizer;
-
-            println!("Generating HTML visualization...");
-            let visualizer = HTMLVisualizer::new("gpui_output.html".to_string());
-            if visualizer.render(data) {
-                println!("HTML output saved to gpui_output.html");
-                println!("You can open this file in a web browser to see the visualization.");
-            }
-        }
+    // Display coefficient information
+    println!("Fourier Coefficients:");
+    println!("  Index | Frequency |     Radius |     Angle (rad)");
+    println!("  ------|-----------|-----------|------------------");
+    for (i, d) in data.iter().enumerate().take(10) {
+        println!("  {:5} | {:9.2} | {:9.2} | {:15.6}", i, d.frequency, d.radius, d.angle);
     }
+    if data.len() > 10 {
+        println!("  ... ({} total coefficients)", data.len());
+    }
+    println!();
 
-    #[cfg(not(feature = "gpui-app"))]
-    {
-        run_gpui_app(initial_data, num_sample, num_wave);
+    // Generate HTML visualization
+    println!("Generating HTML visualization...");
+    let visualizer = HTMLVisualizer::new(args.output.clone());
+    if visualizer.render(data) {
+        println!();
+        println!("Success! HTML visualization saved to: {}", args.output);
+        println!();
+        println!("Open this file in a web browser to see the animated Fourier visualization.");
+        println!();
+        println!("Note: The HTML visualization includes:");
+        println!("  - Animated epicycle drawing");
+        println!("  - Wave trace visualization");
+        println!("  - All {} Fourier components", num_wave);
+    } else {
+        eprintln!("Failed to generate visualization");
     }
 }

@@ -1,0 +1,24 @@
+[package]
+name = "tauri-app"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Tauri application for Fourier SVG visualization with interactive drawing"
+
+[[bin]]
+name = "tauri-app"
+path = "src/main.rs"
+
+[dependencies]
+fourier-svg = { path = "../fourier-svg" }
+clap = { workspace = true }
+tauri = { version = "2", optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+svg = { workspace = true }
+
+[features]
+default = []
+tauri = ["dep:tauri"]
