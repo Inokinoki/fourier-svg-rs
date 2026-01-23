@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::BufWriter;
 
-use crate::visualizer::Visualizer;
 use crate::fft_drawer::DrawData;
+use crate::visualizer::Visualizer;
 use serde::{Deserialize, Serialize};
 
 /// Fourier data export format
@@ -55,7 +55,12 @@ impl ExportVisualizer {
         }
     }
 
-    pub fn with_metadata(mut self, svg_path: Option<String>, sample_count: usize, wave_count: usize) -> Self {
+    pub fn with_metadata(
+        mut self,
+        svg_path: Option<String>,
+        sample_count: usize,
+        wave_count: usize,
+    ) -> Self {
         self.svg_path = svg_path;
         self.sample_count = sample_count;
         self.wave_count = wave_count;
@@ -115,19 +120,18 @@ impl Visualizer for ExportVisualizer {
 /// Load Fourier data from a JSON export file
 pub fn load_fourier_export(path: &str) -> Result<FourierExport, String> {
     match File::open(path) {
-        Ok(file) => {
-            match serde_json::from_reader(file) {
-                Ok(export) => Ok(export),
-                Err(e) => Err(format!("Failed to parse JSON: {}", e)),
-            }
-        }
+        Ok(file) => match serde_json::from_reader(file) {
+            Ok(export) => Ok(export),
+            Err(e) => Err(format!("Failed to parse JSON: {}", e)),
+        },
         Err(e) => Err(format!("Failed to open file: {}", e)),
     }
 }
 
 /// Convert FourierExport back to DrawData for rendering
 pub fn export_to_draw_data(export: &FourierExport) -> Vec<DrawData> {
-    export.data
+    export
+        .data
         .iter()
         .map(|c| DrawData {
             frequency: c.frequency,

@@ -1,18 +1,13 @@
+#![allow(non_upper_case_globals)]
+
 use fourier_svg::{
-    DrawData,
-    Visualizer,
-    HTMLVisualizer,
-    GIFVisualizer,
-    ExportVisualizer,
-    load_fourier_export,
-    export_to_draw_data,
-    build_path_from_svg,
-    path_to_fft,
+    build_path_from_svg, export_to_draw_data, load_fourier_export, path_to_fft, DrawData,
+    ExportVisualizer, GIFVisualizer, HTMLVisualizer, Visualizer,
 };
 
+use clap::Parser;
 use svg::node::element::tag::Path;
 use svg::parser::Event;
-use clap::Parser;
 
 /// Draw a path in SVG format using Fourier Transform
 #[derive(Parser, Debug)]
@@ -65,8 +60,10 @@ fn main() {
         // Load from exported Fourier data
         match load_fourier_export(&input_path) {
             Ok(export) => {
-                println!("Loaded Fourier data from {} ({} coefficients, {} samples)",
-                    input_path, export.metadata.wave_count, export.metadata.sample_count);
+                println!(
+                    "Loaded Fourier data from {} ({} coefficients, {} samples)",
+                    input_path, export.metadata.wave_count, export.metadata.sample_count
+                );
                 export_to_draw_data(&export)
             }
             Err(e) => {
@@ -115,34 +112,43 @@ fn main() {
         result.push(DrawData::new_from_complex(0 as f32, fft_result[0]));
         for i in 1..((num_wave + 1) / 2) {
             result.push(DrawData::new_from_complex(i as f32, fft_result[i]));
-            result.push(DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - i]));
+            result.push(DrawData::new_from_complex(
+                (0 - i as i32) as f32,
+                fft_result[fft_size - i],
+            ));
         }
 
         result
     };
 
     // Select visualizer based on backend
-    let success = match args.backend.as_str() {
-        "html" => {
-            let visualizer = HTMLVisualizer::new(format!("{}.html", args.output));
-            visualizer.render(data)
-        }
-        "gif" => {
-            let visualizer = GIFVisualizer::new(format!("{}.gif", args.output))
-                .with_frames(args.frames);
-            visualizer.render(data)
-        }
-        "export" => {
-            let visualizer = ExportVisualizer::new(format!("{}.json", args.output))
-                .with_metadata(args.svg_path.clone(), args.num_sample, args.num_wave);
-            visualizer.render(data)
-        }
-        _ => {
-            eprintln!("Unknown backend: {}. Available options: html, gif, export", args.backend);
-            eprintln!("For gpui and tauri applications, see src/bin/gpui-app.rs and src/bin/tauri-app.rs");
-            false
-        }
-    };
+    let success =
+        match args.backend.as_str() {
+            "html" => {
+                let visualizer = HTMLVisualizer::new(format!("{}.html", args.output));
+                visualizer.render(data)
+            }
+            "gif" => {
+                let visualizer =
+                    GIFVisualizer::new(format!("{}.gif", args.output)).with_frames(args.frames);
+                visualizer.render(data)
+            }
+            "export" => {
+                let visualizer = ExportVisualizer::new(format!("{}.json", args.output))
+                    .with_metadata(args.svg_path.clone(), args.num_sample, args.num_wave);
+                visualizer.render(data)
+            }
+            _ => {
+                eprintln!(
+                    "Unknown backend: {}. Available options: html, gif, export",
+                    args.backend
+                );
+                eprintln!(
+                "For gpui and tauri applications, see src/bin/gpui-app.rs and src/bin/tauri-app.rs"
+            );
+                false
+            }
+        };
 
     if !success {
         eprintln!("Rendering failed!");

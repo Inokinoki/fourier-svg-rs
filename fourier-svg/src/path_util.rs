@@ -2,17 +2,13 @@ use lyon_path::iterator::*;
 use lyon_path::{Path, PathEvent};
 use lyon_svg::path_utils::build_path;
 
-use rustfft::{FftPlanner, num_complex::Complex};
+use rustfft::{num_complex::Complex, FftPlanner};
 
 pub fn build_path_from_svg(svg_commands: &str) -> Path {
     let svg_builder = Path::builder().with_svg();
     match build_path(svg_builder, svg_commands) {
-        Ok (path) => {
-            return path;
-        }
-        _ => {
-            panic!();
-        }
+        Ok(path) => path,
+        _ => panic!(),
     }
 }
 
@@ -30,20 +26,28 @@ pub fn compute_path_length(path: &Path) -> f32 {
     for evt in flattened_iter {
         match evt {
             PathEvent::Begin { at: _ } => {}
-            PathEvent::Line { from, to } => { total_length += (to - from).length(); }
+            PathEvent::Line { from, to } => {
+                total_length += (to - from).length();
+            }
             PathEvent::End { last, first, close } => {
                 if close {
                     // Add the closed path
                     total_length += (first - last).length();
                 }
             }
-            _ => { panic!() }
+            _ => {
+                panic!()
+            }
         }
     }
     total_length
 }
 
-pub fn construct_sample_points(path: &Path, total_length: f32, n_sample: usize) -> Vec<Complex<f32>> {
+pub fn construct_sample_points(
+    path: &Path,
+    total_length: f32,
+    n_sample: usize,
+) -> Vec<Complex<f32>> {
     let mut samples = Vec::new();
 
     // Make it an iterator over simpler primitives flattened events,
@@ -62,7 +66,7 @@ pub fn construct_sample_points(path: &Path, total_length: f32, n_sample: usize) 
         match evt {
             PathEvent::Begin { at } => {
                 // Add as the first one
-                samples.push(Complex{ re: at.x, im: at.y });
+                samples.push(Complex { re: at.x, im: at.y });
                 // println!("Add sample point {:?} at {:?} for begin", itered_index, at);
                 itered_index += 1;
             }
@@ -70,18 +74,21 @@ pub fn construct_sample_points(path: &Path, total_length: f32, n_sample: usize) 
                 let next_sample_length = sample_length * (itered_index as f32);
                 let current_line_length = (to - from).length();
                 let mut last_added_sample_on_this_segment: f32 = 0.0;
-                if itered_length < next_sample_length {
-                    if itered_length + current_line_length >= next_sample_length {
-                        last_added_sample_on_this_segment = sample_length
-                            - (itered_length - sample_length * ((itered_index - 1) as f32));
-                        // Add a sample point on the segment
-                        let sample = from + (to - from) * 
-                            ((last_added_sample_on_this_segment) / current_line_length);
-                        samples.push(Complex{ re: sample.x, im: sample.y });
-                        // println!("Add sample point {:?} at {:?}", itered_index, sample);
-                        // Ready to find the next sample point
-                        itered_index += 1;
-                    }
+                if itered_length < next_sample_length
+                    && itered_length + current_line_length >= next_sample_length
+                {
+                    last_added_sample_on_this_segment = sample_length
+                        - (itered_length - sample_length * ((itered_index - 1) as f32));
+                    // Add a sample point on the segment
+                    let sample = from
+                        + (to - from) * ((last_added_sample_on_this_segment) / current_line_length);
+                    samples.push(Complex {
+                        re: sample.x,
+                        im: sample.y,
+                    });
+                    // println!("Add sample point {:?} at {:?}", itered_index, sample);
+                    // Ready to find the next sample point
+                    itered_index += 1;
                 }
                 // println!("last_added_sample_on_this_segment {:?}", last_added_sample_on_this_segment);
 
@@ -89,9 +96,15 @@ pub fn construct_sample_points(path: &Path, total_length: f32, n_sample: usize) 
                 let mut compensation_counter = 0;
                 while sample_length * (itered_index as f32) <= itered_length + current_line_length {
                     // Add a sample point for compensation
-                    let sample = from + (to -from) * (sample_length * compensation_counter as f32) / current_line_length +
-                        (to - from) * (last_added_sample_on_this_segment + sample_length) / current_line_length;
-                    samples.push(Complex{ re: sample.x, im: sample.y });
+                    let sample = from
+                        + (to - from) * (sample_length * compensation_counter as f32)
+                            / current_line_length
+                        + (to - from) * (last_added_sample_on_this_segment + sample_length)
+                            / current_line_length;
+                    samples.push(Complex {
+                        re: sample.x,
+                        im: sample.y,
+                    });
                     // println!("Add sample point {:?} at {:?} for compensation", itered_index, sample);
                     // Ready to find the next sample point
                     itered_index += 1;
@@ -110,28 +123,40 @@ pub fn construct_sample_points(path: &Path, total_length: f32, n_sample: usize) 
                     let next_sample_length = sample_length * (itered_index as f32);
                     let current_line_length = (to - from).length();
                     let mut last_added_sample_on_this_segment: f32 = 0.0;
-                    if itered_length < next_sample_length {
-                        if itered_length + current_line_length >= next_sample_length {
-                            last_added_sample_on_this_segment = sample_length
-                                - (itered_length - sample_length * ((itered_index - 1) as f32));
-                            // Add a sample point on the segment
-                            let sample = from + (to - from) * 
-                                ((last_added_sample_on_this_segment) / current_line_length);
-                            samples.push(Complex{ re: sample.x, im: sample.y });
-                            // println!("Add sample point {:?} at {:?}", itered_index, sample);
-                            // Ready to find the next sample point
-                            itered_index += 1;
-                        }
+                    if itered_length < next_sample_length
+                        && itered_length + current_line_length >= next_sample_length
+                    {
+                        last_added_sample_on_this_segment = sample_length
+                            - (itered_length - sample_length * ((itered_index - 1) as f32));
+                        // Add a sample point on the segment
+                        let sample = from
+                            + (to - from)
+                                * ((last_added_sample_on_this_segment) / current_line_length);
+                        samples.push(Complex {
+                            re: sample.x,
+                            im: sample.y,
+                        });
+                        // println!("Add sample point {:?} at {:?}", itered_index, sample);
+                        // Ready to find the next sample point
+                        itered_index += 1;
                     }
                     // println!("last_added_sample_on_this_segment {:?}", last_added_sample_on_this_segment);
 
                     // Compensation
                     let mut compensation_counter = 0;
-                    while sample_length * (itered_index as f32) < itered_length + current_line_length {
+                    while sample_length * (itered_index as f32)
+                        < itered_length + current_line_length
+                    {
                         // Add a sample point for compensation
-                        let sample = from + (to -from) * (sample_length * compensation_counter as f32) / current_line_length +
-                            (to - from) * (last_added_sample_on_this_segment + sample_length) / current_line_length;
-                        samples.push(Complex{ re: sample.x, im: sample.y });
+                        let sample = from
+                            + (to - from) * (sample_length * compensation_counter as f32)
+                                / current_line_length
+                            + (to - from) * (last_added_sample_on_this_segment + sample_length)
+                                / current_line_length;
+                        samples.push(Complex {
+                            re: sample.x,
+                            im: sample.y,
+                        });
                         // println!("Add sample point {:?} at {:?} for compensation", itered_index, sample);
                         // Ready to find the next sample point
                         itered_index += 1;
@@ -139,7 +164,9 @@ pub fn construct_sample_points(path: &Path, total_length: f32, n_sample: usize) 
                     }
                 }
             }
-            _ => { panic!() }
+            _ => {
+                panic!()
+            }
         }
     }
     samples

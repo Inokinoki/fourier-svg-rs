@@ -13,13 +13,15 @@
 //! Build requirements on Linux:
 //!   sudo apt-get install libwebkit2gtk-4.0-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
 
-use fourier_svg::{DrawData, build_path_from_svg, path_to_fft, load_fourier_export, export_to_draw_data};
 use clap::Parser;
+use fourier_svg::{
+    build_path_from_svg, export_to_draw_data, load_fourier_export, path_to_fft, DrawData,
+};
 
 #[cfg(feature = "tauri")]
-use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "tauri")]
-use serde::{Serialize, Deserialize};
+use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
 #[cfg(feature = "tauri")]
 #[derive(Clone, Serialize, Deserialize)]
@@ -546,16 +548,23 @@ fn process_drawing(path: String, num_sample: usize) -> Vec<FourierData> {
     result.push(DrawData::new_from_complex(0 as f32, fft_result[0]));
     for i in 1..fft_result.len() / 2 {
         result.push(DrawData::new_from_complex(i as f32, fft_result[i]));
-        result.push(DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_result.len() - i]));
+        result.push(DrawData::new_from_complex(
+            (0 - i as i32) as f32,
+            fft_result[fft_result.len() - i],
+        ));
     }
 
     // Convert to FourierData for JSON serialization, sorted by radius
-    let mut sorted: Vec<_> = result.iter().enumerate().map(|(idx, d)| FourierData {
-        s: d.frequency,
-        r: d.radius,
-        a: d.angle,
-        idx,
-    }).collect();
+    let mut sorted: Vec<_> = result
+        .iter()
+        .enumerate()
+        .map(|(idx, d)| FourierData {
+            s: d.frequency,
+            r: d.radius,
+            a: d.angle,
+            idx,
+        })
+        .collect();
     sorted.sort_by(|a, b| b.r.partial_cmp(&a.r).unwrap_or(std::cmp::Ordering::Equal));
 
     sorted
@@ -578,15 +587,12 @@ fn run_tauri_app(initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_w
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![process_drawing])
         .setup(move |app| {
-            let window = WebviewWindowBuilder::new(
-                app,
-                "fourier",
-                WebviewUrl::from(html_path.clone())
-            )
-            .title("Fourier SVG Visualizer - Interactive")
-            .inner_size(1050.0, 650.0)
-            .resizable(true)
-            .build()?;
+            let window =
+                WebviewWindowBuilder::new(app, "fourier", WebviewUrl::from(html_path.clone()))
+                    .title("Fourier SVG Visualizer - Interactive")
+                    .inner_size(1050.0, 650.0)
+                    .resizable(true)
+                    .build()?;
 
             window.eval("console.log('Fourier Visualizer loaded')")?;
             Ok(())
@@ -599,7 +605,7 @@ fn run_tauri_app(initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_w
 fn run_tauri_app(_initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_wave: usize) {
     eprintln!("Tauri visualizer requires the 'tauri' feature to be enabled.");
     eprintln!("Run with: cargo run --features tauri");
-    eprintln!("");
+    eprintln!();
     eprintln!("Build requirements on Linux:");
     eprintln!("  sudo apt-get install libwebkit2gtk-4.0-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev");
 }
@@ -617,8 +623,10 @@ fn main() {
     let initial_data: Option<Vec<DrawData>> = if let Some(input_path) = input_file {
         match load_fourier_export(&input_path) {
             Ok(export) => {
-                println!("Loaded Fourier data from {} ({} coefficients, {} samples)",
-                    input_path, export.metadata.wave_count, export.metadata.sample_count);
+                println!(
+                    "Loaded Fourier data from {} ({} coefficients, {} samples)",
+                    input_path, export.metadata.wave_count, export.metadata.sample_count
+                );
                 Some(export_to_draw_data(&export))
             }
             Err(e) => {
@@ -650,7 +658,10 @@ fn main() {
         result.push(DrawData::new_from_complex(0 as f32, fft_result[0]));
         for i in 1..((num_wave + 1) / 2) {
             result.push(DrawData::new_from_complex(i as f32, fft_result[i]));
-            result.push(DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_result.len() - i]));
+            result.push(DrawData::new_from_complex(
+                (0 - i as i32) as f32,
+                fft_result[fft_result.len() - i],
+            ));
         }
 
         Some(result)

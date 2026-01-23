@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::BufWriter;
 
-use crate::visualizer::Visualizer;
 use crate::fft_drawer::DrawData;
+use crate::visualizer::Visualizer;
 use gif::{Encoder, Frame, Repeat};
 use image::{Rgb, RgbImage};
 

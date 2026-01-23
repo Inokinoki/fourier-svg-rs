@@ -9,8 +9,11 @@
 //! - Display coefficient information for each component
 //! - Dynamic component adjustment during preview
 
-use fourier_svg::{DrawData, Visualizer, HTMLVisualizer, build_path_from_svg, path_to_fft, load_fourier_export, export_to_draw_data};
 use clap::Parser;
+use fourier_svg::{
+    build_path_from_svg, export_to_draw_data, load_fourier_export, path_to_fft, DrawData,
+    HTMLVisualizer, Visualizer,
+};
 
 /// gpui Fourier Visualizer - Draw SVG paths using Fourier Transform
 #[derive(Parser, Debug)]
@@ -38,7 +41,11 @@ struct Args {
     num_wave: usize,
 
     /// Output file for HTML visualization
-    #[arg(short = 'o', long = "output", default_value = "fourier_visualization.html")]
+    #[arg(
+        short = 'o',
+        long = "output",
+        default_value = "fourier_visualization.html"
+    )]
     output: String,
 }
 
@@ -73,8 +80,10 @@ fn main() {
         // Load from exported Fourier data
         match load_fourier_export(&input_path) {
             Ok(export) => {
-                println!("Loaded Fourier data from {} ({} coefficients, {} samples)",
-                    input_path, export.metadata.wave_count, export.metadata.sample_count);
+                println!(
+                    "Loaded Fourier data from {} ({} coefficients, {} samples)",
+                    input_path, export.metadata.wave_count, export.metadata.sample_count
+                );
                 export_to_draw_data(&export)
             }
             Err(e) => {
@@ -111,7 +120,10 @@ fn main() {
         result.push(DrawData::new_from_complex(0 as f32, fft_result[0]));
         for i in 1..((num_wave + 1) / 2) {
             result.push(DrawData::new_from_complex(i as f32, fft_result[i]));
-            result.push(DrawData::new_from_complex((0 - i as i32) as f32, fft_result[fft_size - i]));
+            result.push(DrawData::new_from_complex(
+                (0 - i as i32) as f32,
+                fft_result[fft_size - i],
+            ));
         }
 
         result
@@ -121,13 +133,22 @@ fn main() {
         println!();
         println!("To use this application:");
         println!("  1. Provide an SVG path string:");
-        println!("     {} --path 'M10 10 L100 100'", std::env::args().next().unwrap_or_default());
+        println!(
+            "     {} --path 'M10 10 L100 100'",
+            std::env::args().next().unwrap_or_default()
+        );
         println!();
         println!("  2. Provide an SVG file:");
-        println!("     {} --file input.svg", std::env::args().next().unwrap_or_default());
+        println!(
+            "     {} --file input.svg",
+            std::env::args().next().unwrap_or_default()
+        );
         println!();
         println!("  3. Provide an exported Fourier data file:");
-        println!("     {} --input fourier_data.json", std::env::args().next().unwrap_or_default());
+        println!(
+            "     {} --input fourier_data.json",
+            std::env::args().next().unwrap_or_default()
+        );
         println!();
         println!("For interactive drawing, please use the tauri-app:");
         println!("  cd tauri-app && cargo run --features tauri");
@@ -139,7 +160,10 @@ fn main() {
     println!("  Index | Frequency |     Radius |     Angle (rad)");
     println!("  ------|-----------|-----------|------------------");
     for (i, d) in data.iter().enumerate().take(10) {
-        println!("  {:5} | {:9.2} | {:9.2} | {:15.6}", i, d.frequency, d.radius, d.angle);
+        println!(
+            "  {:5} | {:9.2} | {:9.2} | {:15.6}",
+            i, d.frequency, d.radius, d.angle
+        );
     }
     if data.len() > 10 {
         println!("  ... ({} total coefficients)", data.len());

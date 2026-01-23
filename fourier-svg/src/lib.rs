@@ -14,9 +14,11 @@ pub mod visualizer;
 pub use fft_drawer::DrawData;
 pub use path_util::{build_path_from_svg, path_to_fft};
 pub use visualizer::{
-    Visualizer,
-    export_visualizer::{FourierExport, ExportMetadata, FourierCoefficient, load_fourier_export, export_to_draw_data},
-    html_visualizer::HTMLVisualizer,
-    gif_visualizer::GIFVisualizer,
     export_visualizer::ExportVisualizer,
+    export_visualizer::{
+        export_to_draw_data, load_fourier_export, ExportMetadata, FourierCoefficient, FourierExport,
+    },
+    gif_visualizer::GIFVisualizer,
+    html_visualizer::HTMLVisualizer,
+    Visualizer,
 };
