@@ -17,7 +17,7 @@ identifier = "com.fouriersvg.gpui"
 icon = []
 version = "0.1.0"
 copyright = "Copyright (c) 2025"
-category = "Graphics & Design"
+category = "Graphics and Design"
 short_description = "Fourier Transform visualization for SVG paths"
 long_description = "Interactive application for visualizing Fourier Transform decomposition of SVG paths using rotating epicycles."
 
