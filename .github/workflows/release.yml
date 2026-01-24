@@ -18,31 +18,31 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name_cli: fourier-cli
+            artifact_name_cli: fourier-svg
             artifact_name_gpui: gpui-app
             asset_name: fourier-cli-linux-x86_64
             asset_name_gpui: gpui-app-linux-x86_64
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            artifact_name_cli: fourier-cli
+            artifact_name_cli: fourier-svg
             artifact_name_gpui: gpui-app
             asset_name: fourier-cli-linux-aarch64
             asset_name_gpui: gpui-app-linux-aarch64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name_cli: fourier-cli.exe
+            artifact_name_cli: fourier-svg.exe
             artifact_name_gpui: gpui-app.exe
             asset_name: fourier-cli-windows-x86_64.exe
             asset_name_gpui: gpui-app-windows-x86_64.exe
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name_cli: fourier-cli
+            artifact_name_cli: fourier-svg
             artifact_name_gpui: gpui-app
             asset_name: fourier-cli-macos-x86_64
             asset_name_gpui: gpui-app-macos-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name_cli: fourier-cli
+            artifact_name_cli: fourier-svg
             artifact_name_gpui: gpui-app
             asset_name: fourier-cli-macos-aarch64
             asset_name_gpui: gpui-app-macos-aarch64
@@ -204,13 +204,66 @@ jobs:
           path: target
           key: ${{ runner.os }}-${{ matrix.target }}-cargo-build-tauri-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2.0"
+
+      - name: Build Tauri bundles
+        run: cargo tauri build --features tauri --target ${{ matrix.target }}
+
+      - name: Upload Tauri bundles (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd target/${{ matrix.target }}/release/bundle
+          for dir in */; do
+            cd "$dir"
+            for file in *; do
+              if [ -f "$file" ]; then
+                platform="${dir%/}"
+                mkdir -p ../../../../artifacts/${{ matrix.platform }}
+                cp "$file" ../../../../artifacts/${{ matrix.platform }}/${platform}-${file}
+              fi
+            done
+            cd ..
+          done
+
+      - name: Upload Tauri bundles (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          cd target/${{ matrix.target }}/release/bundle
+          for dir in */; do
+            cd "$dir"
+            for file in *; do
+              if [ -f "$file" ]; then
+                platform="${dir%/}"
+                mkdir -p ../../../../artifacts/${{ matrix.platform }}
+                cp "$file" ../../../../artifacts/${{ matrix.platform }}/${platform}-${file}
+              fi
+            done
+            cd ..
+          done
+
+      - name: Upload Tauri bundles (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd target/${{ matrix.target }}/release/bundle
+          for dir in */; do
+            cd "$dir"
+            for file in *; do
+              if [ -f "$file" ]; then
+                platform="${dir%/}"
+                mkdir -p ../../../../artifacts/${{ matrix.platform }}
+                cp "$file" ../../../../artifacts/${{ matrix.platform }}/${platform}-${file}
+              fi
+            done
+            cd ..
+          done
+
+      - name: Upload Tauri artifacts
+        uses: actions/upload-artifact@v4
         with:
-          tauriScript: cargo build --features tauri
-          args: --target ${{ matrix.target }}
+          name: tauri-${{ matrix.platform }}
+          path: artifacts
 
   release:
     name: Create Release
