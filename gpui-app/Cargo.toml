@@ -11,6 +11,16 @@ description = "CLI tool for Fourier SVG visualization with coefficient display"
 name = "gpui-app"
 path = "src/main.rs"
 
+[package.metadata.bundle]
+name = "Fourier SVG GPUI"
+identifier = "com.fouriersvg.gpui"
+icon = []
+version = "0.1.0"
+copyright = "Copyright (c) 2025"
+category = "Graphics and Design"
+short_description = "Fourier Transform visualization for SVG paths"
+long_description = "Interactive application for visualizing Fourier Transform decomposition of SVG paths using rotating epicycles."
+
 [dependencies]
 fourier-svg = { path = "../fourier-svg" }
 clap = { workspace = true }
