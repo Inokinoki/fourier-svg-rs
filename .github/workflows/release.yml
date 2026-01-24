@@ -259,7 +259,7 @@ jobs:
   # Build Tauri desktop app for multiple platforms
   build-tauri:
     name: Build Tauri on ${{ matrix.platform }}
-    needs: [build, build-gpui]
+    needs: build
     strategy:
       fail-fast: false
       matrix:
