@@ -1,0 +1,19 @@
+[package]
+name = "fourier-svg"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Core library for drawing SVG paths using Fourier Transform"
+
+[dependencies]
+rustfft = { workspace = true }
+lyon = { workspace = true }
+lyon_path = { workspace = true }
+lyon_svg = { workspace = true }
+svg = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+gif = "0.13"
+image = "0.24"
