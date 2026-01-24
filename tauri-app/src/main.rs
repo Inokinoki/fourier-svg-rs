@@ -24,12 +24,33 @@ use serde::{Deserialize, Serialize};
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 
 #[cfg(feature = "tauri")]
+use tauri_plugin_fs::FsExt;
+
+#[cfg(feature = "tauri")]
+use tauri_plugin_dialog::DialogExt;
+
+#[cfg(feature = "tauri")]
 #[derive(Clone, Serialize, Deserialize)]
 struct FourierData {
     s: f32,
     r: f32,
     a: f32,
     idx: usize,
+}
+
+#[cfg(feature = "tauri")]
+#[derive(Clone, Serialize, Deserialize)]
+struct SvgPathInfo {
+    id: String,
+    d: String,
+}
+
+#[cfg(feature = "tauri")]
+#[derive(Clone, Serialize, Deserialize)]
+struct SvgPathsResponse {
+    paths: Vec<SvgPathInfo>,
+    width: Option<f32>,
+    height: Option<f32>,
 }
 
 #[cfg(feature = "tauri")]
@@ -209,6 +230,42 @@ fn generate_html() -> String {
     <div class="sidebar">
         <h1>Fourier Visualizer</h1>
 
+        <div class="control-group">
+            <label>Input Mode:</label>
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <button id="modeFileBtn" class="secondary">Load SVG</button>
+                <button id="modeDrawBtn" class="secondary">Draw</button>
+            </div>
+        </div>
+
+        <div id="svgControls" class="hidden">
+            <h2>SVG File Mode</h2>
+            <p style="font-size: 12px; color: #666;">Select an SVG file to load paths</p>
+
+            <div class="control-group">
+                <button id="loadSvgBtn">Load SVG File</button>
+            </div>
+
+            <div id="pathSelectionGroup" class="control-group hidden">
+                <label>Select Path:</label>
+                <select id="pathSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                    <option value="">-- Select a path --</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Sample Rate: <span id="sampleValueSvg" class="value-display">10240</span></label>
+                <input type="range" id="sampleRateSvg" min="1000" max="20000" value="10240" step="500">
+            </div>
+
+            <div class="control-group">
+                <label>Duration (seconds): <span id="durationValueSvg" class="value-display">10.0</span></label>
+                <input type="range" id="durationSvg" min="1" max="60" value="10" step="0.5">
+            </div>
+
+            <button id="visualizeSvgBtn" disabled>Visualize SVG Path</button>
+        </div>
+
         <div id="drawingControls">
             <h2>Drawing Mode</h2>
             <p style="font-size: 12px; color: #666;">Click and drag on the canvas to draw a shape</p>
@@ -216,6 +273,11 @@ fn generate_html() -> String {
             <div class="control-group">
                 <label>Sample Rate: <span id="sampleValue" class="value-display">10240</span></label>
                 <input type="range" id="sampleRate" min="1000" max="20000" value="10240" step="500">
+            </div>
+
+            <div class="control-group">
+                <label>Duration (seconds): <span id="durationValue" class="value-display">10.0</span></label>
+                <input type="range" id="durationDraw" min="1" max="60" value="10" step="0.5">
             </div>
 
             <button id="visualizeBtn" disabled>Visualize</button>
@@ -261,8 +323,13 @@ fn generate_html() -> String {
         // State
         let isDrawing = false;
         let drawingPoints = [];
+        let drawingPointsWithTime = []; // Store points with timestamp
         let fourierData = null;
         let fullFourierData = null;
+        let currentMode = 'draw'; // 'draw' or 'svg'
+        let svgPaths = [];
+        let selectedPathData = null;
+        let drawingStartTime = 0;
 
         // Animation state
         let time = 0;
@@ -273,6 +340,10 @@ fn generate_html() -> String {
         let circles = [];
         let wave = [];
         let center = { x: 350, y: 300 };
+
+        // Default parameters
+        let defaultSampleRate = 10240;
+        let defaultDuration = 10.0;
 
         const Point = class {
             constructor(x, y) {
@@ -309,18 +380,26 @@ fn generate_html() -> String {
 
         // Drawing handlers
         canvas.addEventListener('mousedown', (e) => {
-            if (fourierData) return;
+            if (fourierData || currentMode === 'svg') return;
             isDrawing = true;
+            drawingStartTime = Date.now();
             const rect = canvas.getBoundingClientRect();
-            drawingPoints = [{ x: e.clientX - rect.left, y: e.clientY - rect.top }];
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            drawingPoints = [{ x, y }];
+            drawingPointsWithTime = [{ x, y, time: 0 }];
             updateStatus('Drawing...');
             redrawCanvas();
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing || fourierData) return;
+            if (!isDrawing || fourierData || currentMode === 'svg') return;
             const rect = canvas.getBoundingClientRect();
-            drawingPoints.push({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const elapsed = (Date.now() - drawingStartTime) / 1000; // seconds
+            drawingPoints.push({ x, y });
+            drawingPointsWithTime.push({ x, y, time: elapsed });
             redrawCanvas();
         });
 
@@ -528,9 +607,127 @@ fn generate_html() -> String {
             circles = [];
             context.clearRect(0, 0, canvas.width, canvas.height);
             document.getElementById('drawingControls').classList.remove('hidden');
+            document.getElementById('svgControls').classList.add('hidden');
             document.getElementById('visualizeControls').classList.add('hidden');
             document.getElementById('coefficientsPanel').classList.add('hidden');
             updateStatus('Ready to draw');
+        });
+
+        // Mode switching
+        document.getElementById('modeFileBtn').addEventListener('click', () => {
+            currentMode = 'svg';
+            document.getElementById('svgControls').classList.remove('hidden');
+            document.getElementById('drawingControls').classList.add('hidden');
+            document.getElementById('visualizeSvgBtn').disabled = true;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            updateStatus('SVG File mode: Load an SVG file to begin');
+        });
+
+        document.getElementById('modeDrawBtn').addEventListener('click', () => {
+            currentMode = 'draw';
+            document.getElementById('svgControls').classList.add('hidden');
+            document.getElementById('drawingControls').classList.remove('hidden');
+            document.getElementById('visualizeBtn').disabled = drawingPoints.length < 3;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            redrawCanvas();
+            updateStatus('Drawing mode: Draw on the canvas');
+        });
+
+        // SVG file loading
+        document.getElementById('loadSvgBtn').addEventListener('click', async () => {
+            if (window.__TAURI__ && window.__TAURI__.dialog) {
+                try {
+                    const selected = await window.__TAURI__.dialog.open({
+                        multiple: false,
+                        filters: [{
+                            name: 'SVG',
+                            extensions: ['svg']
+                        }]
+                    });
+
+                    if (selected) {
+                        updateStatus('Parsing SVG file...');
+                        const result = await window.__TAURI__.core.invoke('parse_svg_file', {
+                            filePath: selected
+                        });
+
+                        svgPaths = result.paths;
+                        const pathSelect = document.getElementById('pathSelect');
+                        pathSelect.innerHTML = '<option value="">-- Select a path --</option>';
+
+                        for (const path of svgPaths) {
+                            const option = document.createElement('option');
+                            option.value = path.d;
+                            option.textContent = path.id || 'Unnamed path';
+                            pathSelect.appendChild(option);
+                        }
+
+                        document.getElementById('pathSelectionGroup').classList.remove('hidden');
+                        updateStatus(`Loaded ${svgPaths.length} paths from SVG. Select a path to visualize.`);
+                    }
+                } catch (err) {
+                    console.error('Error loading SVG:', err);
+                    updateStatus('Error loading SVG: ' + err);
+                }
+            } else {
+                updateStatus('File dialog not available');
+            }
+        });
+
+        // Path selection
+        document.getElementById('pathSelect').addEventListener('change', (e) => {
+            selectedPathData = e.target.value;
+            document.getElementById('visualizeSvgBtn').disabled = !selectedPathData;
+            if (selectedPathData) {
+                updateStatus('Path selected. Click Visualize SVG Path.');
+            }
+        });
+
+        // SVG sample rate control
+        document.getElementById('sampleRateSvg').addEventListener('input', (e) => {
+            document.getElementById('sampleValueSvg').textContent = e.target.value;
+        });
+
+        // Drawing sample rate control
+        document.getElementById('sampleRate').addEventListener('input', (e) => {
+            document.getElementById('sampleValue').textContent = e.target.value;
+        });
+
+        // Duration controls
+        document.getElementById('durationSvg').addEventListener('input', (e) => {
+            document.getElementById('durationValueSvg').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        document.getElementById('durationDraw').addEventListener('input', (e) => {
+            document.getElementById('durationValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        // Visualize SVG path
+        document.getElementById('visualizeSvgBtn').addEventListener('click', () => {
+            if (!selectedPathData) return;
+
+            const sampleRate = parseInt(document.getElementById('sampleRateSvg').value);
+            const duration = parseFloat(document.getElementById('durationSvg').value);
+            updateStatus('Processing SVG path... This may take a moment.');
+
+            if (window.__TAURI__ && window.__TAURI__.core) {
+                window.__TAURI__.core.invoke('process_svg_path', {
+                    pathData: selectedPathData,
+                    numSample: sampleRate
+                })
+                .then((data) => {
+                    fullFourierData = data;
+                    document.getElementById('waveCount').max = data.length;
+                    initFourierVisualization();
+                    updateStatus(`Visualizing SVG path with ${data.length} components (Duration: ${duration}s)`);
+                })
+                .catch((err) => {
+                    console.error('Error:', err);
+                    updateStatus('Error: ' + err);
+                });
+            } else {
+                updateStatus('Tauri bridge not available');
+            }
         });
     </script>
 </body>
@@ -542,6 +739,93 @@ fn generate_html() -> String {
 #[tauri::command]
 fn process_drawing(path: String, num_sample: usize) -> Vec<FourierData> {
     let svg_path = build_path_from_svg(&path);
+    let fft_result = path_to_fft(svg_path, num_sample);
+
+    // Build DrawData from FFT result
+    let mut result = Vec::new();
+    result.push(DrawData::new_from_complex(0 as f32, fft_result[0]));
+    for i in 1..fft_result.len() / 2 {
+        result.push(DrawData::new_from_complex(i as f32, fft_result[i]));
+        result.push(DrawData::new_from_complex(
+            (0 - i as i32) as f32,
+            fft_result[fft_result.len() - i],
+        ));
+    }
+
+    // Convert to FourierData for JSON serialization, sorted by radius
+    let mut sorted: Vec<_> = result
+        .iter()
+        .enumerate()
+        .map(|(idx, d)| FourierData {
+            s: d.frequency,
+            r: d.radius,
+            a: d.angle,
+            idx,
+        })
+        .collect();
+    sorted.sort_by(|a, b| b.r.partial_cmp(&a.r).unwrap_or(std::cmp::Ordering::Equal));
+
+    sorted
+}
+
+/// Command to parse an SVG file and extract all paths
+#[cfg(feature = "tauri")]
+#[tauri::command]
+async fn parse_svg_file(file_path: String) -> Result<SvgPathsResponse, String> {
+    let mut content = String::new();
+    let mut paths = Vec::new();
+    let mut width: Option<f32> = None;
+    let mut height: Option<f32> = None;
+
+    // Read and parse the SVG file
+    match svg::open(&file_path, &mut content) {
+        Ok(parser) => {
+            let mut path_index = 0;
+            for event in parser {
+                match event {
+                    svg::parser::Event::Tag(svg::node::element::tag::Path, _, attributes) => {
+                        if let Some(d) = attributes.get("d") {
+                            paths.push(SvgPathInfo {
+                                id: if let Some(id) = attributes.get("id") {
+                                    id.clone()
+                                } else {
+                                    format!("path_{}", path_index)
+                                },
+                                d: d.clone(),
+                            });
+                            path_index += 1;
+                        }
+                    }
+                    svg::parser::Event::Tag(svg::node::element::tag::Svg, _, attributes) => {
+                        if let Some(w) = attributes.get("width") {
+                            width = parse_svg_dimension(w);
+                        }
+                        if let Some(h) = attributes.get("height") {
+                            height = parse_svg_dimension(h);
+                        }
+                    }
+                    _ => {}
+                }
+            }
+
+            Ok(SvgPathsResponse { paths, width, height })
+        }
+        Err(e) => Err(format!("Failed to parse SVG: {}", e)),
+    }
+}
+
+/// Parse SVG dimension attribute to float
+#[cfg(feature = "tauri")]
+fn parse_svg_dimension(value: &str) -> Option<f32> {
+    let value = value.trim().trim_end_matches("px").trim_end_matches("pt").trim_end_matches("%");
+    value.parse::<f32>().ok()
+}
+
+/// Command to process a selected SVG path
+#[cfg(feature = "tauri")]
+#[tauri::command]
+fn process_svg_path(path_data: String, num_sample: usize) -> Vec<FourierData> {
+    let svg_path = build_path_from_svg(&path_data);
     let fft_result = path_to_fft(svg_path, num_sample);
 
     // Build DrawData from FFT result
@@ -587,7 +871,13 @@ fn run_tauri_app(initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_w
 
     // Build and run Tauri app programmatically
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![process_drawing])
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
+        .invoke_handler(tauri::generate_handler![
+            process_drawing,
+            parse_svg_file,
+            process_svg_path
+        ])
         .setup(move |app| {
             let window =
                 WebviewWindowBuilder::new(app, "fourier", WebviewUrl::App(html_path.clone()))
