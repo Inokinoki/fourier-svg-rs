@@ -302,6 +302,24 @@ jobs:
         run: |
           brew install gtk+3
 
+      - name: Generate macOS icon (.icns)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd tauri-app/icons
+          mkdir -p icon.iconset
+          sips -z 16 16 icon.png --out icon.iconset/icon_16x16.png
+          sips -z 32 32 icon.png --out icon.iconset/icon_16x16@2x.png
+          sips -z 32 32 icon.png --out icon.iconset/icon_32x32.png
+          sips -z 64 64 icon.png --out icon.iconset/icon_32x32@2x.png
+          sips -z 128 128 icon.png --out icon.iconset/icon_128x128.png
+          sips -z 256 256 icon.png --out icon.iconset/icon_128x128@2x.png
+          sips -z 256 256 icon.png --out icon.iconset/icon_256x256.png
+          sips -z 512 512 icon.png --out icon.iconset/icon_256x256@2x.png
+          sips -z 512 512 icon.png --out icon.iconset/icon_512x512.png
+          sips -z 1024 1024 icon.png --out icon.iconset/icon_512x512@2x.png
+          iconutil -c icns icon.iconset
+          cd ../../..
+
       - name: Install cross-compilation tools (Linux ARM64)
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
@@ -337,16 +355,17 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/release/bundle
-          for dir in */; do
-            cd "$dir"
-            for file in *; do
-              if [ -f "$file" ]; then
-                platform="${dir%/}"
-                mkdir -p ../../../../artifacts/${{ matrix.platform }}
-                cp "$file" ../../../../artifacts/${{ matrix.platform }}/${platform}-${file}
-              fi
-            done
-            cd ..
+          for item in *; do
+            if [ -d "$item" ]; then
+              cd "$item"
+              for file in *; do
+                if [ -f "$file" ]; then
+                  mkdir -p ../../../../artifacts/${{ matrix.platform }}
+                  cp "$file" ../../../../artifacts/${{ matrix.platform }}/${item}-${file}
+                fi
+              done
+              cd ..
+            fi
           done
 
       - name: Upload Tauri bundles (Windows)
@@ -354,32 +373,34 @@ jobs:
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release/bundle
-          for dir in */; do
-            cd "$dir"
-            for file in *; do
-              if [ -f "$file" ]; then
-                platform="${dir%/}"
-                mkdir -p ../../../../artifacts/${{ matrix.platform }}
-                cp "$file" ../../../../artifacts/${{ matrix.platform }}/${platform}-${file}
-              fi
-            done
-            cd ..
+          for item in *; do
+            if [ -d "$item" ]; then
+              cd "$item"
+              for file in *; do
+                if [ -f "$file" ]; then
+                  mkdir -p ../../../../artifacts/${{ matrix.platform }}
+                  cp "$file" ../../../../artifacts/${{ matrix.platform }}/${item}-${file}
+                fi
+              done
+              cd ..
+            fi
           done
 
       - name: Upload Tauri bundles (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/release/bundle
-          for dir in */; do
-            cd "$dir"
-            for file in *; do
-              if [ -f "$file" ]; then
-                platform="${dir%/}"
-                mkdir -p ../../../../artifacts/${{ matrix.platform }}
-                cp "$file" ../../../../artifacts/${{ matrix.platform }}/${platform}-${file}
-              fi
-            done
-            cd ..
+          for item in *; do
+            if [ -d "$item" ]; then
+              cd "$item"
+              for file in *; do
+                if [ -f "$file" ]; then
+                  mkdir -p ../../../../artifacts/${{ matrix.platform }}
+                  cp "$file" ../../../../artifacts/${{ matrix.platform }}/${item}-${file}
+                fi
+              done
+              cd ..
+            fi
           done
 
       - name: Upload Tauri artifacts
