@@ -149,12 +149,6 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install AppImage dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fuse libfuse2 file desktop-file-utils
-
       - name: Cache cargo registry
         uses: actions/cache@v4
         with:
@@ -177,17 +171,13 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: cargo install cargo-bundle
 
-      - name: Install cargo-appimage
-        if: matrix.os == 'ubuntu-latest'
-        run: cargo install cargo-appimage
-
       - name: Build GPUI macOS bundle
         if: matrix.os == 'macos-latest'
         run: cargo bundle --release --target ${{ matrix.target }} -p gpui-app
 
-      - name: Build GPUI AppImage
+      - name: Build GPUI Linux binary
         if: matrix.os == 'ubuntu-latest'
-        run: cargo appimage -p gpui-app
+        run: cargo build --release --target ${{ matrix.target }} -p gpui-app
 
       - name: Build GPUI Windows binary
         if: matrix.os == 'windows-latest'
@@ -214,9 +204,9 @@ jobs:
       - name: Prepare GPUI Linux artifact
         if: matrix.os == 'ubuntu-latest'
         run: |
-          if [ -f target/release/gpui-app*.AppImage ]; then
-            mv target/release/gpui-app*.AppImage gpui-app-${{ matrix.platform }}.AppImage
-          fi
+          cd target/${{ matrix.target }}/release
+          tar czf ../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app
+          cd ../../..
 
       - name: Prepare GPUI Windows artifact
         if: matrix.os == 'windows-latest'
