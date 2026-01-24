@@ -188,11 +188,38 @@ use tauri_plugin_dialog::DialogExt;  // Remove if unused
 
 ## CI/CD Pipeline
 
-GitHub Actions (`.github/workflows/ci.yml`):
+### CI Workflow (`.github/workflows/ci.yml`)
+Runs on every push and pull request to `master`, `main`, `develop`:
 1. Tests on Ubuntu, Windows, macOS
 2. Build with `--workspace` and `--all-features`
 3. Format check: `cargo fmt -- --check`
 4. Lint: `cargo clippy --workspace --all-targets -- -D warnings`
+
+### Release Workflow (`.github/workflows/release.yml`)
+Triggered on version tags (`v*.*.*`) or manual workflow dispatch:
+
+**CLI Tools Build (`build-cli`):**
+- Builds `fourier-cli` and `gpui-app` for:
+  - Linux x86_64 and aarch64
+  - Windows x86_64
+  - macOS x86_64 and aarch64 (universal)
+- Strips binaries and packages as `.tar.gz` (Linux/macOS) or `.zip` (Windows)
+
+**Tauri App Build (`build-tauri`):**
+- Uses `tauri-apps/tauri-action` for bundling
+- Builds for:
+  - Linux x86_64 and aarch64 (AppImage/deb)
+  - Windows x86_64 (NSIS installer)
+  - macOS x86_64 and aarch64 (DMG/app bundle)
+- Installs platform-specific dependencies (WebKitGTK, GTK3)
+
+**Artifacts Uploaded:**
+All binaries and installers are uploaded to GitHub Releases when a version tag is pushed.
+
+**Docker Build (`build-docker`):**
+- Multi-platform images: linux/amd64, linux/arm64
+- Pushes to Docker Hub on version tags
+- Requires `DOCKER_USERNAME` and `DOCKER_PASSWORD` secrets
 
 ## Docker Build
 
