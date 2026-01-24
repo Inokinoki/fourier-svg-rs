@@ -24,12 +24,6 @@ use serde::{Deserialize, Serialize};
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 
 #[cfg(feature = "tauri")]
-use tauri_plugin_fs::FsExt;
-
-#[cfg(feature = "tauri")]
-use tauri_plugin_dialog::DialogExt;
-
-#[cfg(feature = "tauri")]
 #[derive(Clone, Serialize, Deserialize)]
 struct FourierData {
     s: f32,
@@ -787,16 +781,16 @@ async fn parse_svg_file(file_path: String) -> Result<SvgPathsResponse, String> {
                         if let Some(d) = attributes.get("d") {
                             paths.push(SvgPathInfo {
                                 id: if let Some(id) = attributes.get("id") {
-                                    id.clone()
+                                    id.to_string()
                                 } else {
                                     format!("path_{}", path_index)
                                 },
-                                d: d.clone(),
+                                d: d.to_string(),
                             });
                             path_index += 1;
                         }
                     }
-                    svg::parser::Event::Tag(svg::node::element::tag::Svg, _, attributes) => {
+                    svg::parser::Event::Tag(svg::node::element::tag::SVG, _, attributes) => {
                         if let Some(w) = attributes.get("width") {
                             width = parse_svg_dimension(w);
                         }
@@ -864,7 +858,11 @@ fn process_svg_path(path_data: String, num_sample: usize) -> Vec<FourierData> {
 }
 
 #[cfg(feature = "tauri")]
-fn run_tauri_app(initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_wave: usize) {
+fn run_tauri_app(
+    _initial_data: Option<Vec<DrawData>>,
+    _num_sample: usize,
+    _num_wave: usize,
+) {
     let html_content = generate_html();
 
     let temp_dir = std::env::temp_dir();
