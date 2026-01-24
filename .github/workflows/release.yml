@@ -196,11 +196,20 @@ jobs:
       - name: Prepare GPUI macOS artifact
         if: matrix.os == 'macos-latest'
         run: |
-          cd target/${{ matrix.target }}/release
-          if [ -d "gpui-app.app" ]; then
-            tar czf ../../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app.app
+          # cargo bundle creates .app in bundle/macos directory
+          if [ -d target/${{ matrix.target }}/release/bundle/macos/gpui-app.app ]; then
+            cd target/${{ matrix.target }}/release/bundle/macos
+            tar czf ../../../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app.app
+            cd ../../../../../..
+          elif [ -d target/${{ matrix.target }}/release/gpui-app.app ]; then
+            # Fallback to direct release directory
+            cd target/${{ matrix.target }}/release
+            tar czf ../../../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app.app
+            cd ../../../../../..
+          else
+            echo "Warning: No .app bundle found"
+            ls -R target/${{ matrix.target }}/release/ || true
           fi
-          cd ../../..
 
       - name: Prepare GPUI Linux artifact
         if: matrix.os == 'ubuntu-latest'
