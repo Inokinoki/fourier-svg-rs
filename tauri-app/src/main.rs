@@ -808,7 +808,11 @@ async fn parse_svg_file(file_path: String) -> Result<SvgPathsResponse, String> {
                 }
             }
 
-            Ok(SvgPathsResponse { paths, width, height })
+            Ok(SvgPathsResponse {
+                paths,
+                width,
+                height,
+            })
         }
         Err(e) => Err(format!("Failed to parse SVG: {}", e)),
     }
@@ -817,7 +821,11 @@ async fn parse_svg_file(file_path: String) -> Result<SvgPathsResponse, String> {
 /// Parse SVG dimension attribute to float
 #[cfg(feature = "tauri")]
 fn parse_svg_dimension(value: &str) -> Option<f32> {
-    let value = value.trim().trim_end_matches("px").trim_end_matches("pt").trim_end_matches("%");
+    let value = value
+        .trim()
+        .trim_end_matches("px")
+        .trim_end_matches("pt")
+        .trim_end_matches("%");
     value.parse::<f32>().ok()
 }
 
