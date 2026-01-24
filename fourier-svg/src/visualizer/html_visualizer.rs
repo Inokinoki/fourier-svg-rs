@@ -1,8 +1,8 @@
 use std::fs;
 use std::io::Error;
 
-use crate::visualizer::Visualizer;
 use crate::fft_drawer;
+use crate::visualizer::Visualizer;
 
 pub struct HTMLVisualizer {
     file_name: String,
@@ -10,25 +10,29 @@ pub struct HTMLVisualizer {
 
 impl HTMLVisualizer {
     pub fn new(file_name: String) -> HTMLVisualizer {
-        HTMLVisualizer{
-            file_name: file_name,
-        }
+        HTMLVisualizer { file_name }
     }
 }
 
 impl Visualizer for HTMLVisualizer {
     fn render(&self, data: Vec<fft_drawer::DrawData>) -> bool {
-        let fourier_json_data: String = data.iter()
-            .map(|d| format!("{{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}},", d.frequency, d.radius, d.angle))
+        let fourier_json_data: String = data
+            .iter()
+            .map(|d| {
+                format!(
+                    "{{\"s\": {:?}, \"r\": {:?}, \"a\": {:?}}},",
+                    d.frequency, d.radius, d.angle
+                )
+            })
             .collect();
         // Strip the last comma
-        let final_fourier_json_data: &str;
-        if fourier_json_data.len() > 1 {
-            final_fourier_json_data = &fourier_json_data[0..fourier_json_data.len() - 1];
+        let final_fourier_json_data: &str = if fourier_json_data.len() > 1 {
+            &fourier_json_data[0..fourier_json_data.len() - 1]
         } else {
-            final_fourier_json_data = &fourier_json_data;
-        }
-        let content = format!("<html>
+            &fourier_json_data
+        };
+        let content = format!(
+            "<html>
 <head>
     <title>Fourier Visualizer</title>
 </head>
@@ -148,7 +152,10 @@ window.onload = function() {{
     init_fourier(canvas, data, {:?});
 }};
 </script>
-</html>", final_fourier_json_data, data.len());
+</html>",
+            final_fourier_json_data,
+            data.len()
+        );
 
         let save_to_file = |file_name: &str| -> Result<(), Error> {
             fs::write(file_name, content)?;
