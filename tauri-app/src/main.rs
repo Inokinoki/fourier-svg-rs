@@ -858,11 +858,7 @@ fn process_svg_path(path_data: String, num_sample: usize) -> Vec<FourierData> {
 }
 
 #[cfg(feature = "tauri")]
-fn run_tauri_app(
-    _initial_data: Option<Vec<DrawData>>,
-    _num_sample: usize,
-    _num_wave: usize,
-) {
+fn run_tauri_app(_initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_wave: usize) {
     let html_content = generate_html();
 
     let temp_dir = std::env::temp_dir();
