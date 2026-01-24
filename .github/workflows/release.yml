@@ -133,10 +133,122 @@ jobs:
           name: ${{ matrix.asset_name_gpui }}
           path: ${{ matrix.asset_name_gpui }}.*
 
+  # Build GPUI desktop app for multiple platforms
+  build-gpui:
+    name: Build GPUI on ${{ matrix.platform }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'linux-x86_64'
+            os: 'ubuntu-latest'
+            target: 'x86_64-unknown-linux-gnu'
+          - platform: 'linux-aarch64'
+            os: 'ubuntu-latest'
+            target: 'aarch64-unknown-linux-gnu'
+          - platform: 'windows-x86_64'
+            os: 'windows-latest'
+            target: 'x86_64-pc-windows-msvc'
+          - platform: 'macos-x86_64'
+            os: 'macos-latest'
+            target: 'x86_64-apple-darwin'
+          - platform: 'macos-aarch64'
+            os: 'macos-latest'
+            target: 'aarch64-apple-darwin'
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross-compilation tools (Linux ARM64)
+        if: matrix.os == 'ubuntu-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+
+      - name: Install AppImage dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fuse libfuse2 file desktop-file-utils
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-build-gpui-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-gpui
+        run: cargo install cargo-gpui
+
+      - name: Build GPUI macOS bundle
+        if: matrix.os == 'macos-latest'
+        run: cargo gpui macos-bundle --release --target ${{ matrix.target }} -p gpui-app
+
+      - name: Build GPUI AppImage
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo appimage --release --target ${{ matrix.target }} -p gpui-app
+
+      - name: Build GPUI Windows binary
+        if: matrix.os == 'windows-latest'
+        run: cargo build --release --target ${{ matrix.target }} -p gpui-app
+
+      - name: Prepare GPUI macOS artifact
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          if [ -d "gpui-app.app" ]; then
+            tar czf ../../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app.app
+          fi
+          cd ../../..
+
+      - name: Prepare GPUI Linux artifact
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if [ -f target/${{ matrix.target }}/release/gpui-app*.AppImage ]; then
+            mv target/${{ matrix.target }}/release/gpui-app*.AppImage gpui-app-${{ matrix.platform }}.AppImage
+          fi
+
+      - name: Prepare GPUI Windows artifact
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a ../../../gpui-app-${{ matrix.platform }}.zip gpui-app.exe
+          cd ../../..
+
+      - name: Upload GPUI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpui-${{ matrix.platform }}
+          path: |
+            gpui-app-${{ matrix.platform }}.*
+
   # Build Tauri desktop app for multiple platforms
   build-tauri:
     name: Build Tauri on ${{ matrix.platform }}
-    needs: build
+    needs: [build, build-gpui]
     strategy:
       fail-fast: false
       matrix:
@@ -267,7 +379,7 @@ jobs:
 
   release:
     name: Create Release
-    needs: [build, build-tauri]
+    needs: [build, build-gpui, build-tauri]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
