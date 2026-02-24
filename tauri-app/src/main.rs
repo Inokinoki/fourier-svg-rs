@@ -296,6 +296,23 @@ fn generate_html() -> String {
             </div>
         </div>
 
+        <div class="control-group">
+            <h2>Quick Templates</h2>
+            <p style="font-size: 11px; color: #666; margin-bottom: 8px;">Load preset shapes instantly</p>
+            <select id="presetSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                <option value="">-- Select a template --</option>
+                <option value="circle">Circle</option>
+                <option value="square">Square</option>
+                <option value="triangle">Triangle</option>
+                <option value="star">Star (5-point)</option>
+                <option value="heart">Heart</option>
+                <option value="infinity">Infinity Symbol</option>
+                <option value="spiral">Spiral</option>
+                <option value="sine">Sine Wave</option>
+            </select>
+            <button id="loadPresetBtn" disabled>Load Template</button>
+        </div>
+
         <div id="recentFilesGroup" class="control-group hidden">
             <h2>Recent Files</h2>
             <div class="recent-files" id="recentFilesList"></div>
@@ -334,6 +351,16 @@ fn generate_html() -> String {
             <p style="font-size: 12px; color: #666;">Click and drag on the canvas to draw a shape</p>
 
             <div class="control-group">
+                <label>Drawing Tool:</label>
+                <select id="drawingTool" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                    <option value="freehand">Freehand</option>
+                    <option value="line">Line</option>
+                    <option value="rectangle">Rectangle</option>
+                    <option value="ellipse">Ellipse</option>
+                </select>
+            </div>
+
+            <div class="control-group">
                 <label>Sample Rate: <span id="sampleValue" class="value-display">10240</span></label>
                 <input type="range" id="sampleRate" min="1000" max="20000" value="10240" step="500">
             </div>
@@ -363,6 +390,11 @@ fn generate_html() -> String {
             <div class="control-group">
                 <label>Speed: <span id="speedValue" class="value-display">1.0x</span></label>
                 <input type="range" id="speedControl" min="0.1" max="3.0" value="1.0" step="0.1">
+            </div>
+
+            <div class="control-group">
+                <label>Timeline: <span id="timelineValue" class="value-display">0.0s</span></label>
+                <input type="range" id="timelineControl" min="0" max="100" value="0" step="0.1">
             </div>
 
             <div class="control-group">
@@ -425,6 +457,8 @@ fn generate_html() -> String {
 
             <button id="exportGifBtn" class="success">Export GIF</button>
 
+            <button id="fullscreenBtn" class="secondary">Toggle Full Screen</button>
+
             <button id="newDrawBtn" class="danger">New Drawing</button>
         </div>
 
@@ -440,6 +474,7 @@ fn generate_html() -> String {
             <div class="shortcut"><span>Undo</span><span class="key">Ctrl+Z</span></div>
             <div class="shortcut"><span>Redo</span><span class="key">Ctrl+Y</span></div>
             <div class="shortcut"><span>New Drawing</span><span class="key">N</span></div>
+            <div class="shortcut"><span>Full Screen</span><span class="key">F</span></div>
             <div class="shortcut"><span>Export PNG</span><span class="key">E</span></div>
             <div class="shortcut"><span>Zoom In</span><span class="key">+</span></div>
             <div class="shortcut"><span>Zoom Out</span><span class="key">-</span></div>
@@ -547,6 +582,129 @@ fn generate_html() -> String {
             }
         };
 
+        // Preset shapes library
+        const presetShapes = {
+            circle: () => {
+                const points = [];
+                const cx = 350, cy = 300, r = 100;
+                for (let i = 0; i <= 100; i++) {
+                    const angle = (i / 100) * 2 * Math.PI;
+                    points.push({
+                        x: cx + r * Math.cos(angle),
+                        y: cy + r * Math.sin(angle)
+                    });
+                }
+                return points;
+            },
+
+            square: () => {
+                const size = 200;
+                const cx = 350, cy = 300;
+                const half = size / 2;
+                return [
+                    { x: cx - half, y: cy - half },
+                    { x: cx + half, y: cy - half },
+                    { x: cx + half, y: cy + half },
+                    { x: cx - half, y: cy + half },
+                    { x: cx - half, y: cy - half }
+                ];
+            },
+
+            triangle: () => {
+                const cx = 350, cy = 300, r = 120;
+                return [
+                    { x: cx, y: cy - r },
+                    { x: cx + r * Math.cos(Math.PI / 6), y: cy + r * Math.sin(Math.PI / 6) },
+                    { x: cx - r * Math.cos(Math.PI / 6), y: cy + r * Math.sin(Math.PI / 6) },
+                    { x: cx, y: cy - r }
+                ];
+            },
+
+            star: () => {
+                const points = [];
+                const cx = 350, cy = 300, outerR = 120, innerR = 50;
+                for (let i = 0; i <= 10; i++) {
+                    const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
+                    const r = i % 2 === 0 ? outerR : innerR;
+                    points.push({
+                        x: cx + r * Math.cos(angle),
+                        y: cy + r * Math.sin(angle)
+                    });
+                }
+                return points;
+            },
+
+            heart: () => {
+                const points = [];
+                const cx = 350, cy = 300, scale = 8;
+                for (let t = 0; t <= 2 * Math.PI; t += 0.05) {
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                    points.push({
+                        x: cx + x * scale,
+                        y: cy + y * scale
+                    });
+                }
+                return points;
+            },
+
+            infinity: () => {
+                const points = [];
+                const cx = 350, cy = 300, scale = 80;
+                for (let t = 0; t <= 2 * Math.PI; t += 0.05) {
+                    const denom = 1 + Math.pow(Math.sin(t), 2);
+                    const x = scale * Math.cos(t) / denom;
+                    const y = scale * Math.sin(t) * Math.cos(t) / denom;
+                    points.push({
+                        x: cx + x * 2,
+                        y: cy + y * 2
+                    });
+                }
+                return points;
+            },
+
+            spiral: () => {
+                const points = [];
+                const cx = 350, cy = 300;
+                for (let t = 0; t <= 6 * Math.PI; t += 0.1) {
+                    const r = 5 + 8 * t;
+                    const x = r * Math.cos(t);
+                    const y = r * Math.sin(t);
+                    points.push({
+                        x: cx + x,
+                        y: cy + y
+                    });
+                }
+                return points;
+            },
+
+            sine: () => {
+                const points = [];
+                const startX = 150, endX = 550, cy = 300, amplitude = 80;
+                for (let x = startX; x <= endX; x += 2) {
+                    const t = ((x - startX) / (endX - startX)) * 4 * Math.PI;
+                    points.push({
+                        x: x,
+                        y: cy + amplitude * Math.sin(t)
+                    });
+                }
+                return points;
+            }
+        };
+
+        function loadPresetShape(shapeName) {
+            if (!presetShapes[shapeName]) {
+                updateStatus('Unknown preset shape');
+                return;
+            }
+
+            saveToUndoStack();
+            drawingPoints = presetShapes[shapeName]();
+            redrawCanvas();
+            document.getElementById('visualizeBtn').disabled = false;
+            updateStatus(`Loaded ${shapeName} template (${drawingPoints.length} points). Click Visualize.`);
+        }
+
         // Load recent files on startup
         async function loadRecentFiles() {
             if (window.__TAURI__ && window.__TAURI__.core) {
@@ -631,6 +789,9 @@ fn generate_html() -> String {
         }
 
         // Drawing handlers
+        let drawingTool = 'freehand';
+        let startPoint = null;
+
         canvas.addEventListener('mousedown', (e) => {
             if (fourierData || currentMode === 'svg') return;
             if (e.button === 2) { // Right click for pan
@@ -641,11 +802,21 @@ fn generate_html() -> String {
             isDrawing = true;
             saveToUndoStack();
             drawingStartTime = Date.now();
+            drawingTool = document.getElementById('drawingTool').value;
+
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX - rect.left - panOffset.x) / zoom;
             const y = (e.clientY - rect.top - panOffset.y) / zoom;
-            drawingPoints = [{ x, y }];
-            drawingPointsWithTime = [{ x, y, time: 0 }];
+
+            startPoint = { x, y };
+
+            if (drawingTool === 'freehand') {
+                drawingPoints = [{ x, y }];
+                drawingPointsWithTime = [{ x, y, time: 0 }];
+            } else {
+                drawingPoints = []; // Will be filled on mouseup
+            }
+
             updateStatus('Drawing...');
             redrawCanvas();
         });
@@ -662,31 +833,97 @@ fn generate_html() -> String {
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX - rect.left - panOffset.x) / zoom;
             const y = (e.clientY - rect.top - panOffset.y) / zoom;
-            const elapsed = (Date.now() - drawingStartTime) / 1000;
-            drawingPoints.push({ x, y });
-            drawingPointsWithTime.push({ x, y, time: elapsed });
-            redrawCanvas();
+
+            if (drawingTool === 'freehand') {
+                const elapsed = (Date.now() - drawingStartTime) / 1000;
+                drawingPoints.push({ x, y });
+                drawingPointsWithTime.push({ x, y, time: elapsed });
+            } else {
+                // Show preview for shape tools
+                const previewPoints = generateShapePoints(drawingTool, startPoint, { x, y });
+                redrawCanvas();
+                drawPreview(previewPoints);
+            }
         });
 
-        canvas.addEventListener('mouseup', () => {
+        function generateShapePoints(tool, start, end) {
+            const points = [];
+            const steps = 100;
+
+            if (tool === 'line') {
+                points.push(start);
+                points.push(end);
+            } else if (tool === 'rectangle') {
+                points.push({ x: start.x, y: start.y });
+                points.push({ x: end.x, y: start.y });
+                points.push({ x: end.x, y: end.y });
+                points.push({ x: start.x, y: end.y });
+                points.push({ x: start.x, y: start.y });
+            } else if (tool === 'ellipse') {
+                const cx = (start.x + end.x) / 2;
+                const cy = (start.y + end.y) / 2;
+                const rx = Math.abs(end.x - start.x) / 2;
+                const ry = Math.abs(end.y - start.y) / 2;
+                for (let i = 0; i <= steps; i++) {
+                    const angle = (i / steps) * 2 * Math.PI;
+                    points.push({
+                        x: cx + rx * Math.cos(angle),
+                        y: cy + ry * Math.sin(angle)
+                    });
+                }
+            }
+
+            return points;
+        }
+
+        function drawPreview(points) {
+            if (points.length < 2) return;
+            context.save();
+            context.translate(panOffset.x, panOffset.y);
+            context.scale(zoom, zoom);
+
+            context.beginPath();
+            context.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                context.lineTo(points[i].x, points[i].y);
+            }
+            context.strokeStyle = '#999';
+            context.lineWidth = 2;
+            context.setLineDash([5, 5]);
+            context.stroke();
+            context.setLineDash([]);
+            context.restore();
+        }
+
+        canvas.addEventListener('mouseup', (e) => {
             if (isPanning) {
                 isPanning = false;
                 lastPanPos = null;
             }
-            finishDrawing();
+            finishDrawing(e);
         });
-        canvas.addEventListener('mouseleave', () => {
+        canvas.addEventListener('mouseleave', (e) => {
             if (isPanning) {
                 isPanning = false;
                 lastPanPos = null;
             }
-            finishDrawing();
+            finishDrawing(e);
         });
         canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        function finishDrawing() {
+        function finishDrawing(e) {
             if (isDrawing) {
                 isDrawing = false;
+
+                // Generate shape points for shape tools
+                if (drawingTool !== 'freehand' && startPoint && e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = (e.clientX - rect.left - panOffset.x) / zoom;
+                    const y = (e.clientY - rect.top - panOffset.y) / zoom;
+                    drawingPoints = generateShapePoints(drawingTool, startPoint, { x, y });
+                    redrawCanvas();
+                }
+
                 document.getElementById('visualizeBtn').disabled = drawingPoints.length < 3;
                 updateStatus(`Drawing complete (${drawingPoints.length} points). Click Visualize.`);
             }
@@ -933,6 +1170,9 @@ fn generate_html() -> String {
                     zoomControl.value = Math.max(0.5, parseFloat(zoomControl.value) - 0.1);
                     zoomControl.dispatchEvent(new Event('input'));
                 }
+            } else if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                toggleFullScreen();
             }
         });
 
@@ -989,6 +1229,31 @@ fn generate_html() -> String {
             document.getElementById('speedValue').textContent = speed_multiplier.toFixed(1) + 'x';
         });
 
+        // Timeline scrubber
+        let isScrubbing = false;
+        document.getElementById('timelineControl').addEventListener('input', (e) => {
+            if (!fourierData) return;
+            isScrubbing = true;
+            const timelineValue = parseFloat(e.target.value);
+            time = timelineValue;
+            wave = []; // Clear wave when scrubbing
+            document.getElementById('timelineValue').textContent = timelineValue.toFixed(1) + 's';
+            updateStatus('Scrubbing timeline');
+        });
+
+        document.getElementById('timelineControl').addEventListener('change', () => {
+            isScrubbing = false;
+            updateStatus('Timeline scrubbing complete');
+        });
+
+        // Update timeline display during animation
+        setInterval(() => {
+            if (!isScrubbing && fourierData && !is_paused) {
+                document.getElementById('timelineControl').value = time;
+                document.getElementById('timelineValue').textContent = time.toFixed(1) + 's';
+            }
+        }, 100);
+
         document.getElementById('zoomControl').addEventListener('input', (e) => {
             zoom = parseFloat(e.target.value);
             document.getElementById('zoomValue').textContent = zoom.toFixed(1) + 'x';
@@ -1029,6 +1294,31 @@ fn generate_html() -> String {
         document.getElementById('exportPngBtn').addEventListener('click', exportAsPng);
         document.getElementById('exportJsonBtn').addEventListener('click', exportAsJson);
         document.getElementById('exportGifBtn').addEventListener('click', exportAsGif);
+
+        // Full-screen toggle
+        let isFullScreen = false;
+        document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    isFullScreen = true;
+                    updateStatus('Entered full-screen mode (press F or ESC to exit)');
+                }).catch(err => {
+                    updateStatus('Error entering full-screen: ' + err);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    isFullScreen = false;
+                    updateStatus('Exited full-screen mode');
+                });
+            }
+        }
+
+        // Handle ESC key for full-screen exit
+        document.addEventListener('fullscreenchange', () => {
+            isFullScreen = !!document.fullscreenElement;
+        });
 
         // GIF export controls
         document.getElementById('gifFrames').addEventListener('input', (e) => {
@@ -1155,6 +1445,22 @@ fn generate_html() -> String {
 
         document.getElementById('durationDraw').addEventListener('input', (e) => {
             document.getElementById('durationValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        // Preset templates
+        document.getElementById('presetSelect').addEventListener('change', (e) => {
+            const selectedPreset = e.target.value;
+            document.getElementById('loadPresetBtn').disabled = !selectedPreset;
+        });
+
+        document.getElementById('loadPresetBtn').addEventListener('click', () => {
+            const selectedPreset = document.getElementById('presetSelect').value;
+            if (selectedPreset) {
+                loadPresetShape(selectedPreset);
+                // Clear selection after loading
+                document.getElementById('presetSelect').value = '';
+                document.getElementById('loadPresetBtn').disabled = true;
+            }
         });
 
         // Visualize SVG path
