@@ -17,6 +17,9 @@ use clap::Parser;
 use fourier_svg::{
     build_path_from_svg, export_to_draw_data, load_fourier_export, path_to_fft, DrawData,
 };
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
 
 #[cfg(feature = "tauri")]
 use serde::{Deserialize, Serialize};
@@ -83,12 +86,12 @@ struct Args {
 
 #[cfg(feature = "tauri")]
 fn generate_html() -> String {
-    r#"<!DOCTYPE html>
+    let html_content = r##"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fourier Visualizer - Interactive</title>
+    <title>Fourier Visualizer - Enhanced</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -101,7 +104,7 @@ fn generate_html() -> String {
             overflow: hidden;
         }
         .sidebar {
-            width: 320px;
+            width: 360px;
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
             overflow-y: auto;
@@ -120,6 +123,7 @@ fn generate_html() -> String {
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             padding: 10px;
+            position: relative;
         }
         canvas {
             display: block;
@@ -151,6 +155,13 @@ fn generate_html() -> String {
         input[type="range"] {
             width: 100%;
             margin: 5px 0;
+        }
+        input[type="color"] {
+            width: 50px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
         .value-display {
             font-size: 14px;
@@ -188,6 +199,19 @@ fn generate_html() -> String {
         button.danger:hover {
             background: #c82333;
         }
+        button.success {
+            background: #28a745;
+        }
+        button.success:hover {
+            background: #218838;
+        }
+        .button-row {
+            display: flex;
+            gap: 8px;
+        }
+        .button-row button {
+            flex: 1;
+        }
         .coefficients {
             max-height: 300px;
             overflow-y: auto;
@@ -218,6 +242,44 @@ fn generate_html() -> String {
             margin-top: 10px;
         }
         .hidden { display: none !important; }
+        .recent-files {
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 6px;
+            padding: 8px;
+        }
+        .recent-file-item {
+            padding: 8px;
+            margin: 4px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        .recent-file-item:hover {
+            background: #e9ecef;
+        }
+        .shortcuts-info {
+            font-size: 11px;
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        .shortcut {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+        }
+        .key {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
@@ -226,10 +288,15 @@ fn generate_html() -> String {
 
         <div class="control-group">
             <label>Input Mode:</label>
-            <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <div class="button-row">
                 <button id="modeFileBtn" class="secondary">Load SVG</button>
                 <button id="modeDrawBtn" class="secondary">Draw</button>
             </div>
+        </div>
+
+        <div id="recentFilesGroup" class="control-group hidden">
+            <h2>Recent Files</h2>
+            <div class="recent-files" id="recentFilesList"></div>
         </div>
 
         <div id="svgControls" class="hidden">
@@ -274,6 +341,11 @@ fn generate_html() -> String {
                 <input type="range" id="durationDraw" min="1" max="60" value="10" step="0.5">
             </div>
 
+            <div class="button-row">
+                <button id="undoBtn" disabled>Undo</button>
+                <button id="redoBtn" disabled>Redo</button>
+            </div>
+
             <button id="visualizeBtn" disabled>Visualize</button>
             <button id="clearBtn" class="secondary">Clear Canvas</button>
         </div>
@@ -291,14 +363,54 @@ fn generate_html() -> String {
                 <input type="range" id="speedControl" min="0.1" max="3.0" value="1.0" step="0.1">
             </div>
 
-            <button id="pauseBtn">Pause</button>
-            <button id="resetBtn" class="secondary">Reset Animation</button>
+            <div class="control-group">
+                <label>Zoom: <span id="zoomValue" class="value-display">1.0x</span></label>
+                <input type="range" id="zoomControl" min="0.5" max="3.0" value="1.0" step="0.1">
+            </div>
+
+            <div class="control-group">
+                <label>Colors:</label>
+                <div class="button-row">
+                    <div style="flex: 1">
+                        <label style="font-size: 10px;">Epicycles</label>
+                        <input type="color" id="epicycleColor" value="#667eea">
+                    </div>
+                    <div style="flex: 1">
+                        <label style="font-size: 10px;">Trace</label>
+                        <input type="color" id="traceColor" value="#333333">
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button id="pauseBtn">Pause</button>
+                <button id="resetBtn" class="secondary">Reset</button>
+            </div>
+
+            <h2>Export</h2>
+            <div class="button-row">
+                <button id="exportPngBtn" class="success">Save PNG</button>
+                <button id="exportJsonBtn" class="success">Save JSON</button>
+            </div>
+
             <button id="newDrawBtn" class="danger">New Drawing</button>
         </div>
 
         <div id="coefficientsPanel" class="hidden">
             <h2>Coefficients</h2>
             <div class="coefficients" id="coefficientsList"></div>
+        </div>
+
+        <div class="shortcuts-info">
+            <strong>Keyboard Shortcuts:</strong>
+            <div class="shortcut"><span>Play/Pause</span><span class="key">Space</span></div>
+            <div class="shortcut"><span>Reset</span><span class="key">R</span></div>
+            <div class="shortcut"><span>Undo</span><span class="key">Ctrl+Z</span></div>
+            <div class="shortcut"><span>Redo</span><span class="key">Ctrl+Y</span></div>
+            <div class="shortcut"><span>New Drawing</span><span class="key">N</span></div>
+            <div class="shortcut"><span>Export PNG</span><span class="key">E</span></div>
+            <div class="shortcut"><span>Zoom In</span><span class="key">+</span></div>
+            <div class="shortcut"><span>Zoom Out</span><span class="key">-</span></div>
         </div>
 
         <div class="status" id="status">Ready to draw</div>
@@ -317,13 +429,18 @@ fn generate_html() -> String {
         // State
         let isDrawing = false;
         let drawingPoints = [];
-        let drawingPointsWithTime = []; // Store points with timestamp
+        let drawingPointsWithTime = [];
         let fourierData = null;
         let fullFourierData = null;
-        let currentMode = 'draw'; // 'draw' or 'svg'
+        let currentMode = 'draw';
         let svgPaths = [];
         let selectedPathData = null;
         let drawingStartTime = 0;
+        let currentFilePath = null;
+
+        // Undo/Redo state
+        let undoStack = [];
+        let redoStack = [];
 
         // Animation state
         let time = 0;
@@ -334,6 +451,14 @@ fn generate_html() -> String {
         let circles = [];
         let wave = [];
         let center = { x: 350, y: 300 };
+        let zoom = 1.0;
+        let panOffset = { x: 0, y: 0 };
+        let isPanning = false;
+        let lastPanPos = null;
+
+        // Color customization
+        let epicycleColor = '#667eea';
+        let traceColor = '#333333';
 
         // Default parameters
         let defaultSampleRate = 10240;
@@ -355,12 +480,21 @@ fn generate_html() -> String {
             }
 
             draw(ctx, at) {
-                ctx.beginPath();
                 const x = at.x + this.radius * Math.cos(this.initial_angle + 2 * Math.PI * time * this.speed);
                 const y = at.y + this.radius * Math.sin(this.initial_angle + 2 * Math.PI * time * this.speed);
+
+                // Draw circle
+                ctx.beginPath();
+                ctx.arc(at.x, at.y, this.radius, 0, 2 * Math.PI);
+                ctx.strokeStyle = epicycleColor + '40';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw radius line
+                ctx.beginPath();
                 ctx.moveTo(at.x, at.y);
                 ctx.lineTo(x, y);
-                ctx.strokeStyle = `hsl(${(this.idx * 5) % 360}, 70%, 60%)`;
+                ctx.strokeStyle = epicycleColor;
                 ctx.lineWidth = Math.max(0.5, this.radius / 50);
                 ctx.stroke();
             }
@@ -372,14 +506,103 @@ fn generate_html() -> String {
             }
         };
 
+        // Load recent files on startup
+        async function loadRecentFiles() {
+            if (window.__TAURI__ && window.__TAURI__.core) {
+                try {
+                    const recentFiles = await window.__TAURI__.core.invoke('get_recent_files');
+                    const list = document.getElementById('recentFilesList');
+                    list.innerHTML = '';
+
+                    if (recentFiles.length > 0) {
+                        document.getElementById('recentFilesGroup').classList.remove('hidden');
+                        recentFiles.forEach(file => {
+                            const div = document.createElement('div');
+                            div.className = 'recent-file-item';
+                            div.textContent = file.name;
+                            div.onclick = () => loadRecentFile(file);
+                            list.appendChild(div);
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error loading recent files:', err);
+                }
+            }
+        }
+
+        async function loadRecentFile(file) {
+            updateStatus('Loading recent file...');
+            try {
+                const result = await window.__TAURI__.core.invoke('parse_svg_file', {
+                    filePath: file.path
+                });
+
+                svgPaths = result.paths;
+                const pathSelect = document.getElementById('pathSelect');
+                pathSelect.innerHTML = '<option value="">-- Select a path --</option>';
+
+                for (const path of svgPaths) {
+                    const option = document.createElement('option');
+                    option.value = path.d;
+                    option.textContent = path.id || 'Unnamed path';
+                    pathSelect.appendChild(option);
+                }
+
+                currentFilePath = file.path;
+                document.getElementById('pathSelectionGroup').classList.remove('hidden');
+                updateStatus(`Loaded ${svgPaths.length} paths from ${file.name}`);
+            } catch (err) {
+                updateStatus('Error loading file: ' + err);
+            }
+        }
+
+        function saveToUndoStack() {
+            undoStack.push([...drawingPoints]);
+            redoStack = [];
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoStack.length > 0) {
+                redoStack.push([...drawingPoints]);
+                drawingPoints = undoStack.pop();
+                redrawCanvas();
+                document.getElementById('visualizeBtn').disabled = drawingPoints.length < 3;
+                updateUndoRedoButtons();
+                updateStatus('Undo');
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                undoStack.push([...drawingPoints]);
+                drawingPoints = redoStack.pop();
+                redrawCanvas();
+                document.getElementById('visualizeBtn').disabled = drawingPoints.length < 3;
+                updateUndoRedoButtons();
+                updateStatus('Redo');
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            document.getElementById('undoBtn').disabled = undoStack.length === 0;
+            document.getElementById('redoBtn').disabled = redoStack.length === 0;
+        }
+
         // Drawing handlers
         canvas.addEventListener('mousedown', (e) => {
             if (fourierData || currentMode === 'svg') return;
+            if (e.button === 2) { // Right click for pan
+                isPanning = true;
+                lastPanPos = { x: e.clientX, y: e.clientY };
+                return;
+            }
             isDrawing = true;
+            saveToUndoStack();
             drawingStartTime = Date.now();
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const x = (e.clientX - rect.left - panOffset.x) / zoom;
+            const y = (e.clientY - rect.top - panOffset.y) / zoom;
             drawingPoints = [{ x, y }];
             drawingPointsWithTime = [{ x, y, time: 0 }];
             updateStatus('Drawing...');
@@ -387,18 +610,38 @@ fn generate_html() -> String {
         });
 
         canvas.addEventListener('mousemove', (e) => {
+            if (isPanning && lastPanPos) {
+                panOffset.x += e.clientX - lastPanPos.x;
+                panOffset.y += e.clientY - lastPanPos.y;
+                lastPanPos = { x: e.clientX, y: e.clientY };
+                redrawCanvas();
+                return;
+            }
             if (!isDrawing || fourierData || currentMode === 'svg') return;
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const elapsed = (Date.now() - drawingStartTime) / 1000; // seconds
+            const x = (e.clientX - rect.left - panOffset.x) / zoom;
+            const y = (e.clientY - rect.top - panOffset.y) / zoom;
+            const elapsed = (Date.now() - drawingStartTime) / 1000;
             drawingPoints.push({ x, y });
             drawingPointsWithTime.push({ x, y, time: elapsed });
             redrawCanvas();
         });
 
-        canvas.addEventListener('mouseup', () => finishDrawing());
-        canvas.addEventListener('mouseleave', () => finishDrawing());
+        canvas.addEventListener('mouseup', () => {
+            if (isPanning) {
+                isPanning = false;
+                lastPanPos = null;
+            }
+            finishDrawing();
+        });
+        canvas.addEventListener('mouseleave', () => {
+            if (isPanning) {
+                isPanning = false;
+                lastPanPos = null;
+            }
+            finishDrawing();
+        });
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
         function finishDrawing() {
             if (isDrawing) {
@@ -410,6 +653,10 @@ fn generate_html() -> String {
 
         function redrawCanvas() {
             context.clearRect(0, 0, canvas.width, canvas.height);
+            context.save();
+            context.translate(panOffset.x, panOffset.y);
+            context.scale(zoom, zoom);
+
             if (drawingPoints.length > 1) {
                 context.beginPath();
                 context.moveTo(drawingPoints[0].x, drawingPoints[0].y);
@@ -420,9 +667,11 @@ fn generate_html() -> String {
                 context.lineWidth = 2;
                 context.stroke();
             }
+            context.restore();
         }
 
         function clearCanvas() {
+            saveToUndoStack();
             context.clearRect(0, 0, canvas.width, canvas.height);
             drawingPoints = [];
             document.getElementById('visualizeBtn').disabled = true;
@@ -445,6 +694,7 @@ fn generate_html() -> String {
             }
 
             document.getElementById('drawingControls').classList.add('hidden');
+            document.getElementById('svgControls').classList.add('hidden');
             document.getElementById('visualizeControls').classList.remove('hidden');
             document.getElementById('coefficientsPanel').classList.remove('hidden');
             updateCoefficientsList();
@@ -490,15 +740,16 @@ fn generate_html() -> String {
         }
 
         function drawWave(ctx) {
+            if (wave.length < 2) return;
+
+            ctx.beginPath();
+            ctx.moveTo(wave[0].x, wave[0].y);
             for (let i = 1; i < wave.length; i++) {
-                ctx.beginPath();
-                ctx.moveTo(wave[i - 1].x, wave[i - 1].y);
                 ctx.lineTo(wave[i].x, wave[i].y);
-                const alpha = 1 - i * 1.0 / wave.length;
-                ctx.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
-                ctx.lineWidth = 1;
-                ctx.stroke();
             }
+            ctx.strokeStyle = traceColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
 
         function draw() {
@@ -507,6 +758,9 @@ fn generate_html() -> String {
             }
 
             context.clearRect(0, 0, canvas.width, canvas.height);
+            context.save();
+            context.translate(panOffset.x, panOffset.y);
+            context.scale(zoom, zoom);
 
             if (circles.length > 0) {
                 let new_center = circles[0].nextCenter(center);
@@ -523,6 +777,7 @@ fn generate_html() -> String {
                 drawWave(context);
             }
 
+            context.restore();
             animation_id = requestAnimationFrame(draw);
         }
 
@@ -530,12 +785,92 @@ fn generate_html() -> String {
             document.getElementById('status').textContent = message;
         }
 
+        // Export functions
+        async function exportAsPng() {
+            try {
+                const dataUrl = canvas.toDataURL('image/png');
+                if (window.__TAURI__ && window.__TAURI__.dialog) {
+                    const filePath = await window.__TAURI__.dialog.save({
+                        defaultPath: 'fourier_visualization.png',
+                        filters: [{ name: 'PNG', extensions: ['png'] }]
+                    });
+
+                    if (filePath) {
+                        await window.__TAURI__.core.invoke('save_canvas_as_png', {
+                            dataUrl: dataUrl,
+                            filePath: filePath
+                        });
+                        updateStatus('PNG saved successfully');
+                    }
+                }
+            } catch (err) {
+                updateStatus('Error saving PNG: ' + err);
+            }
+        }
+
+        async function exportAsJson() {
+            try {
+                if (window.__TAURI__ && window.__TAURI__.dialog) {
+                    const filePath = await window.__TAURI__.dialog.save({
+                        defaultPath: 'fourier_data.json',
+                        filters: [{ name: 'JSON', extensions: ['json'] }]
+                    });
+
+                    if (filePath) {
+                        const sampleRate = parseInt(document.getElementById('sampleRate').value);
+                        await window.__TAURI__.core.invoke('export_fourier_data', {
+                            data: fullFourierData,
+                            filePath: filePath,
+                            numSamples: sampleRate
+                        });
+                        updateStatus('JSON saved successfully');
+                    }
+                }
+            } catch (err) {
+                updateStatus('Error saving JSON: ' + err);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            } else if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                redo();
+            } else if (e.code === 'Space' && fourierData) {
+                e.preventDefault();
+                document.getElementById('pauseBtn').click();
+            } else if (e.key === 'r' || e.key === 'R') {
+                if (fourierData) document.getElementById('resetBtn').click();
+            } else if (e.key === 'n' || e.key === 'N') {
+                if (fourierData) document.getElementById('newDrawBtn').click();
+            } else if (e.key === 'e' || e.key === 'E') {
+                if (fourierData) exportAsPng();
+            } else if (e.key === '=' || e.key === '+') {
+                if (fourierData) {
+                    const zoomControl = document.getElementById('zoomControl');
+                    zoomControl.value = Math.min(3.0, parseFloat(zoomControl.value) + 0.1);
+                    zoomControl.dispatchEvent(new Event('input'));
+                }
+            } else if (e.key === '-') {
+                if (fourierData) {
+                    const zoomControl = document.getElementById('zoomControl');
+                    zoomControl.value = Math.max(0.5, parseFloat(zoomControl.value) - 0.1);
+                    zoomControl.dispatchEvent(new Event('input'));
+                }
+            }
+        });
+
         // Controls
         document.getElementById('sampleRate').addEventListener('input', (e) => {
             document.getElementById('sampleValue').textContent = e.target.value;
         });
 
         document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+        document.getElementById('undoBtn').addEventListener('click', undo);
+        document.getElementById('redoBtn').addEventListener('click', redo);
 
         document.getElementById('visualizeBtn').addEventListener('click', () => {
             let svgPath = 'M ' + drawingPoints[0].x + ' ' + drawingPoints[0].y;
@@ -581,6 +916,19 @@ fn generate_html() -> String {
             document.getElementById('speedValue').textContent = speed_multiplier.toFixed(1) + 'x';
         });
 
+        document.getElementById('zoomControl').addEventListener('input', (e) => {
+            zoom = parseFloat(e.target.value);
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1) + 'x';
+        });
+
+        document.getElementById('epicycleColor').addEventListener('input', (e) => {
+            epicycleColor = e.target.value;
+        });
+
+        document.getElementById('traceColor').addEventListener('input', (e) => {
+            traceColor = e.target.value;
+        });
+
         document.getElementById('pauseBtn').addEventListener('click', function() {
             is_paused = !is_paused;
             this.textContent = is_paused ? 'Play' : 'Pause';
@@ -592,6 +940,9 @@ fn generate_html() -> String {
             updateStatus('Animation reset');
         });
 
+        document.getElementById('exportPngBtn').addEventListener('click', exportAsPng);
+        document.getElementById('exportJsonBtn').addEventListener('click', exportAsJson);
+
         document.getElementById('newDrawBtn').addEventListener('click', () => {
             if (animation_id) cancelAnimationFrame(animation_id);
             fourierData = null;
@@ -599,11 +950,16 @@ fn generate_html() -> String {
             time = 0;
             wave = [];
             circles = [];
+            zoom = 1.0;
+            panOffset = { x: 0, y: 0 };
+            document.getElementById('zoomControl').value = 1.0;
+            document.getElementById('zoomValue').textContent = '1.0x';
             context.clearRect(0, 0, canvas.width, canvas.height);
             document.getElementById('drawingControls').classList.remove('hidden');
             document.getElementById('svgControls').classList.add('hidden');
             document.getElementById('visualizeControls').classList.add('hidden');
             document.getElementById('coefficientsPanel').classList.add('hidden');
+            document.getElementById('recentFilesGroup').classList.remove('hidden');
             updateStatus('Ready to draw');
         });
 
@@ -640,6 +996,8 @@ fn generate_html() -> String {
                     });
 
                     if (selected) {
+                        currentFilePath = selected;
+                        const fileName = selected.split(/[/\\]/).pop();
                         updateStatus('Parsing SVG file...');
                         const result = await window.__TAURI__.core.invoke('parse_svg_file', {
                             filePath: selected
@@ -655,6 +1013,13 @@ fn generate_html() -> String {
                             option.textContent = path.id || 'Unnamed path';
                             pathSelect.appendChild(option);
                         }
+
+                        // Add to recent files
+                        await window.__TAURI__.core.invoke('add_recent_file', {
+                            filePath: selected,
+                            fileName: fileName
+                        });
+                        await loadRecentFiles();
 
                         document.getElementById('pathSelectionGroup').classList.remove('hidden');
                         updateStatus(`Loaded ${svgPaths.length} paths from SVG. Select a path to visualize.`);
@@ -723,10 +1088,14 @@ fn generate_html() -> String {
                 updateStatus('Tauri bridge not available');
             }
         });
+
+        // Load recent files on startup
+        loadRecentFiles();
     </script>
 </body>
-</html>"#
-    .to_string()
+</html>"##;
+
+    html_content.to_string()
 }
 
 #[cfg(feature = "tauri")]
@@ -857,6 +1226,131 @@ fn process_svg_path(path_data: String, num_sample: usize) -> Vec<FourierData> {
     sorted
 }
 
+/// Export Fourier data as JSON for later use
+#[cfg(feature = "tauri")]
+#[tauri::command]
+async fn export_fourier_data(
+    data: Vec<FourierData>,
+    file_path: String,
+    num_samples: usize,
+) -> Result<(), String> {
+    use fourier_svg::FourierExport;
+
+    // Convert FourierData back to DrawData
+    let draw_data: Vec<DrawData> = data
+        .iter()
+        .map(|d| DrawData {
+            frequency: d.s,
+            radius: d.r,
+            angle: d.a,
+        })
+        .collect();
+
+    let export = FourierExport {
+        metadata: fourier_svg::Metadata {
+            version: "1.0".to_string(),
+            created_at: chrono::Utc::now().to_rfc3339(),
+            sample_count: num_samples,
+            wave_count: draw_data.len(),
+        },
+        data: draw_data,
+    };
+
+    let json_str = serde_json::to_string_pretty(&export).map_err(|e| e.to_string())?;
+
+    let mut file = File::create(&file_path).map_err(|e| e.to_string())?;
+    file.write_all(json_str.as_bytes())
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+/// Save current canvas frame as PNG
+#[cfg(feature = "tauri")]
+#[tauri::command]
+async fn save_canvas_as_png(data_url: String, file_path: String) -> Result<(), String> {
+    // Remove the data:image/png;base64, prefix
+    let base64_data = data_url
+        .strip_prefix("data:image/png;base64,")
+        .ok_or("Invalid data URL")?;
+
+    let image_bytes = base64::decode(base64_data).map_err(|e| e.to_string())?;
+
+    let mut file = File::create(&file_path).map_err(|e| e.to_string())?;
+    file.write_all(&image_bytes).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[cfg(feature = "tauri")]
+#[derive(Clone, Serialize, Deserialize)]
+struct RecentFile {
+    path: String,
+    name: String,
+    timestamp: i64,
+}
+
+/// Manage recent files list
+#[cfg(feature = "tauri")]
+#[tauri::command]
+async fn add_recent_file(file_path: String, file_name: String) -> Result<Vec<RecentFile>, String> {
+    let recent_files_path = get_recent_files_path()?;
+    let mut recent_files = load_recent_files()?;
+
+    // Remove if already exists
+    recent_files.retain(|f| f.path != file_path);
+
+    // Add to front
+    let timestamp = chrono::Utc::now().timestamp();
+    recent_files.insert(
+        0,
+        RecentFile {
+            path: file_path.clone(),
+            name: file_name,
+            timestamp,
+        },
+    );
+
+    // Keep only last 10
+    recent_files.truncate(10);
+
+    // Save to file
+    let json_str = serde_json::to_string_pretty(&recent_files).map_err(|e| e.to_string())?;
+    let mut file = File::create(&recent_files_path).map_err(|e| e.to_string())?;
+    file.write_all(json_str.as_bytes())
+        .map_err(|e| e.to_string())?;
+
+    Ok(recent_files)
+}
+
+#[cfg(feature = "tauri")]
+#[tauri::command]
+async fn get_recent_files() -> Result<Vec<RecentFile>, String> {
+    load_recent_files()
+}
+
+#[cfg(feature = "tauri")]
+fn get_recent_files_path() -> Result<PathBuf, String> {
+    let mut path = dirs::config_dir().ok_or("Failed to get config directory")?;
+    path.push("fourier-svg");
+    std::fs::create_dir_all(&path)
+        .map_err(|e| format!("Failed to create config directory: {}", e))?;
+    path.push("recent_files.json");
+    Ok(path)
+}
+
+#[cfg(feature = "tauri")]
+fn load_recent_files() -> Result<Vec<RecentFile>, String> {
+    let path = get_recent_files_path()?;
+    if path.exists() {
+        let content = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
+        let files: Vec<RecentFile> = serde_json::from_str(&content).map_err(|e| e.to_string())?;
+        Ok(files)
+    } else {
+        Ok(Vec::new())
+    }
+}
+
 #[cfg(feature = "tauri")]
 fn run_tauri_app(_initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_wave: usize) {
     let html_content = generate_html();
@@ -878,7 +1372,11 @@ fn run_tauri_app(_initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_
         .invoke_handler(tauri::generate_handler![
             process_drawing,
             parse_svg_file,
-            process_svg_path
+            process_svg_path,
+            export_fourier_data,
+            save_canvas_as_png,
+            add_recent_file,
+            get_recent_files
         ])
         .setup(move |app| {
             let window =

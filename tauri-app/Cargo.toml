@@ -30,6 +30,19 @@ optional = true
 version = "2"
 optional = true
 
+[dependencies.gif]
+workspace = true
+
+[dependencies.base64]
+version = "0.22"
+
+[dependencies.dirs]
+version = "5.0"
+
+[dependencies.chrono]
+workspace = true
+features = ["serde"]
+
 [features]
 default = []
 tauri = ["dep:tauri", "dep:tauri-plugin-fs", "dep:tauri-plugin-dialog"]
