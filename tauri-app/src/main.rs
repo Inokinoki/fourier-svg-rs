@@ -403,7 +403,20 @@ fn generate_html() -> String {
             </div>
 
             <div class="control-group">
-                <label>Colors:</label>
+                <label>Color Theme:</label>
+                <select id="colorTheme" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                    <option value="default">Default (Purple)</option>
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="sunset">Sunset</option>
+                    <option value="monochrome">Monochrome</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Custom Colors:</label>
                 <div class="button-row">
                     <div style="flex: 1">
                         <label style="font-size: 10px;">Epicycles</label>
@@ -553,6 +566,17 @@ fn generate_html() -> String {
         // Color customization
         let epicycleColor = '#667eea';
         let traceColor = '#333333';
+        let useRainbowMode = false;
+
+        // Color themes
+        const colorThemes = {
+            default: { epicycle: '#667eea', trace: '#333333', bg: '#ffffff' },
+            dark: { epicycle: '#00d4ff', trace: '#ffffff', bg: '#1a1a2e' },
+            light: { epicycle: '#4a90e2', trace: '#666666', bg: '#f0f0f0' },
+            ocean: { epicycle: '#0077be', trace: '#003366', bg: '#e6f3ff' },
+            sunset: { epicycle: '#ff6b35', trace: '#4a0404', bg: '#fff0e6' },
+            monochrome: { epicycle: '#000000', trace: '#000000', bg: '#ffffff' }
+        };
 
         // Visibility controls
         let showCircles = true;
@@ -588,11 +612,17 @@ fn generate_html() -> String {
                 const x = at.x + this.radius * Math.cos(this.initial_angle + 2 * Math.PI * time * this.speed);
                 const y = at.y + this.radius * Math.sin(this.initial_angle + 2 * Math.PI * time * this.speed);
 
+                // Determine color based on mode
+                let color = epicycleColor;
+                if (useRainbowMode) {
+                    color = `hsl(${(this.idx * 7) % 360}, 80%, 60%)`;
+                }
+
                 // Draw circle outline if enabled
                 if (showCirclesOutline) {
                     ctx.beginPath();
                     ctx.arc(at.x, at.y, this.radius, 0, 2 * Math.PI);
-                    ctx.strokeStyle = epicycleColor + '40';
+                    ctx.strokeStyle = color + '40';
                     ctx.lineWidth = 1;
                     ctx.stroke();
                 }
@@ -602,7 +632,7 @@ fn generate_html() -> String {
                     ctx.beginPath();
                     ctx.moveTo(at.x, at.y);
                     ctx.lineTo(x, y);
-                    ctx.strokeStyle = epicycleColor;
+                    ctx.strokeStyle = color;
                     ctx.lineWidth = Math.max(0.5, this.radius / 50);
                     ctx.stroke();
                 }
@@ -1333,10 +1363,39 @@ fn generate_html() -> String {
 
         document.getElementById('epicycleColor').addEventListener('input', (e) => {
             epicycleColor = e.target.value;
+            useRainbowMode = false;
         });
 
         document.getElementById('traceColor').addEventListener('input', (e) => {
             traceColor = e.target.value;
+        });
+
+        // Color theme selector
+        document.getElementById('colorTheme').addEventListener('change', (e) => {
+            const theme = e.target.value;
+
+            if (theme === 'rainbow') {
+                useRainbowMode = true;
+                updateStatus('Rainbow mode enabled (each component has unique color)');
+            } else if (colorThemes[theme]) {
+                useRainbowMode = false;
+                const colors = colorThemes[theme];
+                epicycleColor = colors.epicycle;
+                traceColor = colors.trace;
+
+                // Update color pickers
+                document.getElementById('epicycleColor').value = colors.epicycle;
+                document.getElementById('traceColor').value = colors.trace;
+
+                // Update background if needed (dark mode)
+                if (theme === 'dark') {
+                    document.body.style.background = colors.bg;
+                } else if (theme === 'default') {
+                    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                }
+
+                updateStatus(`Theme: ${e.target.options[e.target.selectedIndex].text}`);
+            }
         });
 
         // Visibility controls
