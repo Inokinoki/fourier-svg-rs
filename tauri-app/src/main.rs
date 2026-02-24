@@ -14,6 +14,8 @@
 //!   sudo apt-get install libwebkit2gtk-4.0-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
 
 use clap::Parser;
+use fourier_svg::visualizer::gif_visualizer::GIFVisualizer;
+use fourier_svg::visualizer::Visualizer;
 use fourier_svg::{
     build_path_from_svg, export_to_draw_data, load_fourier_export, path_to_fft, DrawData,
 };
@@ -382,6 +384,24 @@ fn generate_html() -> String {
                 </div>
             </div>
 
+            <div class="control-group">
+                <label>Visibility:</label>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                    <label style="display: flex; align-items: center; font-size: 12px; margin: 0;">
+                        <input type="checkbox" id="showCircles" checked style="width: auto; margin-right: 8px;">
+                        Show Epicycles
+                    </label>
+                    <label style="display: flex; align-items: center; font-size: 12px; margin: 0;">
+                        <input type="checkbox" id="showTrace" checked style="width: auto; margin-right: 8px;">
+                        Show Trace
+                    </label>
+                    <label style="display: flex; align-items: center; font-size: 12px; margin: 0;">
+                        <input type="checkbox" id="showCirclesOutline" style="width: auto; margin-right: 8px;">
+                        Show Circle Outlines
+                    </label>
+                </div>
+            </div>
+
             <div class="button-row">
                 <button id="pauseBtn">Pause</button>
                 <button id="resetBtn" class="secondary">Reset</button>
@@ -392,6 +412,18 @@ fn generate_html() -> String {
                 <button id="exportPngBtn" class="success">Save PNG</button>
                 <button id="exportJsonBtn" class="success">Save JSON</button>
             </div>
+
+            <div class="control-group">
+                <label>GIF Frames: <span id="gifFramesValue" class="value-display">100</span></label>
+                <input type="range" id="gifFrames" min="50" max="300" value="100" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>GIF Duration (seconds): <span id="gifDurationValue" class="value-display">5.0</span></label>
+                <input type="range" id="gifDuration" min="2" max="20" value="5" step="0.5">
+            </div>
+
+            <button id="exportGifBtn" class="success">Export GIF</button>
 
             <button id="newDrawBtn" class="danger">New Drawing</button>
         </div>
@@ -460,6 +492,11 @@ fn generate_html() -> String {
         let epicycleColor = '#667eea';
         let traceColor = '#333333';
 
+        // Visibility controls
+        let showCircles = true;
+        let showTrace = true;
+        let showCirclesOutline = false;
+
         // Default parameters
         let defaultSampleRate = 10240;
         let defaultDuration = 10.0;
@@ -483,20 +520,24 @@ fn generate_html() -> String {
                 const x = at.x + this.radius * Math.cos(this.initial_angle + 2 * Math.PI * time * this.speed);
                 const y = at.y + this.radius * Math.sin(this.initial_angle + 2 * Math.PI * time * this.speed);
 
-                // Draw circle
-                ctx.beginPath();
-                ctx.arc(at.x, at.y, this.radius, 0, 2 * Math.PI);
-                ctx.strokeStyle = epicycleColor + '40';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                // Draw circle outline if enabled
+                if (showCirclesOutline) {
+                    ctx.beginPath();
+                    ctx.arc(at.x, at.y, this.radius, 0, 2 * Math.PI);
+                    ctx.strokeStyle = epicycleColor + '40';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
 
-                // Draw radius line
-                ctx.beginPath();
-                ctx.moveTo(at.x, at.y);
-                ctx.lineTo(x, y);
-                ctx.strokeStyle = epicycleColor;
-                ctx.lineWidth = Math.max(0.5, this.radius / 50);
-                ctx.stroke();
+                // Draw radius line if circles are visible
+                if (showCircles) {
+                    ctx.beginPath();
+                    ctx.moveTo(at.x, at.y);
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = epicycleColor;
+                    ctx.lineWidth = Math.max(0.5, this.radius / 50);
+                    ctx.stroke();
+                }
             }
 
             nextCenter(at) {
@@ -740,7 +781,7 @@ fn generate_html() -> String {
         }
 
         function drawWave(ctx) {
-            if (wave.length < 2) return;
+            if (wave.length < 2 || !showTrace) return;
 
             ctx.beginPath();
             ctx.moveTo(wave[0].x, wave[0].y);
@@ -828,6 +869,38 @@ fn generate_html() -> String {
                 }
             } catch (err) {
                 updateStatus('Error saving JSON: ' + err);
+            }
+        }
+
+        async function exportAsGif() {
+            try {
+                if (window.__TAURI__ && window.__TAURI__.dialog) {
+                    const filePath = await window.__TAURI__.dialog.save({
+                        defaultPath: 'fourier_animation.gif',
+                        filters: [{ name: 'GIF', extensions: ['gif'] }]
+                    });
+
+                    if (filePath) {
+                        const frames = parseInt(document.getElementById('gifFrames').value);
+                        const duration = parseFloat(document.getElementById('gifDuration').value);
+
+                        updateStatus('Generating GIF... This may take a moment.');
+                        const wasPaused = is_paused;
+                        is_paused = true;
+
+                        await window.__TAURI__.core.invoke('export_as_gif', {
+                            data: fullFourierData,
+                            filePath: filePath,
+                            frames: frames,
+                            duration: duration
+                        });
+
+                        is_paused = wasPaused;
+                        updateStatus('GIF saved successfully');
+                    }
+                }
+            } catch (err) {
+                updateStatus('Error saving GIF: ' + err);
             }
         }
 
@@ -929,6 +1002,19 @@ fn generate_html() -> String {
             traceColor = e.target.value;
         });
 
+        // Visibility controls
+        document.getElementById('showCircles').addEventListener('change', (e) => {
+            showCircles = e.target.checked;
+        });
+
+        document.getElementById('showTrace').addEventListener('change', (e) => {
+            showTrace = e.target.checked;
+        });
+
+        document.getElementById('showCirclesOutline').addEventListener('change', (e) => {
+            showCirclesOutline = e.target.checked;
+        });
+
         document.getElementById('pauseBtn').addEventListener('click', function() {
             is_paused = !is_paused;
             this.textContent = is_paused ? 'Play' : 'Pause';
@@ -942,6 +1028,16 @@ fn generate_html() -> String {
 
         document.getElementById('exportPngBtn').addEventListener('click', exportAsPng);
         document.getElementById('exportJsonBtn').addEventListener('click', exportAsJson);
+        document.getElementById('exportGifBtn').addEventListener('click', exportAsGif);
+
+        // GIF export controls
+        document.getElementById('gifFrames').addEventListener('input', (e) => {
+            document.getElementById('gifFramesValue').textContent = e.target.value;
+        });
+
+        document.getElementById('gifDuration').addEventListener('input', (e) => {
+            document.getElementById('gifDurationValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
 
         document.getElementById('newDrawBtn').addEventListener('click', () => {
             if (animation_id) cancelAnimationFrame(animation_id);
@@ -1351,6 +1447,42 @@ fn load_recent_files() -> Result<Vec<RecentFile>, String> {
     }
 }
 
+/// Export visualization as animated GIF
+#[cfg(feature = "tauri")]
+#[tauri::command]
+async fn export_as_gif(
+    data: Vec<FourierData>,
+    file_path: String,
+    frames: usize,
+    duration: f32,
+) -> Result<(), String> {
+    // Convert FourierData back to DrawData
+    let draw_data: Vec<DrawData> = data
+        .iter()
+        .map(|d| DrawData {
+            frequency: d.s,
+            radius: d.r,
+            angle: d.a,
+        })
+        .collect();
+
+    // Calculate delay from duration
+    let delay = ((duration * 1000.0) / frames as f32) as u16 / 10; // Convert to centiseconds
+
+    let visualizer = GIFVisualizer::new(file_path.clone())
+        .with_dimensions(800, 600)
+        .with_frames(frames)
+        .with_delay(delay.max(1));
+
+    let success = visualizer.render(draw_data);
+
+    if success {
+        Ok(())
+    } else {
+        Err("Failed to create GIF".to_string())
+    }
+}
+
 #[cfg(feature = "tauri")]
 fn run_tauri_app(_initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_wave: usize) {
     let html_content = generate_html();
@@ -1376,7 +1508,8 @@ fn run_tauri_app(_initial_data: Option<Vec<DrawData>>, _num_sample: usize, _num_
             export_fourier_data,
             save_canvas_as_png,
             add_recent_file,
-            get_recent_files
+            get_recent_files,
+            export_as_gif
         ])
         .setup(move |app| {
             let window =
