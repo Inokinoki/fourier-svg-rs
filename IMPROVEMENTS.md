@@ -3,6 +3,27 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
+## Recent Updates (Iteration 6)
+
+### 19. Export Quality Presets ⭐
+- **Smart Export Configuration**: One-click quality settings
+  - Draft: 50 frames, 3s (Fast preview, small files)
+  - Good: 100 frames, 5s (Balanced) [DEFAULT]
+  - Best: 200 frames, 10s (High quality, larger files)
+  - Auto-adjusts GIF parameters
+  - Descriptive tooltips
+  - Simplified export workflow
+
+### 20. Component Highlighting ⭐
+- **Visual Emphasis**: Highlight most important epicycles
+  - Top 3, 5, or 10 component highlighting
+  - Thicker lines (2.5x) for highlighted components
+  - Red color for highlighted components
+  - Works with all color themes
+  - Educational value for understanding dominance
+  - Dynamic recalculation on mode change
+  - Instant visual feedback
+
 ## Recent Updates (Iteration 5)
 
 ### 18. Professional Color Themes ⭐
