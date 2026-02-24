@@ -454,6 +454,17 @@ fn generate_html() -> String {
             </div>
 
             <div class="control-group">
+                <label>Highlight Top Components:</label>
+                <select id="highlightMode" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                    <option value="none">None</option>
+                    <option value="top3">Top 3 Components</option>
+                    <option value="top5">Top 5 Components</option>
+                    <option value="top10">Top 10 Components</option>
+                </select>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 0 0;">Emphasize largest epicycles with thicker lines</p>
+            </div>
+
+            <div class="control-group">
                 <label>Loop Mode:</label>
                 <select id="loopMode" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
                     <option value="once">Play Once</option>
@@ -468,6 +479,16 @@ fn generate_html() -> String {
             </div>
 
             <h2>Export</h2>
+
+            <div class="control-group">
+                <label>Quality Preset:</label>
+                <select id="exportQuality" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                    <option value="draft">Draft (Fast, smaller files)</option>
+                    <option value="good" selected>Good (Balanced)</option>
+                    <option value="best">Best (High quality, larger files)</option>
+                </select>
+            </div>
+
             <div class="button-row">
                 <button id="exportPngBtn" class="success">Save PNG</button>
                 <button id="exportJsonBtn" class="success">Save JSON</button>
@@ -583,6 +604,8 @@ fn generate_html() -> String {
         let showTrace = true;
         let showCirclesOutline = false;
         let minRadiusFilter = 0;
+        let highlightMode = 'none';
+        let topComponentIndices = new Set();
 
         // Default parameters
         let defaultSampleRate = 10240;
@@ -614,8 +637,18 @@ fn generate_html() -> String {
 
                 // Determine color based on mode
                 let color = epicycleColor;
+                let lineWidth = Math.max(0.5, this.radius / 50);
+
                 if (useRainbowMode) {
                     color = `hsl(${(this.idx * 7) % 360}, 80%, 60%)`;
+                }
+
+                // Apply highlighting for top components
+                if (highlightMode !== 'none' && topComponentIndices.has(this.idx)) {
+                    lineWidth = lineWidth * 2.5; // Thicker line for highlighted components
+                    if (!useRainbowMode) {
+                        color = '#ff0000'; // Red color for highlighted components
+                    }
                 }
 
                 // Draw circle outline if enabled
@@ -633,7 +666,7 @@ fn generate_html() -> String {
                     ctx.moveTo(at.x, at.y);
                     ctx.lineTo(x, y);
                     ctx.strokeStyle = color;
-                    ctx.lineWidth = Math.max(0.5, this.radius / 50);
+                    ctx.lineWidth = lineWidth;
                     ctx.stroke();
                 }
             }
@@ -1417,6 +1450,26 @@ fn generate_html() -> String {
             updateStatus(`Radius filter: ${e.target.value} (hiding ${circles.filter(c => c.radius < minRadiusFilter).length} components)`);
         });
 
+        // Highlight top components
+        document.getElementById('highlightMode').addEventListener('change', (e) => {
+            highlightMode = e.target.value;
+
+            if (highlightMode === 'none') {
+                topComponentIndices.clear();
+                updateStatus('Highlighting disabled');
+            } else {
+                const count = parseInt(highlightMode.replace('top', ''));
+                // Sort circles by radius and get top N
+                const sortedCircles = circles
+                    .map((c, i) => ({ radius: c.radius, idx: i }))
+                    .sort((a, b) => b.radius - a.radius)
+                    .slice(0, count);
+
+                topComponentIndices = new Set(sortedCircles.map(c => c.idx));
+                updateStatus(`Highlighting top ${count} components (red, thicker lines)`);
+            }
+        });
+
         document.getElementById('loopMode').addEventListener('change', (e) => {
             loopMode = e.target.value;
             timeDirection = 1; // Reset direction when changing modes
@@ -1470,6 +1523,24 @@ fn generate_html() -> String {
 
         document.getElementById('gifDuration').addEventListener('input', (e) => {
             document.getElementById('gifDurationValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        // Export quality presets
+        const qualityPresets = {
+            draft: { frames: 50, duration: 3, description: 'Fast preview, smaller file size' },
+            good: { frames: 100, duration: 5, description: 'Balanced quality and size' },
+            best: { frames: 200, duration: 10, description: 'High quality, larger file size' }
+        };
+
+        document.getElementById('exportQuality').addEventListener('change', (e) => {
+            const preset = qualityPresets[e.target.value];
+            if (preset) {
+                document.getElementById('gifFrames').value = preset.frames;
+                document.getElementById('gifFramesValue').textContent = preset.frames;
+                document.getElementById('gifDuration').value = preset.duration;
+                document.getElementById('gifDurationValue').textContent = preset.duration.toFixed(1);
+                updateStatus(`Quality preset: ${e.target.options[e.target.selectedIndex].text} (${preset.description})`);
+            }
         });
 
         document.getElementById('newDrawBtn').addEventListener('click', () => {
