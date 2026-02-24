@@ -434,6 +434,21 @@ fn generate_html() -> String {
                 </div>
             </div>
 
+            <div class="control-group">
+                <label>Min Radius Filter: <span id="radiusFilterValue" class="value-display">0</span></label>
+                <input type="range" id="radiusFilter" min="0" max="50" value="0" step="1">
+                <p style="font-size: 10px; color: #999; margin: 4px 0 0 0;">Hide components with radius below threshold</p>
+            </div>
+
+            <div class="control-group">
+                <label>Loop Mode:</label>
+                <select id="loopMode" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                    <option value="once">Play Once</option>
+                    <option value="loop" selected>Loop</option>
+                    <option value="pingpong">Ping-Pong</option>
+                </select>
+            </div>
+
             <div class="button-row">
                 <button id="pauseBtn">Pause</button>
                 <button id="resetBtn" class="secondary">Reset</button>
@@ -480,6 +495,16 @@ fn generate_html() -> String {
             <div class="shortcut"><span>Zoom Out</span><span class="key">-</span></div>
         </div>
 
+        <div id="infoPanel" class="hidden">
+            <h2>Animation Info</h2>
+            <div style="font-size: 12px; color: #666;">
+                <div style="margin: 4px 0;">Time: <span id="infoTime" style="font-weight: bold; color: #667eea;">0.00s</span></div>
+                <div style="margin: 4px 0;">Wave Points: <span id="infoWave" style="font-weight: bold; color: #667eea;">0</span></div>
+                <div style="margin: 4px 0;">Components: <span id="infoComponents" style="font-weight: bold; color: #667eea;">0</span></div>
+                <div style="margin: 4px 0;">Direction: <span id="infoDirection" style="font-weight: bold; color: #667eea;">Forward</span></div>
+            </div>
+        </div>
+
         <div class="status" id="status">Ready to draw</div>
     </div>
 
@@ -522,6 +547,8 @@ fn generate_html() -> String {
         let panOffset = { x: 0, y: 0 };
         let isPanning = false;
         let lastPanPos = null;
+        let loopMode = 'loop';
+        let timeDirection = 1; // 1 for forward, -1 for backward (ping-pong)
 
         // Color customization
         let epicycleColor = '#667eea';
@@ -531,6 +558,7 @@ fn generate_html() -> String {
         let showCircles = true;
         let showTrace = true;
         let showCirclesOutline = false;
+        let minRadiusFilter = 0;
 
         // Default parameters
         let defaultSampleRate = 10240;
@@ -552,6 +580,11 @@ fn generate_html() -> String {
             }
 
             draw(ctx, at) {
+                // Skip drawing if radius is below filter threshold
+                if (this.radius < minRadiusFilter) {
+                    return at;
+                }
+
                 const x = at.x + this.radius * Math.cos(this.initial_angle + 2 * Math.PI * time * this.speed);
                 const y = at.y + this.radius * Math.sin(this.initial_angle + 2 * Math.PI * time * this.speed);
 
@@ -975,6 +1008,7 @@ fn generate_html() -> String {
             document.getElementById('svgControls').classList.add('hidden');
             document.getElementById('visualizeControls').classList.remove('hidden');
             document.getElementById('coefficientsPanel').classList.remove('hidden');
+            document.getElementById('infoPanel').classList.remove('hidden');
             updateCoefficientsList();
 
             animation_id = requestAnimationFrame(draw);
@@ -1032,7 +1066,33 @@ fn generate_html() -> String {
 
         function draw() {
             if (!is_paused) {
-                time += 0.04 * speed_multiplier;
+                const timeStep = 0.04 * speed_multiplier;
+                time += timeStep * timeDirection;
+
+                // Handle loop modes
+                const maxTime = 100.0;
+                if (loopMode === 'once') {
+                    if (time > maxTime) {
+                        time = maxTime;
+                        is_paused = true;
+                        document.getElementById('pauseBtn').textContent = 'Play';
+                        updateStatus('Animation complete (Play Once mode)');
+                    }
+                } else if (loopMode === 'loop') {
+                    if (time > maxTime) {
+                        time = 0;
+                        wave = []; // Clear wave on loop
+                    }
+                } else if (loopMode === 'pingpong') {
+                    if (time >= maxTime) {
+                        timeDirection = -1;
+                        time = maxTime;
+                    } else if (time <= 0) {
+                        timeDirection = 1;
+                        time = 0;
+                        wave = []; // Clear wave on direction change
+                    }
+                }
             }
 
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -1057,6 +1117,18 @@ fn generate_html() -> String {
 
             context.restore();
             animation_id = requestAnimationFrame(draw);
+
+            // Update info panel
+            if (fourierData) {
+                updateInfoPanel();
+            }
+        }
+
+        function updateInfoPanel() {
+            document.getElementById('infoTime').textContent = time.toFixed(2) + 's';
+            document.getElementById('infoWave').textContent = wave.length;
+            document.getElementById('infoComponents').textContent = circles.length;
+            document.getElementById('infoDirection').textContent = timeDirection > 0 ? 'Forward' : 'Backward';
         }
 
         function updateStatus(message) {
@@ -1278,6 +1350,18 @@ fn generate_html() -> String {
 
         document.getElementById('showCirclesOutline').addEventListener('change', (e) => {
             showCirclesOutline = e.target.checked;
+        });
+
+        document.getElementById('radiusFilter').addEventListener('input', (e) => {
+            minRadiusFilter = parseFloat(e.target.value);
+            document.getElementById('radiusFilterValue').textContent = e.target.value;
+            updateStatus(`Radius filter: ${e.target.value} (hiding ${circles.filter(c => c.radius < minRadiusFilter).length} components)`);
+        });
+
+        document.getElementById('loopMode').addEventListener('change', (e) => {
+            loopMode = e.target.value;
+            timeDirection = 1; // Reset direction when changing modes
+            updateStatus(`Loop mode: ${e.target.options[e.target.selectedIndex].text}`);
         });
 
         document.getElementById('pauseBtn').addEventListener('click', function() {
