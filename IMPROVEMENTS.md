@@ -3,6 +3,44 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
+## Recent Updates (Iteration 3)
+
+### 11. Preset Templates Library ⭐
+- **Built-in Shape Library**: 8 instantly loadable templates
+  - Circle, Square, Triangle
+  - Star (5-point), Heart shape
+  - Infinity symbol, Spiral, Sine wave
+  - Mathematically accurate parametric equations
+  - One-click loading from dropdown
+  - Perfect for educational demonstrations
+
+### 12. Enhanced Drawing Tools ⭐
+- **Multiple Drawing Modes**: Beyond freehand
+  - Freehand drawing (original)
+  - Line tool: Draw straight lines
+  - Rectangle tool: Draw rectangles and squares
+  - Ellipse tool: Draw ellipses and circles
+  - Live preview with dashed lines
+  - All tools support undo/redo
+  - Tool selector dropdown in drawing mode
+
+### 13. Full-Screen Mode ⭐
+- **Presentation-Ready Full-Screen**:
+  - Toggle with button or F key
+  - ESC key exits (standard behavior)
+  - Perfect for presentations and demos
+  - Status indicator shows current state
+  - Automatically handles state changes
+
+### 14. Animation Timeline Scrubber ⭐
+- **Precise Timeline Control**:
+  - Timeline slider (0-100 seconds)
+  - Scrub through animation frame-by-frame
+  - Real-time position display
+  - Clears trace when scrubbing
+  - Pause while scrubbing, auto-resume
+  - 100ms update interval for smooth UI
+
 ## Recent Updates (Iteration 2)
 
 ### 9. GIF Export from GUI
