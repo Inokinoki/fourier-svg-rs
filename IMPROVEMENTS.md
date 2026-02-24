@@ -3,6 +3,35 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
+## Recent Updates (Iteration 4)
+
+### 15. Animation Loop Modes ⭐
+- **Playback Control**: Three animation modes
+  - Play Once: Stops at end (100s)
+  - Loop: Continuous playback with reset
+  - Ping-Pong: Reverses direction at boundaries
+  - Smooth transitions between modes
+  - Auto-pause on completion
+  - Wave clearing on loops
+
+### 16. Real-Time Animation Info Panel ⭐
+- **Live Metrics Display**:
+  - Current time (seconds, 2 decimal precision)
+  - Wave point count (trace length)
+  - Active component count
+  - Direction indicator (Forward/Backward)
+  - Updates every frame
+  - Only visible during visualization
+
+### 17. Component Radius Filter ⭐
+- **Intelligent Filtering**:
+  - Adjustable minimum radius (0-50)
+  - Hides small epicycles below threshold
+  - Real-time feedback on hidden components
+  - Shows dominant Fourier components
+  - Educational value for understanding importance
+  - Dynamic status messages
+
 ## Recent Updates (Iteration 3)
 
 ### 11. Preset Templates Library ⭐
