@@ -3,7 +3,25 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
-## New Features Implemented
+## Recent Updates (Iteration 2)
+
+### 9. GIF Export from GUI
+- **Animated GIF Recording**: Direct export from the interface
+  - Configurable frame count: 50-300 frames
+  - Adjustable duration: 2-20 seconds
+  - Automatic pause during recording
+  - Progress indicator
+  - File dialog for save location
+
+### 10. Component Visibility Controls
+- **Toggle Visibility Options**: Show/hide visualization elements
+  - Show/Hide Epicycles (radius lines)
+  - Show/Hide Trace path
+  - Show/Hide Circle outlines
+  - Real-time updates
+  - Educational value for understanding components
+
+## New Features Implemented (Iteration 1)
 
 ### 1. Export Functionality
 - **PNG Export**: Save current visualization frame as PNG image
