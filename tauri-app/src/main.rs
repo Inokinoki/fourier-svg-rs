@@ -16349,6 +16349,9 @@ r##"
                 <button class="help-tab" data-tab="controls">Controls Guide</button>
                 <button class="help-tab" data-tab="shortcuts">Keyboard Shortcuts</button>
                 <button class="help-tab" data-tab="features">Features</button>
+                <button class="help-tab" data-tab="changelog">📜 Changelog</button>
+                <button class="help-tab" data-tab="feedback">💬 Feedback</button>
+                <button class="help-tab" data-tab="settings">⚙️ Settings</button>
             </div>
 
             <div class="help-tab-content" id="getting-started">
@@ -16482,6 +16485,113 @@ r##"
                 <p><strong>Loop Modes:</strong> Play once, loop continuously, or ping-pong (back and forth).</p>
                 <p><strong>Preset Templates:</strong> Instantly load circle, square, triangle, star, heart, infinity, spiral, or sine wave.</p>
                 <p><strong>Statistics Panel:</strong> View real-time FFT analysis including frequency range, largest component, and more.</p>
+            </div>
+
+            <div class="help-tab-content hidden" id="changelog">
+                <h3>📜 Version History</h3>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #667eea;">Iteration 23 - Professional Workspace</h4>
+                        <ul style="line-height: 1.6;">
+                            <li>⭐ Favorites System - Star and organize configurations</li>
+                            <li>📁 Project Management - Save/load complete workspaces</li>
+                            <li>🔌 Plugin System - Extensible architecture</li>
+                            <li>📊 Advanced Analytics - Session tracking and insights</li>
+                        </ul>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #667eea;">Iteration 22 - Timeline & Media</h4>
+                        <ul style="line-height: 1.6;">
+                            <li>🎚️ Timeline Markers - Mark and jump to key frames</li>
+                            <li>📚 Layer Controls - Independent epicycle visibility</li>
+                            <li>🎵 Audio Sync - Synchronize with audio files</li>
+                            <li>📋 Export Queue - Batch export management</li>
+                        </ul>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #667eea;">Iteration 21 - State Management</h4>
+                        <ul style="line-height: 1.6;">
+                            <li>🖼️ Snapshot Gallery - Visual thumbnail browser</li>
+                            <li>🔖 Bookmarks - Named state markers</li>
+                            <li>📦 Settings Import/Export - Full configuration backup</li>
+                            <li>🎯 Grid View Mode - Multi-configuration comparison</li>
+                        </ul>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #999;">And 20 more iterations of improvements...</h4>
+                        <p style="font-size: 12px; color: #666;">See IMPROVEMENTS.md for complete history</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-tab-content hidden" id="feedback">
+                <h3>💬 Feedback & Support</h3>
+                <p>We value your feedback! Here are several ways to reach us:</p>
+                <div style="margin-top: 20px;">
+                    <h4>📧 Report a Bug</h4>
+                    <p style="font-size: 12px; color: #666;">Found an issue? Let us know!</p>
+                    <button class="secondary" onclick="openFeedbackForm('bug')" style="margin-top: 5px;">🐛 Report Bug</button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <h4>💡 Feature Request</h4>
+                    <p style="font-size: 12px; color: #666;">Have an idea for improvement?</p>
+                    <button class="secondary" onclick="openFeedbackForm('feature')" style="margin-top: 5px;">✨ Request Feature</button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <h4>⭐ Rate the App</h4>
+                    <p style="font-size: 12px; color: #666;">Love this app? Leave a review!</p>
+                    <button class="success" onclick="openFeedbackForm('review')" style="margin-top: 5px;">⭐⭐⭐⭐⭐ Rate</button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <h4>📚 Documentation</h4>
+                    <p style="font-size: 12px; color: #666;">View complete documentation and tutorials</p>
+                    <button class="secondary" onclick="window.open('https://github.com/anthropics/claude-code', '_blank')" style="margin-top: 5px;">📖 View Docs</button>
+                </div>
+            </div>
+
+            <div class="help-tab-content hidden" id="settings">
+                <h3>⚙️ Application Settings</h3>
+                <div style="margin-top: 15px;">
+                    <label style="display: flex; align-items: center; font-size: 13px; margin-bottom: 10px;">
+                        <input type="checkbox" id="autoSaveEnabled" style="width: auto; margin-right: 8px;">
+                        Enable auto-save (every 30 seconds)
+                    </label>
+                    <label style="display: flex; align-items: center; font-size: 13px; margin-bottom: 10px;">
+                        <input type="checkbox" id="showTooltipsEnabled" checked style="width: auto; margin-right: 8px;">
+                        Show enhanced tooltips
+                    </label>
+                    <label style="display: flex; align-items: center; font-size: 13px; margin-bottom: 10px;">
+                        <input type="checkbox" id="confirmActionsEnabled" checked style="width: auto; margin-right: 8px;">
+                        Confirm destructive actions
+                    </label>
+                    <label style="display: flex; align-items: center; font-size: 13px; margin-bottom: 10px;">
+                        <input type="checkbox" id="analyticsEnabled" checked style="width: auto; margin-right: 8px;">
+                        Enable usage analytics
+                    </label>
+                </div>
+                <div style="margin-top: 20px;">
+                    <h4>🎨 Default Settings</h4>
+                    <div style="margin-top: 10px;">
+                        <label style="font-size: 12px;">Default Wave Count:</label>
+                        <input type="number" id="defaultWaveCount" value="100" min="10" max="500" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; margin-top: 3px;">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label style="font-size: 12px;">Default Speed:</label>
+                        <input type="number" id="defaultSpeed" value="1.0" min="0.1" max="3.0" step="0.1" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; margin-top: 3px;">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label style="font-size: 12px;">Default Theme:</label>
+                        <select id="defaultTheme" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; margin-top: 3px;">
+                            <option value="default">Default (Purple)</option>
+                            <option value="dark">Dark Mode</option>
+                            <option value="light">Light Mode</option>
+                            <option value="rainbow">Rainbow</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="success" onclick="saveAppSettings()" style="width: 100%;">💾 Save Settings</button>
+                </div>
             </div>
 
             <div style="margin-top: 20px; text-align: center;">
@@ -23300,6 +23410,101 @@ Generated by Fourier SVG Visualizer
             });
             saveAnalytics();
         });
+
+        // Feedback System
+        window.openFeedbackForm = function(type) {
+            const titles = {
+                bug: '🐛 Report a Bug',
+                feature: '💡 Feature Request',
+                review: '⭐ Rate the App'
+            };
+
+            const modal = document.createElement('div');
+            modal.className = 'help-modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="help-modal-content" style="max-width: 500px;">
+                    <h2>${titles[type]}</h2>
+                    <div style="margin: 20px 0;">
+                        <label style="font-size: 12px; font-weight: 600;">Subject:</label>
+                        <input type="text" id="feedbackSubject" placeholder="${type} subject..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-top: 5px;">
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <label style="font-size: 12px; font-weight: 600;">Details:</label>
+                        <textarea id="feedbackDetails" rows="5" placeholder="Please describe your ${type}..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-top: 5px; resize: vertical;"></textarea>
+                    </div>
+                    <div class="button-row">
+                        <button class="secondary" onclick="this.closest('.help-modal').remove()" style="flex: 1;">Cancel</button>
+                        <button class="success" onclick="submitFeedback('${type}')" style="flex: 1;">Submit</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+            logActivity('Opened feedback form', { type });
+        };
+
+        window.submitFeedback = function(type) {
+            const subject = document.getElementById('feedbackSubject').value;
+            const details = document.getElementById('feedbackDetails').value;
+
+            if (!subject || !details) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+
+            // In a real implementation, this would send to a server
+            console.log('Feedback submitted:', { type, subject, details });
+            showToast('Thank you for your feedback!', 'success');
+            document.querySelector('.help-modal h2').textContent.includes(titles[type] || 'Feedback') ?
+                document.querySelector('.help-modal').remove() : null;
+            logActivity('Submitted feedback', { type, subject });
+        };
+
+        // Application Settings
+        let appSettings = {
+            autoSave: false,
+            showTooltips: true,
+            confirmActions: true,
+            analytics: true,
+            defaultWaveCount: 100,
+            defaultSpeed: 1.0,
+            defaultTheme: 'default'
+        };
+
+        function loadAppSettings() {
+            const saved = localStorage.getItem('appSettings');
+            if (saved) {
+                appSettings = { ...appSettings, ...JSON.parse(saved) };
+            }
+            applyAppSettings();
+        }
+
+        function applyAppSettings() {
+            document.getElementById('autoSaveEnabled').checked = appSettings.autoSave;
+            document.getElementById('showTooltipsEnabled').checked = appSettings.showTooltips;
+            document.getElementById('confirmActionsEnabled').checked = appSettings.confirmActions;
+            document.getElementById('analyticsEnabled').checked = appSettings.analytics;
+            document.getElementById('defaultWaveCount').value = appSettings.defaultWaveCount;
+            document.getElementById('defaultSpeed').value = appSettings.defaultSpeed;
+            document.getElementById('defaultTheme').value = appSettings.defaultTheme;
+        }
+
+        window.saveAppSettings = function() {
+            appSettings = {
+                autoSave: document.getElementById('autoSaveEnabled').checked,
+                showTooltips: document.getElementById('showTooltipsEnabled').checked,
+                confirmActions: document.getElementById('confirmActionsEnabled').checked,
+                analytics: document.getElementById('analyticsEnabled').checked,
+                defaultWaveCount: parseInt(document.getElementById('defaultWaveCount').value),
+                defaultSpeed: parseFloat(document.getElementById('defaultSpeed').value),
+                defaultTheme: document.getElementById('defaultTheme').value
+            };
+
+            localStorage.setItem('appSettings', JSON.stringify(appSettings));
+            showToast('Settings saved successfully', 'success');
+            logActivity('Saved app settings');
+        };
 
         async function exportAsGif() {
             try {
@@ -45659,6 +45864,9 @@ logActivity('Batch export completed');`
 
         // Load analytics
         loadAnalytics();
+
+        // Load app settings
+        loadAppSettings();
 
         // Load saved snapshots
         loadSnapshotsList();
