@@ -673,6 +673,103 @@ fn generate_html() -> String {
         body.dark-theme .section-description {
             color: #999;
         }
+
+        /* Loading spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Loading overlay dark theme */
+        body.dark-theme #loadingOverlay {
+            background: rgba(26, 26, 26, 0.95);
+        }
+
+        body.dark-theme #loadingText {
+            color: #667eea;
+        }
+
+        body.dark-theme #loadingSubtext {
+            color: #b0b0b0;
+        }
+
+        body.dark-theme #loadingProgress {
+            background: #3d3d3d;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            max-width: 350px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-info {
+            border-left: 4px solid #667eea;
+        }
+
+        body.dark-theme .toast {
+            background: #2d2d2d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-theme .toast-message {
+            color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
@@ -15942,6 +16039,18 @@ r##"
     <div class="main-content">
         <div class="canvas-container">
             <canvas id="fourier_canvas" width="700" height="600"></canvas>
+
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); border-radius: 12px; z-index: 1000; flex-direction: column; align-items: center; justify-content: center;">
+                <div style="margin-bottom: 20px;">
+                    <div class="spinner" style="width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                </div>
+                <div id="loadingText" style="font-size: 16px; font-weight: 600; color: #667eea; margin-bottom: 10px;">Processing...</div>
+                <div id="loadingSubtext" style="font-size: 12px; color: #666;">This may take a moment for complex paths</div>
+                <div id="loadingProgress" style="width: 200px; height: 4px; background: #f0f0f0; border-radius: 2px; margin-top: 15px; overflow: hidden;">
+                    <div id="loadingProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.3s ease;"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -16450,6 +16559,120 @@ r##"
                     updateStatus(`Switched to ${modeName} mode`);
                 });
             });
+        }
+
+        // Loading overlay functions
+        let loadingTimeout = null;
+
+        function showLoading(message, subtext = '') {
+            const overlay = document.getElementById('loadingOverlay');
+            const textEl = document.getElementById('loadingText');
+            const subtextEl = document.getElementById('loadingSubtext');
+            const progressEl = document.getElementById('loadingProgressBar');
+
+            textEl.textContent = message || 'Processing...';
+            subtextEl.textContent = subtext || 'This may take a moment';
+            progressEl.style.width = '0%';
+            overlay.style.display = 'flex';
+
+            // Auto-hide after 30 seconds if not manually hidden
+            if (loadingTimeout) clearTimeout(loadingTimeout);
+            loadingTimeout = setTimeout(() => {
+                hideLoading();
+                showToast('Operation timed out', 'error');
+            }, 30000);
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'none';
+            if (loadingTimeout) {
+                clearTimeout(loadingTimeout);
+                loadingTimeout = null;
+            }
+        }
+
+        function updateLoadingProgress(percent, message = null, subtext = null) {
+            const progressEl = document.getElementById('loadingProgressBar');
+            const textEl = document.getElementById('loadingText');
+            const subtextEl = document.getElementById('loadingSubtext');
+
+            progressEl.style.width = percent + '%';
+            if (message) textEl.textContent = message;
+            if (subtext) subtextEl.textContent = subtext;
+        }
+
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 3000) {
+            // Remove existing toast if any
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+
+            // Add icon based on type
+            const icon = document.createElement('span');
+            icon.className = 'toast-icon';
+            switch(type) {
+                case 'success':
+                    icon.textContent = '✓';
+                    break;
+                case 'error':
+                    icon.textContent = '✕';
+                    break;
+                case 'info':
+                default:
+                    icon.textContent = 'ℹ';
+                    break;
+            }
+
+            // Add message
+            const messageEl = document.createElement('span');
+            messageEl.className = 'toast-message';
+            messageEl.textContent = message;
+
+            // Assemble toast
+            toast.appendChild(icon);
+            toast.appendChild(messageEl);
+            document.body.appendChild(toast);
+
+            // Auto-remove after duration
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Toggle all collapsible sections
+        let allSectionsExpanded = true;
+
+        function toggleAllSections() {
+            const sections = document.querySelectorAll('.collapsible-section');
+            allSectionsExpanded = !allSectionsExpanded;
+
+            sections.forEach(section => {
+                const header = section.querySelector('.collapsible-header');
+                const content = section.querySelector('.collapsible-content');
+
+                if (allSectionsExpanded) {
+                    header.classList.remove('collapsed');
+                    content.classList.remove('collapsed');
+                } else {
+                    header.classList.add('collapsed');
+                    content.classList.add('collapsed');
+                }
+            });
+
+            updateStatus(allSectionsExpanded ? 'All sections expanded' : 'All sections collapsed');
+            showToast(allSectionsExpanded ? 'All sections expanded' : 'All sections collapsed', 'info', 2000);
         }
 
         const Point = class {
@@ -41470,6 +41693,11 @@ logActivity('Batch export completed');`
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
+            // Don't trigger shortcuts when typing in input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+
             if (e.ctrlKey && e.key === 'z') {
                 e.preventDefault();
                 undo();
@@ -41506,6 +41734,30 @@ logActivity('Batch export completed');`
             } else if (e.ctrlKey && e.key === 'k') {
                 e.preventDefault();
                 document.getElementById('globalSearchInput').focus();
+            } else if (e.altKey && e.key === '1') {
+                // Switch to General mode
+                e.preventDefault();
+                document.querySelector('[data-mode="general"]').click();
+            } else if (e.altKey && e.key === '2') {
+                // Switch to Education mode
+                e.preventDefault();
+                document.querySelector('[data-mode="education"]').click();
+            } else if (e.altKey && e.key === '3') {
+                // Switch to Art mode
+                e.preventDefault();
+                document.querySelector('[data-mode="art"]').click();
+            } else if (e.altKey && e.key === '4') {
+                // Switch to Analysis mode
+                e.preventDefault();
+                document.querySelector('[data-mode="analysis"]').click();
+            } else if (e.key === 'c' || e.key === 'C') {
+                // Collapse/expand all sections
+                e.preventDefault();
+                toggleAllSections();
+            } else if (e.key === 's' && e.ctrlKey) {
+                // Save current state
+                e.preventDefault();
+                saveWorkspace();
             }
         });
 
@@ -41617,28 +41869,49 @@ logActivity('Batch export completed');`
             svgPath += ' Z';
 
             const sampleRate = parseInt(document.getElementById('sampleRate').value);
-            updateStatus('Processing... This may take a moment.');
+            showLoading('Computing Fourier Transform', `Processing ${drawingPoints.length} points with ${sampleRate} samples...`);
+            updateLoadingProgress(10);
 
             if (window.__TAURI__ && window.__TAURI__.core) {
+                // Simulate progress for better UX
+                let progress = 10;
+                const progressInterval = setInterval(() => {
+                    if (progress < 70) {
+                        progress += 10;
+                        updateLoadingProgress(progress);
+                    }
+                }, 200);
+
                 window.__TAURI__.core.invoke('process_drawing', {
                     path: svgPath,
                     numSample: sampleRate
                 })
                 .then((data) => {
-                    fullFourierData = data;
-                    document.getElementById('waveCount').max = data.length;
+                    clearInterval(progressInterval);
+                    updateLoadingProgress(90, 'Finalizing...');
 
-                    // Save original path points for comparison mode
-                    originalPathPoints = drawingPoints.map(p => ({ x: p.x, y: p.y }));
+                    setTimeout(() => {
+                        fullFourierData = data;
+                        document.getElementById('waveCount').max = data.length;
 
-                    initFourierVisualization();
-                    updateStatus('Visualizing with ' + data.length + ' components');
+                        // Save original path points for comparison mode
+                        originalPathPoints = drawingPoints.map(p => ({ x: p.x, y: p.y }));
+
+                        initFourierVisualization();
+                        hideLoading();
+                        updateStatus('Visualizing with ' + data.length + ' components');
+                        showToast(`Visualization ready with ${data.length} components`, 'success');
+                    }, 300);
                 })
                 .catch((err) => {
+                    clearInterval(progressInterval);
+                    hideLoading();
                     console.error('Error:', err);
                     updateStatus('Error: ' + err);
+                    showToast('Failed to process drawing: ' + err, 'error');
                 });
             } else {
+                hideLoading();
                 console.log('Drawing path:', svgPath);
                 updateStatus('Tauri bridge not available');
             }
