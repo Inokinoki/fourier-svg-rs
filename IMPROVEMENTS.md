@@ -3,7 +3,99 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
-## Recent Updates (Iteration 21)
+## Recent Updates (Iteration 22)
+
+### 69. Timeline Scrubber with Markers ⭐⭐⭐
+- **Enhanced Timeline Navigation**: Mark and jump to key frames
+  - **Add Markers**: Save current timeline position as marker
+    - One-click marker addition
+    - Random color from 6-color palette
+    - Automatic sorting by time
+    - Visual circular markers
+  - **Jump to Markers**: Click marker to seek timeline
+    - Instant timeline position update
+    - Tooltip shows marker number and time
+    - Visual feedback on jump
+  - **Marker Management**:
+    - Clear all markers with confirmation
+    - Visual marker display container
+    - Persistent during session
+  - **Use Cases**:
+    - Mark key animation frames
+    - Create chapter markers
+    - Quick navigation in long animations
+    - Presentation preparation
+
+### 70. Layer Controls ⭐⭐⭐
+- **Independent Epicycle Visibility**: Control each layer separately
+  - **Top 20 Layers Display**: Shows most significant epicycles
+    - Sorted by radius (amplitude)
+    - Layer index, radius, frequency
+    - Individual visibility checkbox
+  - **Layer Management**:
+    - Show All: Enable all layers
+    - Hide All: Disable all layers
+    - Per-layer toggle control
+    - Scrollable layer list
+  - **Visual Organization**:
+    - Clean layer display
+    - Technical details per layer
+    - Border separators
+    - Compact information density
+  - **Use Cases**:
+    - Analyze individual epicycle contributions
+    - Simplify complex visualizations
+    - Focus on major components
+    - Educational layer-by-layer breakdown
+
+### 71. Audio Sync ⭐⭐
+- **Visualization-Audio Synchronization**: Play audio with animation
+  - **Audio Loading**: File picker for audio files
+    - Accepts all audio formats
+    - Creates audio element
+    - Displays file name and duration
+    - Error handling
+  - **Playback Control**:
+    - Play/Pause toggle button
+    - Playback rate control (0.1x - 2.0x)
+    - Dynamic button text
+    - Status display
+  - **Sync Features**:
+    - Variable speed synchronization
+    - Real-time playback control
+    - Smooth audio transitions
+  - **Use Cases**:
+    - Music visualizations
+    - Educational demonstrations
+    - Presentation timing
+    - Creative content creation
+
+### 72. Export Queue ⭐⭐⭐
+- **Batch Export Management**: Queue and process multiple exports
+  - **Queue Management**:
+    - Add current configuration to queue
+    - Visual queue list with status
+    - Process all queued items
+    - Clear queue with confirmation
+  - **Queue Items Store**:
+    - Wave count, speed, theme
+    - Timestamp and status
+    - Visual progress indication
+    - Pending (⏳) / Complete (✅) icons
+  - **Batch Processing**:
+    - Sequential export processing
+    - Automatic configuration restoration
+    - Progress updates per item
+    - Completion notification
+  - **Use Cases**:
+    - Batch export multiple configurations
+    - Create format comparison sets
+    - Generate presentation materials
+    - Automated content generation
+
+---
+
+## Previous Updates (Iteration 21)
 
 ### 65. Snapshot Gallery ⭐⭐⭐
 - **Visual Thumbnail Gallery**: Browse and restore from captured snapshots
