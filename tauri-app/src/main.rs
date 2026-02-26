@@ -928,6 +928,23 @@ fn generate_html() -> String {
             </p>
         </div>
 
+        <!-- Quick Smart Presets -->
+        <div class="control-group" style="margin-bottom: 15px;">
+            <label style="font-weight: 600; margin-bottom: 8px;">⚡ Quick Presets:</label>
+            <select id="smartPresetSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                <option value="">-- Select a preset --</option>
+                <option value="quickDemo">⚡ Quick Demo (Fast preview)</option>
+                <option value="highQuality">✨ High Quality (Best accuracy)</option>
+                <option value="educational">🎓 Educational (Teaching optimized)</option>
+                <option value="artistic">🎨 Artistic (Creative mode)</option>
+                <option value="performance">🚀 Performance (Fastest)</option>
+            </select>
+            <button id="applySmartPresetBtn" class="secondary" style="width: 100%;" disabled>Apply Preset</button>
+            <p class="section-description" style="text-align: center; margin: 8px 0 0 0;">
+                One-click optimization for common tasks
+            </p>
+        </div>
+
         <div class="control-group">
             <label>Input Mode:</label>
             <div class="button-row">
@@ -16679,6 +16696,9 @@ r##"
                     currentWorkflowMode = mode;
                     applyWorkflowMode(mode);
 
+                    // Learn from workflow change
+                    learnFromBehavior('workflowChange', { mode: mode });
+
                     // Show status message
                     const modeName = btn.textContent.trim();
                     updateStatus(`Switched to ${modeName} mode`);
@@ -16971,6 +16991,268 @@ r##"
 
                 tooltip.style.top = top + 'px';
                 tooltip.style.left = left + 'px';
+            }
+        }
+
+        // Smart Defaults and Auto-Configuration System
+        const userPreferences = {
+            lastWorkflowMode: 'general',
+            lastSampleRate: 10240,
+            lastWaveCount: 201,
+            lastSpeed: 1.0,
+            lastColorTheme: 'default',
+            usageStats: {
+                totalVisualizations: 0,
+                favoriteMode: null,
+                averageWaveCount: 201,
+                commonWorkflow: 'general'
+            },
+            firstVisit: true,
+            preferencesVersion: 1
+        };
+
+        // Smart presets for common tasks
+        const smartPresets = {
+            quickDemo: {
+                name: 'Quick Demo',
+                description: 'Fast preview for presentations',
+                settings: {
+                    sampleRate: 5000,
+                    waveCount: 100,
+                    speed: 1.5,
+                    easingMode: 'easeInOutQuad',
+                    showCircles: true,
+                    showTrace: true,
+                    highlightMode: 'top5'
+                }
+            },
+            highQuality: {
+                name: 'High Quality',
+                description: 'Best accuracy for detailed work',
+                settings: {
+                    sampleRate: 15000,
+                    waveCount: 300,
+                    speed: 0.8,
+                    easingMode: 'linear',
+                    showCircles: false,
+                    showTrace: true,
+                    highlightMode: 'none'
+                }
+            },
+            educational: {
+                name: 'Educational',
+                description: 'Optimized for teaching',
+                settings: {
+                    sampleRate: 8000,
+                    waveCount: 150,
+                    speed: 1.0,
+                    easingMode: 'linear',
+                    showCircles: true,
+                    showTrace: true,
+                    highlightMode: 'top10',
+                    comparisonMode: true
+                }
+            },
+            artistic: {
+                name: 'Artistic',
+                description: 'Creative visualization',
+                settings: {
+                    sampleRate: 10000,
+                    waveCount: 200,
+                    speed: 0.5,
+                    easingMode: 'easeInOutCubic',
+                    showCircles: true,
+                    showTrace: true,
+                    colorTheme: 'rainbow',
+                    highlightMode: 'none'
+                }
+            },
+            performance: {
+                name: 'Performance',
+                description: 'Fastest rendering speed',
+                settings: {
+                    sampleRate: 3000,
+                    waveCount: 50,
+                    speed: 2.0,
+                    easingMode: 'linear',
+                    showCircles: false,
+                    showTrace: true,
+                    highlightMode: 'top3'
+                }
+            }
+        };
+
+        // Load user preferences from localStorage
+        function loadUserPreferences() {
+            try {
+                const saved = localStorage.getItem('fourierUserPreferences');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Merge with defaults to handle version updates
+                    Object.assign(userPreferences, parsed);
+                    userPreferences.firstVisit = false;
+                }
+            } catch (e) {
+                console.error('Failed to load preferences:', e);
+            }
+            return userPreferences;
+        }
+
+        // Save user preferences to localStorage
+        function saveUserPreferences() {
+            try {
+                userPreferences.preferencesVersion = 1;
+                localStorage.setItem('fourierUserPreferences', JSON.stringify(userPreferences));
+            } catch (e) {
+                console.error('Failed to save preferences:', e);
+            }
+        }
+
+        // Apply smart preset
+        function applySmartPreset(presetName) {
+            const preset = smartPresets[presetName];
+            if (!preset) return;
+
+            const settings = preset.settings;
+
+            // Apply each setting
+            Object.entries(settings).forEach(([key, value]) => {
+                switch(key) {
+                    case 'sampleRate':
+                        document.getElementById('sampleRate').value = value;
+                        document.getElementById('sampleValue').textContent = value;
+                        break;
+                    case 'waveCount':
+                        document.getElementById('waveCount').value = value;
+                        document.getElementById('waveValue').textContent = value;
+                        current_wave_count = value;
+                        break;
+                    case 'speed':
+                        document.getElementById('speedControl').value = value;
+                        document.getElementById('speedValue').textContent = value.toFixed(1) + 'x';
+                        speed_multiplier = value;
+                        break;
+                    case 'easingMode':
+                        document.getElementById('easingMode').value = value;
+                        easingMode = value;
+                        break;
+                    case 'showCircles':
+                        document.getElementById('showCircles').checked = value;
+                        showCircles = value;
+                        break;
+                    case 'showTrace':
+                        document.getElementById('showTrace').checked = value;
+                        showTrace = value;
+                        break;
+                    case 'colorTheme':
+                        document.getElementById('colorTheme').value = value;
+                        applyColorTheme(value);
+                        break;
+                    case 'highlightMode':
+                        document.getElementById('highlightMode').value = value;
+                        highlightMode = value;
+                        break;
+                    case 'comparisonMode':
+                        document.getElementById('comparisonMode').checked = value;
+                        comparisonMode = value;
+                        break;
+                }
+            });
+
+            // Show feedback
+            showToast(`Applied "${preset.name}" preset`, 'success');
+            updateStatus(`Quick preset: ${preset.description}`);
+        }
+
+        // Auto-configure based on drawing complexity
+        function autoConfigureForDrawing(pointCount) {
+            let recommendedSettings;
+
+            if (pointCount < 50) {
+                // Simple drawing - use fewer samples
+                recommendedSettings = {
+                    sampleRate: 3000,
+                    waveCount: Math.min(pointCount, 50),
+                    reason: 'Simple drawing detected'
+                };
+            } else if (pointCount < 200) {
+                // Medium complexity
+                recommendedSettings = {
+                    sampleRate: 8000,
+                    waveCount: 150,
+                    reason: 'Medium complexity drawing'
+                };
+            } else {
+                // Complex drawing
+                recommendedSettings = {
+                    sampleRate: 15000,
+                    waveCount: 300,
+                    reason: 'Complex drawing detected'
+                };
+            }
+
+            // Apply recommendations
+            document.getElementById('sampleRate').value = recommendedSettings.sampleRate;
+            document.getElementById('sampleValue').textContent = recommendedSettings.sampleRate;
+            document.getElementById('waveCount').max = recommendedSettings.waveCount * 2;
+
+            updateStatus(`Auto-configured: ${recommendedSettings.reason}`);
+        }
+
+        // Learn from user behavior
+        function learnFromBehavior(action, data) {
+            switch(action) {
+                case 'visualization':
+                    userPreferences.usageStats.totalVisualizations++;
+                    userPreferences.lastWaveCount = data.waveCount;
+                    userPreferences.usageStats.averageWaveCount =
+                        (userPreferences.usageStats.averageWaveCount + data.waveCount) / 2;
+                    break;
+                case 'workflowChange':
+                    userPreferences.lastWorkflowMode = data.mode;
+                    userPreferences.usageStats.commonWorkflow = data.mode;
+                    break;
+                case 'themeChange':
+                    userPreferences.lastColorTheme = data.theme;
+                    break;
+            }
+
+            // Save preferences periodically
+            saveUserPreferences();
+        }
+
+        // Initialize smart defaults on first visit
+        function initializeSmartDefaults() {
+            const prefs = loadUserPreferences();
+
+            if (prefs.firstVisit) {
+                // First-time user - show welcome
+                setTimeout(() => {
+                    showToast('Welcome! Try the Quick Demo preset for a fast preview', 'info', 5000);
+                }, 1000);
+
+                // Apply beginner-friendly defaults
+                applySmartPreset('quickDemo');
+            } else {
+                // Returning user - restore their preferences
+                if (prefs.lastWorkflowMode) {
+                    const modeBtn = document.querySelector(`[data-mode="${prefs.lastWorkflowMode}"]`);
+                    if (modeBtn) modeBtn.click();
+                }
+
+                if (prefs.lastColorTheme && prefs.lastColorTheme !== 'default') {
+                    applyColorTheme(prefs.lastColorTheme);
+                }
+
+                // Restore last used settings
+                document.getElementById('sampleRate').value = prefs.lastSampleRate;
+                document.getElementById('sampleValue').textContent = prefs.lastSampleRate;
+                document.getElementById('waveCount').value = prefs.lastWaveCount;
+                document.getElementById('waveValue').textContent = prefs.lastWaveCount;
+                document.getElementById('speedControl').value = prefs.lastSpeed;
+                document.getElementById('speedValue').textContent = prefs.lastSpeed.toFixed(1) + 'x';
+
+                updateStatus(`Welcome back! You have ${prefs.usageStats.totalVisualizations} visualizations`);
             }
         }
 
@@ -42196,6 +42478,16 @@ logActivity('Batch export completed');`
                         // Save original path points for comparison mode
                         originalPathPoints = drawingPoints.map(p => ({ x: p.x, y: p.y }));
 
+                        // Auto-configure based on drawing complexity
+                        autoConfigureForDrawing(drawingPoints.length);
+
+                        // Learn from this visualization
+                        learnFromBehavior('visualization', {
+                            waveCount: current_wave_count,
+                            pointCount: drawingPoints.length,
+                            sampleRate: sampleRate
+                        });
+
                         initFourierVisualization();
                         hideLoading();
                         updateStatus('Visualizing with ' + data.length + ' components');
@@ -44621,6 +44913,25 @@ logActivity('Batch export completed');`
 
         // Initialize enhanced tooltips
         initializeEnhancedTooltips();
+
+        // Initialize smart defaults and auto-configuration
+        initializeSmartDefaults();
+
+        // Smart preset event listeners
+        document.getElementById('smartPresetSelect').addEventListener('change', (e) => {
+            const presetBtn = document.getElementById('applySmartPresetBtn');
+            presetBtn.disabled = !e.target.value;
+        });
+
+        document.getElementById('applySmartPresetBtn').addEventListener('click', () => {
+            const presetSelect = document.getElementById('smartPresetSelect');
+            const presetName = presetSelect.value;
+            if (presetName) {
+                applySmartPreset(presetName);
+                // Track usage for learning
+                learnFromBehavior('presetApplied', { preset: presetName });
+            }
+        });
 
         // Load saved annotations
         loadAnnotationsFromStorage();
