@@ -3,6 +3,45 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
+## Recent Updates (Iteration 13)
+
+### 40. Enhanced Tooltip System ⭐⭐⭐
+- **Context-Aware Help**: Rich tooltips with detailed explanations
+  - Custom-styled tooltip overlays (not browser defaults)
+  - Smooth fade-in/slide animations
+  - Automatic positioning with viewport edge detection
+  - Above/below positioning based on available space
+  - Title + body + keyboard shortcut display
+  - Monospace-style shortcut badges (⌨ icon)
+  - Dark theme support
+  - 20+ pre-configured control tooltips
+  - Comprehensive explanations for:
+    - Wave count, speed, easing modes
+    - Timeline, zoom, color themes
+    - Radius filters and highlighting
+    - Loop modes and visibility toggles
+    - Drawing tools and grid settings
+    - Export functions
+  - Hover-based activation with smart delays
+  - Non-blocking UI (z-index layering)
+  - Educational value for new users
+  - Quick reference for all controls
+  - Reduces learning curve significantly
+
+### 41. Comprehensive Tooltip Coverage ⭐⭐
+- **Every Major Control Explained**: No mystery buttons
+  - All sliders have detailed tooltips
+  - All dropdowns include explanations
+  - All checkboxes describe their effects
+  - Action buttons show keyboard shortcuts
+  - Workflow-specific guidance
+  - Technical concepts explained simply
+  - Best practices included
+  - Keyboard shortcut reminders
+  - Visual feedback on hover
+  - Professional appearance
+  - Consistent positioning
+
 ## Recent Updates (Iteration 12)
 
 ### 36. Progressive Loading Indicators ⭐⭐

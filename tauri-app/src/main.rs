@@ -770,6 +770,125 @@ fn generate_html() -> String {
         body.dark-theme .toast-message {
             color: #e0e0e0;
         }
+
+        /* Enhanced Tooltip System */
+        .enhanced-tooltip {
+            position: absolute;
+            background: rgba(51, 51, 51, 0.95);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            max-width: 300px;
+            z-index: 10001;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .enhanced-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .enhanced-tooltip::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(51, 51, 51, 0.95);
+        }
+
+        .enhanced-tooltip.above::before {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: rgba(51, 51, 51, 0.95);
+        }
+
+        .enhanced-tooltip-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #667eea;
+        }
+
+        .enhanced-tooltip-body {
+            color: #e0e0e0;
+        }
+
+        .enhanced-tooltip-shortcut {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: monospace;
+            margin-left: 6px;
+            margin-top: 4px;
+        }
+
+        /* Dark theme tooltips */
+        body.dark-theme .enhanced-tooltip {
+            background: rgba(230, 230, 230, 0.95);
+            color: #1a1a1a;
+        }
+
+        body.dark-theme .enhanced-tooltip::before {
+            border-top-color: rgba(230, 230, 230, 0.95);
+        }
+
+        body.dark-theme .enhanced-tooltip.above::before {
+            border-bottom-color: rgba(230, 230, 230, 0.95);
+        }
+
+        body.dark-theme .enhanced-tooltip-title {
+            color: #667eea;
+        }
+
+        body.dark-theme .enhanced-tooltip-body {
+            color: #333;
+        }
+
+        body.dark-theme .enhanced-tooltip-shortcut {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Tooltip trigger indicator */
+        [data-tooltip-trigger]:hover::after {
+            content: 'ⓘ';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        /* Help sidebar button */
+        .context-help-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: help;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .context-help-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -15862,6 +15981,12 @@ r##"
         <div class="status" id="status">Ready to draw</div>
     </div>
 
+    <!-- Enhanced Tooltip Container -->
+    <div id="enhancedTooltip" class="enhanced-tooltip">
+        <div class="enhanced-tooltip-title"></div>
+        <div class="enhanced-tooltip-body"></div>
+    </div>
+
     <!-- Help Modal -->
     <div id="helpModal" class="help-modal hidden">
         <div class="help-modal-content">
@@ -16673,6 +16798,180 @@ r##"
 
             updateStatus(allSectionsExpanded ? 'All sections expanded' : 'All sections collapsed');
             showToast(allSectionsExpanded ? 'All sections expanded' : 'All sections collapsed', 'info', 2000);
+        }
+
+        // Enhanced Tooltip System
+        const tooltipData = {
+            'waveCount': {
+                title: 'Number of Epicycles',
+                body: 'Controls how many rotating circles (epicycles) are used to reconstruct the path. More circles = better accuracy but slower performance.',
+                shortcut: 'Drag slider or type value'
+            },
+            'speedControl': {
+                title: 'Animation Speed',
+                body: 'Adjusts how fast the epicycles rotate and trace the path. Higher values = faster animation.',
+                shortcut: 'Use preset buttons or drag slider'
+            },
+            'easingMode': {
+                title: 'Animation Easing',
+                body: 'Controls the acceleration/deceleration pattern. Linear = constant speed, Ease In/Out = smooth starts and stops.',
+                shortcut: 'Select from dropdown'
+            },
+            'timelineControl': {
+                title: 'Timeline Scrubber',
+                body: 'Manually control the animation position. Click and drag to scrub through the animation frame by frame.',
+                shortcut: 'Drag slider to precise position'
+            },
+            'zoomControl': {
+                title: 'Zoom Level',
+                body: 'Zoom in/out of the canvas for detailed inspection or overview of the entire path.',
+                shortcut: '+ / - keys or drag slider'
+            },
+            'colorTheme': {
+                title: 'Color Theme',
+                body: 'Predefined color schemes for the visualization. Changes the appearance of epicycles and trace.',
+                shortcut: 'Select theme from dropdown'
+            },
+            'radiusFilter': {
+                title: 'Minimum Radius Filter',
+                body: 'Hide epicycles with radius below this threshold. Useful for focusing on the most important components.',
+                shortcut: 'Increase to hide small circles'
+            },
+            'highlightMode': {
+                title: 'Component Highlighting',
+                body: 'Emphasizes the largest epicycles with thicker, red lines. Helps identify dominant frequency components.',
+                shortcut: 'Select top 3/5/10 or None'
+            },
+            'loopMode': {
+                title: 'Animation Loop Mode',
+                body: 'Play Once: Stops at end | Loop: Repeats from start | Ping-Pong: Reverses direction at boundaries',
+                shortcut: 'Select mode from dropdown'
+            },
+            'showCircles': {
+                title: 'Show Epicycles',
+                body: 'Toggle visibility of the rotating circles and their radius lines.',
+                shortcut: 'Checkbox to toggle'
+            },
+            'showTrace': {
+                title: 'Show Trace Path',
+                body: 'Toggle visibility of the reconstructed path traced by the epicycles.',
+                shortcut: 'Checkbox to toggle'
+            },
+            'comparisonMode': {
+                title: 'Comparison Mode',
+                body: 'Shows original path (left) and Fourier reconstruction (right) side by side for educational comparison.',
+                shortcut: 'Checkbox to enable'
+            },
+            'sampleRate': {
+                title: 'Sample Rate',
+                body: 'Number of sample points used for FFT. Higher values = more accurate reconstruction but slower processing.',
+                shortcut: 'Drag slider to adjust (1000-20000)'
+            },
+            'drawingTool': {
+                title: 'Drawing Tools',
+                body: 'Freehand: Draw freely | Line: Straight lines | Rectangle: Boxes | Ellipse: Circles and ovals',
+                shortcut: 'Select tool from dropdown'
+            },
+            'showGrid': {
+                title: 'Grid Overlay',
+                body: 'Display a grid on the canvas for precise drawing alignment.',
+                shortcut: 'Checkbox to toggle'
+            },
+            'snapToGrid': {
+                title: 'Snap to Grid',
+                body: 'Automatically align drawing points to the nearest grid intersection for precision.',
+                shortcut: 'Checkbox to enable'
+            },
+            'pauseBtn': {
+                title: 'Pause/Play Animation',
+                body: 'Pause or resume the animation.',
+                shortcut: 'Space key'
+            },
+            'resetBtn': {
+                title: 'Reset Animation',
+                body: 'Reset animation to the beginning and clear the trace.',
+                shortcut: 'R key'
+            },
+            'exportPngBtn': {
+                title: 'Export as PNG',
+                body: 'Save the current visualization frame as a high-quality PNG image.',
+                shortcut: 'E key'
+            }
+        };
+
+        function initializeEnhancedTooltips() {
+            const tooltip = document.getElementById('enhancedTooltip');
+            const tooltipTitle = tooltip.querySelector('.enhanced-tooltip-title');
+            const tooltipBody = tooltip.querySelector('.enhanced-tooltip-body');
+            let hideTimeout = null;
+
+            // Add hover listeners to all elements with IDs in tooltipData
+            Object.keys(tooltipData).forEach(elementId => {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+
+                const data = tooltipData[elementId];
+
+                element.addEventListener('mouseenter', (e) => {
+                    if (hideTimeout) {
+                        clearTimeout(hideTimeout);
+                        hideTimeout = null;
+                    }
+
+                    // Set tooltip content
+                    tooltipTitle.textContent = data.title;
+                    let bodyContent = data.body;
+                    if (data.shortcut) {
+                        bodyContent += `<br><span class="enhanced-tooltip-shortcut">⌨ ${data.shortcut}</span>`;
+                    }
+                    tooltipBody.innerHTML = bodyContent;
+
+                    // Position and show tooltip
+                    positionTooltip(e.target);
+                    tooltip.classList.add('visible');
+                });
+
+                element.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        tooltip.classList.remove('visible');
+                    }, 100);
+                });
+
+                // Update position on mouse move
+                element.addEventListener('mousemove', (e) => {
+                    if (tooltip.classList.contains('visible')) {
+                        positionTooltip(e.target);
+                    }
+                });
+            });
+
+            function positionTooltip(targetElement) {
+                const rect = targetElement.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+
+                // Calculate position
+                let top = rect.bottom + 10;
+                let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+                // Check if tooltip would go below viewport
+                if (top + tooltipRect.height > window.innerHeight - 20) {
+                    // Position above instead
+                    top = rect.top - tooltipRect.height - 10;
+                    tooltip.classList.add('above');
+                } else {
+                    tooltip.classList.remove('above');
+                }
+
+                // Check if tooltip would go off horizontally
+                if (left < 10) {
+                    left = 10;
+                } else if (left + tooltipRect.width > window.innerWidth - 10) {
+                    left = window.innerWidth - tooltipRect.width - 10;
+                }
+
+                tooltip.style.top = top + 'px';
+                tooltip.style.left = left + 'px';
+            }
         }
 
         const Point = class {
@@ -44319,6 +44618,9 @@ logActivity('Batch export completed');`
 
         // Initialize workflow presets
         initializeWorkflowPresets();
+
+        // Initialize enhanced tooltips
+        initializeEnhancedTooltips();
 
         // Load saved annotations
         loadAnnotationsFromStorage();
