@@ -1348,6 +1348,25 @@ fn generate_html() -> String {
             </div>
 
             <div class="control-group" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <label>🔬 Fourier Analysis:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Mathematical insights and frequency data</p>
+
+                <select id="analysisTool" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                    <option value="spectrum">Frequency Spectrum</option>
+                    <option value="harmonics">Harmonic Analysis</option>
+                    <option value="energy">Energy Distribution</option>
+                    <option value="phase">Phase Analysis</option>
+                </select>
+
+                <button id="runAnalysisBtn" class="secondary" style="width: 100%;">Run Analysis</button>
+
+                <div id="analysisResult" style="margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 6px; font-size: 11px; display: none;">
+                    <strong>Analysis Result:</strong>
+                    <div id="analysisResultContent"></div>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
                 <label>Transform Drawing:</label>
                 <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Rotate, scale, and flip</p>
                 <div class="button-row">
@@ -18420,6 +18439,223 @@ r##"
             wave = [];
 
             updateStatus(`Optimal: ${optimalCount} components (95% power)`);
+        }
+
+        // Fourier Analysis Functions
+        function runFourierAnalysis() {
+            if (!fullFourierData || fullFourierData.length === 0) {
+                showToast('No data to analyze. Visualize a drawing first.', 'error');
+                return;
+            }
+
+            const analysisType = document.getElementById('analysisTool').value;
+            const resultDiv = document.getElementById('analysisResult');
+            const resultContent = document.getElementById('analysisResultContent');
+
+            let result = '';
+            switch(analysisType) {
+                case 'spectrum':
+                    result = analyzeFrequencySpectrum();
+                    break;
+                case 'harmonics':
+                    result = analyzeHarmonics();
+                    break;
+                case 'energy':
+                    result = analyzeEnergyDistribution();
+                    break;
+                case 'phase':
+                    result = analyzePhaseDistribution();
+                    break;
+            }
+
+            resultContent.innerHTML = result;
+            resultDiv.style.display = 'block';
+            showToast(`${analysisType.charAt(0).toUpperCase() + analysisType.slice(1)} analysis complete`, 'success');
+        }
+
+        function analyzeFrequencySpectrum() {
+            const sortedData = fullFourierData
+                .map((d, i) => ({ ...d, idx: i, absFreq: Math.abs(d.s) }))
+                .sort((a, b) => b.absFreq - a.absFreq);
+
+            let html = '<div style="line-height: 1.8;">';
+            html += '<strong>📊 Frequency Spectrum Analysis</strong><br><br>';
+
+            // Top frequencies
+            html += '<strong>Top 10 Frequencies:</strong><br>';
+            html += '<table style="width: 100%; font-size: 11px; margin-top: 5px;">';
+            html += '<tr style="background: #f0f0f0;"><th style="padding: 4px;">Rank</th><th style="padding: 4px;">Freq</th><th style="padding: 4px;">Radius</th><th style="padding: 4px;">Power %</th></tr>';
+
+            const totalPower = fullFourierData.reduce((sum, d) => sum + d.r * d.r, 0);
+            let cumulativePower = 0;
+
+            for (let i = 0; i < Math.min(10, sortedData.length); i++) {
+                const d = sortedData[i];
+                const power = (d.r * d.r) / totalPower * 100;
+                cumulativePower += power;
+                const rowStyle = i % 2 === 0 ? 'background: #fafafa;' : '';
+                html += `<tr style="${rowStyle}"><td style="padding: 4px;">${i + 1}</td><td style="padding: 4px;">${d.s.toFixed(2)}</td><td style="padding: 4px;">${d.r.toFixed(4)}</td><td style="padding: 4px;">${power.toFixed(2)}%</td></tr>`;
+            }
+
+            html += '</table><br>';
+
+            // Frequency distribution
+            const posFreq = fullFourierData.filter(d => d.s > 0).length;
+            const negFreq = fullFourierData.filter(d => d.s < 0).length;
+            const zeroFreq = fullFourierData.filter(d => d.s === 0).length;
+
+            html += `<strong>Frequency Distribution:</strong><br>`;
+            html += `• Positive: ${posFreq} (${(posFreq/fullFourierData.length*100).toFixed(1)}%)<br>`;
+            html += `• Negative: ${negFreq} (${(negFreq/fullFourierData.length*100).toFixed(1)}%)<br>`;
+            html += `• DC (0 Hz): ${zeroFreq}<br><br>`;
+
+            // Bandwidth info
+            const maxFreq = Math.max(...fullFourierData.map(d => Math.abs(d.s)));
+            html += `<strong>Bandwidth:</strong> ${maxFreq.toFixed(2)} Hz<br>`;
+
+            html += '</div>';
+            return html;
+        }
+
+        function analyzeHarmonics() {
+            const sortedData = fullFourierData
+                .map((d, i) => ({ ...d, idx: i, amplitude: Math.sqrt(d.r * d.r + d.a * d.a) }))
+                .sort((a, b) => b.amplitude - a.amplitude);
+
+            let html = '<div style="line-height: 1.8;">';
+            html += '<strong>🎵 Harmonic Analysis</strong><br><br>';
+
+            // Fundamental frequency (largest amplitude)
+            const fundamental = sortedData[0];
+            html += `<strong>Fundamental Frequency:</strong> ${fundamental.s.toFixed(2)} Hz<br>`;
+            html += `<strong>Amplitude:</strong> ${fundamental.amplitude.toFixed(4)}<br><br>`;
+
+            // Harmonics (integer multiples of fundamental)
+            html += '<strong>Harmonics (Integer Multiples):</strong><br>';
+            html += '<table style="width: 100%; font-size: 11px; margin-top: 5px;">';
+            html += '<tr style="background: #f0f0f0;"><th style="padding: 4px;">Harmonic</th><th style="padding: 4px;">Freq</th><th style="padding: 4px;">Ratio</th><th style="padding: 4px;">Amplitude</th></tr>';
+
+            let harmonicCount = 0;
+            for (let i = 1; i < Math.min(15, sortedData.length); i++) {
+                const d = sortedData[i];
+                const ratio = d.s / fundamental.s;
+                const isHarmonic = Math.abs(ratio - Math.round(ratio)) < 0.1;
+
+                if (isHarmonic) {
+                    harmonicCount++;
+                    const harmonicNum = Math.round(ratio);
+                    const rowStyle = harmonicCount % 2 === 0 ? 'background: #fafafa;' : '';
+                    html += `<tr style="${rowStyle}"><td style="padding: 4px;">${harmonicNum}×</td><td style="padding: 4px;">${d.s.toFixed(2)}</td><td style="padding: 4px;">${ratio.toFixed(3)}</td><td style="padding: 4px;">${d.amplitude.toFixed(4)}</td></tr>`;
+                }
+            }
+
+            html += '</table><br>';
+            html += `<strong>Total Harmonics Found:</strong> ${harmonicCount}<br>`;
+            html += `<em style="color: #666;">Harmonics indicate periodic/repeating patterns in the signal</em><br>`;
+
+            html += '</div>';
+            return html;
+        }
+
+        function analyzeEnergyDistribution() {
+            const radii = fullFourierData.map(d => d.r);
+            const sortedRadii = [...radii].sort((a, b) => b - a);
+            const totalEnergy = radii.reduce((sum, r) => sum + r * r, 0);
+
+            let html = '<div style="line-height: 1.8;">';
+            html += '<strong>⚡ Energy Distribution Analysis</strong><br><br>';
+
+            // Cumulative energy
+            html += '<strong>Cumulative Energy Concentration:</strong><br>';
+            let cumulativeEnergy = 0;
+            const thresholds = [0.5, 0.8, 0.9, 0.95, 0.99];
+            const componentsNeeded = [];
+
+            for (let i = 0; i < sortedRadii.length; i++) {
+                cumulativeEnergy += (sortedRadii[i] * sortedRadii[i]) / totalEnergy;
+                for (let t = 0; t < thresholds.length; t++) {
+                    if (cumulativeEnergy >= thresholds[t] && !componentsNeeded[t]) {
+                        componentsNeeded[t] = i + 1;
+                    }
+                }
+            }
+
+            html += `<table style="width: 100%; font-size: 11px; margin-top: 5px;">`;
+            html += '<tr style="background: #f0f0f0;"><th style="padding: 4px;">Energy</th><th style="padding: 4px;">Components Needed</th></tr>';
+            html += `<tr><td style="padding: 4px;">50%</td><td style="padding: 4px;"><strong>${componentsNeeded[0]}</strong></td></tr>`;
+            html += `<tr style="background: #fafafa;"><td style="padding: 4px;">80%</td><td style="padding: 4px;"><strong>${componentsNeeded[1]}</strong></td></tr>`;
+            html += `<tr><td style="padding: 4px;">90%</td><td style="padding: 4px;"><strong>${componentsNeeded[2]}</strong></td></tr>`;
+            html += `<tr style="background: #fafafa;"><td style="padding: 4px;">95%</td><td style="padding: 4px;"><strong>${componentsNeeded[3]}</strong></td></tr>`;
+            html += `<tr><td style="padding: 4px;">99%</td><td style="padding: 4px;"><strong>${componentsNeeded[4]}</strong></td></tr>`;
+            html += '</table><br>';
+
+            // Energy spread
+            const avgEnergy = totalEnergy / radii.length;
+            const variance = radii.reduce((sum, r) => sum + Math.pow(r * r - avgEnergy, 2), 0) / radii.length;
+            const stdDev = Math.sqrt(variance);
+            const entropy = calculateSpectralEntropy(sortedRadii);
+
+            html += `<strong>Total Energy:</strong> ${totalEnergy.toFixed(4)}<br>`;
+            html += `<strong>Average Energy:</strong> ${avgEnergy.toFixed(6)}<br>`;
+            html += `<strong>Energy Std Dev:</strong> ${stdDev.toFixed(6)}<br>`;
+            html += `<strong>Spectral Entropy:</strong> ${entropy.toFixed(4)}<br><br>`;
+            html += `<em style="color: #666;">Lower entropy = more concentrated energy (simpler signal)</em><br>`;
+
+            html += '</div>';
+            return html;
+        }
+
+        function analyzePhaseDistribution() {
+            let html = '<div style="line-height: 1.8;">';
+            html += '<strong>📐 Phase Distribution Analysis</strong><br><br>';
+
+            // Convert to degrees for readability
+            const phases = fullFourierData.map(d => ((d.a * 180 / Math.PI + 360) % 360));
+
+            // Phase statistics
+            const avgPhase = phases.reduce((a, b) => a + b, 0) / phases.length;
+            const phaseVariance = phases.reduce((sum, p) => sum + Math.pow(p - avgPhase, 2), 0) / phases.length;
+            const phaseStdDev = Math.sqrt(phaseVariance);
+
+            html += `<strong>Mean Phase:</strong> ${avgPhase.toFixed(2)}°<br>`;
+            html += `<strong>Phase Std Dev:</strong> ${phaseStdDev.toFixed(2)}°<br><br>`;
+
+            // Phase distribution by quadrant
+            const q1 = phases.filter(p => p >= 0 && p < 90).length;
+            const q2 = phases.filter(p => p >= 90 && p < 180).length;
+            const q3 = phases.filter(p => p >= 180 && p < 270).length;
+            const q4 = phases.filter(p => p >= 270 && p < 360).length;
+
+            html += '<strong>Phase Quadrant Distribution:</strong><br>';
+            html += `<table style="width: 100%; font-size: 11px; margin-top: 5px;">`;
+            html += '<tr style="background: #f0f0f0;"><th style="padding: 4px;">Quadrant</th><th style="padding: 4px;">Range</th><th style="padding: 4px;">Count</th><th style="padding: 4px;">%</th></tr>';
+            html += `<tr><td style="padding: 4px;">Q1</td><td style="padding: 4px;">0° - 90°</td><td style="padding: 4px;">${q1}</td><td style="padding: 4px;">${(q1/phases.length*100).toFixed(1)}%</td></tr>`;
+            html += `<tr style="background: #fafafa;"><td style="padding: 4px;">Q2</td><td style="padding: 4px;">90° - 180°</td><td style="padding: 4px;">${q2}</td><td style="padding: 4px;">${(q2/phases.length*100).toFixed(1)}%</td></tr>`;
+            html += `<tr><td style="padding: 4px;">Q3</td><td style="padding: 4px;">180° - 270°</td><td style="padding: 4px;">${q3}</td><td style="padding: 4px;">${(q3/phases.length*100).toFixed(1)}%</td></tr>`;
+            html += `<tr style="background: #fafafa;"><td style="padding: 4px;">Q4</td><td style="padding: 4px;">270° - 360°</td><td style="padding: 4px;">${q4}</td><td style="padding: 4px;">${(q4/phases.length*100).toFixed(1)}%</td></tr>`;
+            html += '</table><br>';
+
+            // Phase coherence (how clustered phases are)
+            const coherence = 1 - (phaseStdDev / 180); // 1 = all same phase, 0 = uniform
+            html += `<strong>Phase Coherence:</strong> ${(coherence * 100).toFixed(2)}%<br>`;
+            html += `<em style="color: #666;">Higher coherence = more aligned phase relationships</em><br>`;
+
+            html += '</div>';
+            return html;
+        }
+
+        function calculateSpectralEntropy(sortedRadii) {
+            const totalEnergy = sortedRadii.reduce((sum, r) => sum + r * r, 0);
+            let entropy = 0;
+
+            for (let i = 0; i < sortedRadii.length; i++) {
+                const p = (sortedRadii[i] * sortedRadii[i]) / totalEnergy;
+                if (p > 0) {
+                    entropy -= p * Math.log2(p);
+                }
+            }
+
+            return entropy;
         }
 
         function showAdvancedStatistics() {
@@ -45115,6 +45351,7 @@ logActivity('Batch export completed');`
         const statsModal = document.getElementById('statsModal');
 
         showStatsBtn.addEventListener('click', showAdvancedStatistics);
+        document.getElementById('runAnalysisBtn').addEventListener('click', runFourierAnalysis);
         closeStatsBtn.addEventListener('click', () => {
             statsModal.classList.add('hidden');
         });
