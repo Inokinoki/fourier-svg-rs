@@ -3,7 +3,104 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
-## Recent Updates (Iteration 20)
+## Recent Updates (Iteration 21)
+
+### 65. Snapshot Gallery ⭐⭐⭐
+- **Visual Thumbnail Gallery**: Browse and restore from captured snapshots
+  - **Capture Snapshots**: Save current visualization state as image
+    - Canvas to PNG conversion
+    - Stores full configuration settings
+    - Timestamp for each snapshot
+    - localStorage persistence
+  - **Gallery View**: 3-column grid display
+    - Scrollable modal with thumbnails
+    - Shows date and wave count
+    - Click to restore settings
+    - Close with click outside or button
+  - **One-Click Restoration**: Click thumbnail to apply settings
+    - Wave count, speed, easing
+    - Zoom level and color theme
+    - Automatic modal closure
+  - **Snapshot Counter**: Display total saved snapshots
+  - **Use Cases**:
+    - Comparing different configurations visually
+    - Creating visualization portfolio
+    - Quick reference to favorite states
+    - Tutorial content creation
+
+### 66. Bookmark System ⭐⭐⭐
+- **Named State Markers**: Save and jump to important visualization points
+  - **Add Bookmarks**: Name and save current configuration
+    - Custom naming via text input
+    - Stores all visualization settings
+    - Duplicate handling (overwrites same name)
+    - Timestamp tracking
+  - **Jump to Bookmarks**: Instantly restore bookmarked state
+    - Dropdown selection
+    - One-click restoration
+    - Full settings recovery
+  - **Bookmark Management**:
+    - Delete bookmarks with confirmation
+    - List all bookmarks in dropdown
+    - Disable buttons when no selection
+    - localStorage persistence
+  - **Comprehensive State Storage**:
+    - Wave count, speed, easing
+    - Zoom, theme, visibility toggles
+  - **Use Cases**:
+    - Mark key animation frames
+    - Save presentation milestones
+    - Quick access to test configurations
+    - Educational demonstration points
+
+### 67. Settings Import/Export ⭐⭐⭐
+- **Full Configuration Backup**: Save and restore complete application state
+  - **Export Settings**: Download JSON with all configurations
+    - Visualization settings (waves, speed, easing, zoom)
+    - Color customizations
+    - Custom themes collection
+    - Bookmarks
+    - Session statistics (optional)
+    - Timestamped export
+  - **Import Settings**: Load from saved JSON file
+    - File picker dialog
+    - Validates JSON structure
+    - Selective restoration (stats optional)
+    - Error handling with feedback
+  - **Comprehensive Backup**:
+    - Version: 1.0 format
+    - ISO timestamp export date
+    - All user preferences
+    - Cross-session portability
+  - **Use Cases**:
+    - Transfer settings between devices
+    - Backup configurations before experiments
+    - Share setups with team members
+    - Restore after clean installs
+
+### 68. Grid View Mode ⭐⭐
+- **Multi-Configuration Comparison**: View 2x2 grid of visualizations
+  - **Grid Toggle**: Enable/disable grid view mode
+    - Checkbox control
+    - Shows/hides grid controls
+    - Info toast on toggle
+  - **Capture All Views**: Save all grid configurations
+    - Currently placeholder for future feature
+    - Framework for multi-canvas rendering
+  - **Planned Features**:
+    - 4 independent canvas instances
+    - Different settings per quadrant
+    - Side-by-side comparison
+    - Unified export of all views
+  - **Use Cases**:
+    - Comparing quality settings visually
+    - Creating comparison matrices
+    - Presentation layouts
+    - Educational comparison grids
+
+---
+
+## Previous Updates (Iteration 20)
 
 ### 61. Macro Recorder ⭐⭐⭐
 - **Record and Replay Action Sequences**: Automate repetitive tasks
