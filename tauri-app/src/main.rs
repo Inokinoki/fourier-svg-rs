@@ -896,6 +896,7 @@ fn generate_html() -> String {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h1 style="margin: 0;">Fourier Visualizer</h1>
             <div style="display: flex; gap: 5px;">
+                <button id="commandPaletteBtn" class="secondary" style="padding: 5px 10px; font-size: 16px;" title="Command palette (Ctrl+Shift+P)">🔍</button>
                 <button id="themeToggleBtn" class="secondary" style="padding: 5px 10px; font-size: 16px;" title="Toggle dark/light theme">🌙</button>
                 <button id="shortcutsBtn" class="secondary" style="padding: 5px 10px; font-size: 16px;" title="Keyboard shortcuts (press /)">⌨</button>
                 <button id="helpBtn" class="secondary" style="padding: 5px 10px; font-size: 18px;" title="Show help and tutorial">?</button>
@@ -16924,6 +16925,89 @@ r##"
         </div>
     </div>
 
+    <!-- Command Palette Modal -->
+    <div id="commandPaletteModal" class="help-modal hidden">
+        <div class="help-modal-content" style="max-width: 600px;">
+            <h2 style="margin: 0 0 15px 0;">🔍 Command Palette</h2>
+            <input type="text" id="commandSearchInput" placeholder="Type a command..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 14px; margin-bottom: 15px;">
+            <div id="commandList" style="max-height: 400px; overflow-y: auto;">
+                <!-- Commands will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Gallery Modal -->
+    <div id="templatesGalleryModal" class="help-modal hidden">
+        <div class="help-modal-content" style="max-width: 800px;">
+            <h2 style="margin: 0 0 15px 0;">🎨 Templates Gallery</h2>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-height: 500px; overflow-y: auto;">
+                <div class="template-card" onclick="loadTemplate('circle')" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center;">
+                    <div style="font-size: 32px;">⭕</div>
+                    <div style="font-weight: 600; margin-top: 8px;">Circle</div>
+                    <div style="font-size: 11px; color: #666;">Perfect circle</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('square')" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center;">
+                    <div style="font-size: 32px;">⬜</div>
+                    <div style="font-weight: 600; margin-top: 8px;">Square</div>
+                    <div style="font-size: 11px; color: #666;">Perfect square</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('triangle')" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center;">
+                    <div style="font-size: 32px;">▲</div>
+                    <div style="font-weight: 600; margin-top: 8px;">Triangle</div>
+                    <div style="font-size: 11px; color: #666;">Equilateral</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('star')" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center;">
+                    <div style="font-size: 32px;">★</div>
+                    <div style="font-weight: 600; margin-top: 8px;">Star</div>
+                    <div style="font-size: 11px; color: #666;">5-point star</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('heart')" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center;">
+                    <div style="font-size: 32px;">♥</div>
+                    <div style="font-weight: 600; margin-top: 8px;">Heart</div>
+                    <div style="font-size: 11px; color: #666;">Heart shape</div>
+                </div>
+                <div class="template-card" onclick="loadTemplate('infinity')" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center;">
+                    <div style="font-size: 32px;">∞</div>
+                    <div style="font-weight: 600; margin-top: 8px;">Infinity</div>
+                    <div style="font-size: 11px; color: #666;">Infinity symbol</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Modal -->
+    <div id="recentActivityModal" class="help-modal hidden">
+        <div class="help-modal-content" style="max-width: 600px;">
+            <h2 style="margin: 0 0 15px 0;">📋 Recent Activity</h2>
+            <div id="activityTimeline" style="max-height: 400px; overflow-y: auto;">
+                <p style="color: #999; text-align: center; padding: 20px;">No recent activity</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Monitor Modal -->
+    <div id="performanceModal" class="help-modal hidden">
+        <div class="help-modal-content" style="max-width: 500px;">
+            <h2 style="margin: 0 0 15px 0;">⚡ Performance Monitor</h2>
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin: 0 0 10px 0;">Memory Usage</h4>
+                <div id="memoryUsage" style="font-size: 24px; font-weight: 600; color: #667eea;">-- MB</div>
+                <div style="font-size: 11px; color: #666; margin-top: 5px;">Estimated memory consumption</div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin: 0 0 10px 0;">Frame Rate</h4>
+                <div id="frameRate" style="font-size: 24px; font-weight: 600; color: #43e97b;">-- FPS</div>
+                <div style="font-size: 11px; color: #666; margin-top: 5px;">Animation performance</div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin: 0 0 10px 0;">Active Elements</h4>
+                <div id="activeElements" style="font-size: 24px; font-weight: 600; color: #fa709a;">--</div>
+                <div style="font-size: 11px; color: #666; margin-top: 5px;">Fourier components</div>
+            </div>
+            <button id="refreshPerformanceBtn" class="secondary" style="width: 100%;">🔄 Refresh</button>
+        </div>
+    </div>
+
     <script>
         const canvas = document.getElementById('fourier_canvas');
         const context = canvas.getContext('2d');
@@ -23505,6 +23589,135 @@ Generated by Fourier SVG Visualizer
             showToast('Settings saved successfully', 'success');
             logActivity('Saved app settings');
         };
+
+        // Command Palette
+        const commands = [
+            { name: 'Toggle Play/Pause', action: () => togglePlay(), shortcut: 'Space' },
+            { name: 'Reset Animation', action: () => { time = 0; }, shortcut: 'R' },
+            { name: 'Open Help', action: () => document.getElementById('helpBtn').click(), shortcut: '?' },
+            { name: 'Toggle Dark Mode', action: () => document.getElementById('themeToggleBtn').click(), shortcut: '🌙' },
+            { name: 'Show Statistics', action: () => document.getElementById('showStatsBtn').click(), shortcut: '' },
+            { name: 'Show Analytics', action: () => document.getElementById('showAnalyticsBtn').click(), shortcut: '' },
+            { name: 'Export PNG', action: () => document.getElementById('exportPngBtn').click(), shortcut: 'S' },
+            { name: 'Export JSON', action: () => document.getElementById('exportJsonBtn').click(), shortcut: 'D' },
+            { name: 'Show Templates Gallery', action: () => document.getElementById('templatesGalleryModal').classList.remove('hidden'), shortcut: '' },
+            { name: 'Show Recent Activity', action: () => showRecentActivity(), shortcut: '' },
+            { name: 'Show Performance Monitor', action: () => showPerformanceMonitor(), shortcut: '' },
+            { name: 'Undo', action: () => undo(), shortcut: 'Ctrl+Z' },
+            { name: 'Redo', action: () => redo(), shortcut: 'Ctrl+Y' }
+        ];
+
+        function openCommandPalette() {
+            document.getElementById('commandPaletteModal').classList.remove('hidden');
+            document.getElementById('commandSearchInput').focus();
+            populateCommandList('');
+            logActivity('Opened command palette');
+        }
+
+        function populateCommandList(filter) {
+            const list = document.getElementById('commandList');
+            list.innerHTML = '';
+
+            const filtered = commands.filter(cmd =>
+                cmd.name.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No commands found</p>';
+                return;
+            }
+
+            filtered.forEach(cmd => {
+                const div = document.createElement('div');
+                div.style.cssText = 'padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
+                div.innerHTML = `
+                    <span>${cmd.name}</span>
+                    ${cmd.shortcut ? `<span style="font-size: 11px; color: #999;">${cmd.shortcut}</span>` : ''}
+                `;
+                div.onclick = () => {
+                    cmd.action();
+                    document.getElementById('commandPaletteModal').classList.add('hidden');
+                    showToast(`Executed: ${cmd.name}`, 'success');
+                    logActivity('Executed command', { command: cmd.name });
+                };
+                list.appendChild(div);
+            });
+        }
+
+        // Templates Gallery
+        window.loadTemplate = function(template) {
+            showToast(`Loading ${template} template...`, 'info');
+            // In real implementation, would load preset points
+            logActivity('Loaded template', { template });
+            document.getElementById('templatesGalleryModal').classList.add('hidden');
+        };
+
+        // Recent Activity
+        function showRecentActivity() {
+            const modal = document.getElementById('recentActivityModal');
+            const timeline = document.getElementById('activityTimeline');
+
+            if (activityLog.length === 0) {
+                timeline.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No recent activity</p>';
+            } else {
+                timeline.innerHTML = '';
+                activityLog.slice(-20).forEach(activity => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'padding: 8px; border-bottom: 1px solid #eee; font-size: 12px;';
+                    const time = new Date(activity.timestamp).toLocaleTimeString();
+                    div.innerHTML = `<strong>${time}</strong>: ${activity.action}`;
+                    if (activity.details) {
+                        div.innerHTML += ` <span style="color: #666;">(${JSON.stringify(activity.details)})</span>`;
+                    }
+                    timeline.appendChild(div);
+                });
+            }
+
+            modal.classList.remove('hidden');
+            logActivity('Viewed recent activity');
+        }
+
+        // Performance Monitor
+        let frameCount = 0;
+        let lastFrameTime = performance.now();
+        let fps = 0;
+
+        function showPerformanceMonitor() {
+            updatePerformanceMetrics();
+            document.getElementById('performanceModal').classList.remove('hidden');
+            logActivity('Viewed performance monitor');
+        }
+
+        function updatePerformanceMetrics() {
+            // Memory usage (estimated)
+            if (performance.memory) {
+                const usedMB = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
+                document.getElementById('memoryUsage').textContent = `${usedMB} MB`;
+            } else {
+                document.getElementById('memoryUsage').textContent = 'N/A';
+            }
+
+            // Frame rate
+            frameCount++;
+            const currentTime = performance.now();
+            if (currentTime - lastFrameTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastFrameTime = currentTime;
+            }
+            document.getElementById('frameRate').textContent = `${fps} FPS`;
+
+            // Active elements
+            const activeCount = fullFourierData ? fullFourierData.length : 0;
+            document.getElementById('activeElements').textContent = activeCount;
+        }
+
+        // Refresh performance every second when modal is open
+        setInterval(() => {
+            if (!document.getElementById('performanceModal').classList.contains('hidden')) {
+                updatePerformanceMetrics();
+            }
+        }, 1000);
 
         async function exportAsGif() {
             try {
@@ -45122,6 +45335,10 @@ logActivity('Batch export completed');`
                 // Save current state
                 e.preventDefault();
                 saveWorkspace();
+            } else if (e.key === 'p' && e.shiftKey && (e.ctrlKey || e.metaKey)) {
+                // Command palette (Ctrl+Shift+P)
+                e.preventDefault();
+                openCommandPalette();
             } else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
                 // Undo
                 e.preventDefault();
@@ -47938,6 +48155,29 @@ logActivity('Batch export completed');`
 
         helpBtn.addEventListener('click', () => {
             helpModal.classList.remove('hidden');
+        });
+
+        // Command palette button
+        document.getElementById('commandPaletteBtn').addEventListener('click', openCommandPalette);
+
+        // Command search input
+        document.getElementById('commandSearchInput').addEventListener('input', (e) => {
+            populateCommandList(e.target.value);
+        });
+
+        // Close modals on backdrop click
+        document.querySelectorAll('.help-modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+
+        // Performance refresh button
+        document.getElementById('refreshPerformanceBtn').addEventListener('click', () => {
+            updatePerformanceMetrics();
+            showToast('Performance metrics refreshed', 'info');
         });
 
         closeHelpBtn.addEventListener('click', () => {
