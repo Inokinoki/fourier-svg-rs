@@ -1,0 +1,1016 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "svg_path": null,
+    "sample_count": 10240,
+    "wave_count": 201,
+    "timestamp": 1769146608
+  },
+  "data": [
+    {
+      "frequency": 0.0,
+      "radius": 416.63278,
+      "angle": 0.8992992
+    },
+    {
+      "frequency": 1.0,
+      "radius": 50.938957,
+      "angle": 0.7907536
+    },
+    {
+      "frequency": -1.0,
+      "radius": 178.5634,
+      "angle": -1.7552714
+    },
+    {
+      "frequency": 2.0,
+      "radius": 50.72818,
+      "angle": -3.1393912
+    },
+    {
+      "frequency": -2.0,
+      "radius": 87.73105,
+      "angle": -1.823164
+    },
+    {
+      "frequency": 3.0,
+      "radius": 27.899176,
+      "angle": -1.8969402
+    },
+    {
+      "frequency": -3.0,
+      "radius": 23.640736,
+      "angle": -1.6226683
+    },
+    {
+      "frequency": 4.0,
+      "radius": 29.378843,
+      "angle": 0.6580411
+    },
+    {
+      "frequency": -4.0,
+      "radius": 14.274987,
+      "angle": 0.74465424
+    },
+    {
+      "frequency": 5.0,
+      "radius": 8.259187,
+      "angle": -2.894813
+    },
+    {
+      "frequency": -5.0,
+      "radius": 1.940672,
+      "angle": -2.7180347
+    },
+    {
+      "frequency": 6.0,
+      "radius": 1.5928366,
+      "angle": -2.7770827
+    },
+    {
+      "frequency": -6.0,
+      "radius": 16.072577,
+      "angle": -0.41738817
+    },
+    {
+      "frequency": 7.0,
+      "radius": 7.084702,
+      "angle": -1.7327663
+    },
+    {
+      "frequency": -7.0,
+      "radius": 5.7862287,
+      "angle": 2.8894448
+    },
+    {
+      "frequency": 8.0,
+      "radius": 2.952644,
+      "angle": -1.0643102
+    },
+    {
+      "frequency": -8.0,
+      "radius": 1.6598065,
+      "angle": 2.0213723
+    },
+    {
+      "frequency": 9.0,
+      "radius": 6.451535,
+      "angle": 1.4355664
+    },
+    {
+      "frequency": -9.0,
+      "radius": 1.9239643,
+      "angle": -2.2761922
+    },
+    {
+      "frequency": 10.0,
+      "radius": 5.3260016,
+      "angle": -0.783675
+    },
+    {
+      "frequency": -10.0,
+      "radius": 4.195402,
+      "angle": -1.4185158
+    },
+    {
+      "frequency": 11.0,
+      "radius": 3.7380488,
+      "angle": 1.9681778
+    },
+    {
+      "frequency": -11.0,
+      "radius": 1.1525675,
+      "angle": -2.0793328
+    },
+    {
+      "frequency": 12.0,
+      "radius": 2.3020794,
+      "angle": -0.7714165
+    },
+    {
+      "frequency": -12.0,
+      "radius": 2.94146,
+      "angle": 2.5138245
+    },
+    {
+      "frequency": 13.0,
+      "radius": 0.92354023,
+      "angle": 2.9305294
+    },
+    {
+      "frequency": -13.0,
+      "radius": 1.6819433,
+      "angle": 2.0080183
+    },
+    {
+      "frequency": 14.0,
+      "radius": 3.5101805,
+      "angle": 2.3816187
+    },
+    {
+      "frequency": -14.0,
+      "radius": 1.5927244,
+      "angle": 1.412594
+    },
+    {
+      "frequency": 15.0,
+      "radius": 1.4234942,
+      "angle": 0.17203495
+    },
+    {
+      "frequency": -15.0,
+      "radius": 1.6792079,
+      "angle": -0.99182856
+    },
+    {
+      "frequency": 16.0,
+      "radius": 1.9158155,
+      "angle": -2.0742316
+    },
+    {
+      "frequency": -16.0,
+      "radius": 0.9732206,
+      "angle": 1.3564799
+    },
+    {
+      "frequency": 17.0,
+      "radius": 0.8035518,
+      "angle": -0.107895054
+    },
+    {
+      "frequency": -17.0,
+      "radius": 0.58467835,
+      "angle": -2.4453328
+    },
+    {
+      "frequency": 18.0,
+      "radius": 0.8086799,
+      "angle": -2.6257954
+    },
+    {
+      "frequency": -18.0,
+      "radius": 1.2798837,
+      "angle": 0.23634735
+    },
+    {
+      "frequency": 19.0,
+      "radius": 1.0789732,
+      "angle": 2.7836642
+    },
+    {
+      "frequency": -19.0,
+      "radius": 0.9140444,
+      "angle": -1.2894306
+    },
+    {
+      "frequency": 20.0,
+      "radius": 1.8930941,
+      "angle": 0.25167954
+    },
+    {
+      "frequency": -20.0,
+      "radius": 0.5592872,
+      "angle": 2.7363424
+    },
+    {
+      "frequency": 21.0,
+      "radius": 2.0364923,
+      "angle": -1.7781162
+    },
+    {
+      "frequency": -21.0,
+      "radius": 0.62128145,
+      "angle": -2.6222622
+    },
+    {
+      "frequency": 22.0,
+      "radius": 1.1476681,
+      "angle": 1.7164459
+    },
+    {
+      "frequency": -22.0,
+      "radius": 0.38556987,
+      "angle": 1.884869
+    },
+    {
+      "frequency": 23.0,
+      "radius": 0.38323274,
+      "angle": 0.82651365
+    },
+    {
+      "frequency": -23.0,
+      "radius": 0.34478325,
+      "angle": -0.058790814
+    },
+    {
+      "frequency": 24.0,
+      "radius": 0.7888038,
+      "angle": 0.9229371
+    },
+    {
+      "frequency": -24.0,
+      "radius": 0.52923894,
+      "angle": -0.9320051
+    },
+    {
+      "frequency": 25.0,
+      "radius": 1.6867876,
+      "angle": -1.4347506
+    },
+    {
+      "frequency": -25.0,
+      "radius": 0.8084993,
+      "angle": 2.5104651
+    },
+    {
+      "frequency": 26.0,
+      "radius": 2.029261,
+      "angle": 2.3647819
+    },
+    {
+      "frequency": -26.0,
+      "radius": 0.3505221,
+      "angle": -1.1155922
+    },
+    {
+      "frequency": 27.0,
+      "radius": 1.2514243,
+      "angle": 0.20925829
+    },
+    {
+      "frequency": -27.0,
+      "radius": 0.81964695,
+      "angle": 1.1467372
+    },
+    {
+      "frequency": 28.0,
+      "radius": 0.801496,
+      "angle": -2.4245381
+    },
+    {
+      "frequency": -28.0,
+      "radius": 0.5760631,
+      "angle": -2.0695338
+    },
+    {
+      "frequency": 29.0,
+      "radius": 0.14202783,
+      "angle": -2.0591857
+    },
+    {
+      "frequency": -29.0,
+      "radius": 0.2542462,
+      "angle": -1.8630744
+    },
+    {
+      "frequency": 30.0,
+      "radius": 0.19354741,
+      "angle": 2.1836498
+    },
+    {
+      "frequency": -30.0,
+      "radius": 0.51811814,
+      "angle": -0.3239545
+    },
+    {
+      "frequency": 31.0,
+      "radius": 0.5123786,
+      "angle": -0.61103153
+    },
+    {
+      "frequency": -31.0,
+      "radius": 1.3040162,
+      "angle": 1.8540057
+    },
+    {
+      "frequency": 32.0,
+      "radius": 0.59576625,
+      "angle": 2.8436847
+    },
+    {
+      "frequency": -32.0,
+      "radius": 1.295532,
+      "angle": -1.8597388
+    },
+    {
+      "frequency": 33.0,
+      "radius": 0.45053104,
+      "angle": 0.14726141
+    },
+    {
+      "frequency": -33.0,
+      "radius": 0.8559166,
+      "angle": 0.10807974
+    },
+    {
+      "frequency": 34.0,
+      "radius": 0.21619381,
+      "angle": -1.7371243
+    },
+    {
+      "frequency": -34.0,
+      "radius": 0.49114946,
+      "angle": 2.349812
+    },
+    {
+      "frequency": 35.0,
+      "radius": 0.25193322,
+      "angle": -0.60059696
+    },
+    {
+      "frequency": -35.0,
+      "radius": 0.66356707,
+      "angle": 2.454846
+    },
+    {
+      "frequency": 36.0,
+      "radius": 0.5884869,
+      "angle": 2.5658393
+    },
+    {
+      "frequency": -36.0,
+      "radius": 0.9923967,
+      "angle": -1.2958062
+    },
+    {
+      "frequency": 37.0,
+      "radius": 0.51492316,
+      "angle": 0.19908603
+    },
+    {
+      "frequency": -37.0,
+      "radius": 0.9199835,
+      "angle": 0.8095392
+    },
+    {
+      "frequency": 38.0,
+      "radius": 0.2648007,
+      "angle": -2.378258
+    },
+    {
+      "frequency": -38.0,
+      "radius": 0.70662963,
+      "angle": -2.8297691
+    },
+    {
+      "frequency": 39.0,
+      "radius": 0.09258544,
+      "angle": -0.8930308
+    },
+    {
+      "frequency": -39.0,
+      "radius": 0.14298056,
+      "angle": 0.5225206
+    },
+    {
+      "frequency": 40.0,
+      "radius": 0.31951925,
+      "angle": 2.2539873
+    },
+    {
+      "frequency": -40.0,
+      "radius": 0.064276956,
+      "angle": -1.2967618
+    },
+    {
+      "frequency": 41.0,
+      "radius": 0.1628698,
+      "angle": -0.3971693
+    },
+    {
+      "frequency": -41.0,
+      "radius": 0.2010499,
+      "angle": 0.50155956
+    },
+    {
+      "frequency": 42.0,
+      "radius": 0.12440519,
+      "angle": 3.0875123
+    },
+    {
+      "frequency": -42.0,
+      "radius": 0.25868186,
+      "angle": -2.10863
+    },
+    {
+      "frequency": 43.0,
+      "radius": 0.20617644,
+      "angle": -0.914597
+    },
+    {
+      "frequency": -43.0,
+      "radius": 0.110955715,
+      "angle": 1.687876
+    },
+    {
+      "frequency": 44.0,
+      "radius": 0.098557904,
+      "angle": -2.7500305
+    },
+    {
+      "frequency": -44.0,
+      "radius": 0.109871365,
+      "angle": 1.8820151
+    },
+    {
+      "frequency": 45.0,
+      "radius": 0.25394407,
+      "angle": 2.0774171
+    },
+    {
+      "frequency": -45.0,
+      "radius": 0.0031890029,
+      "angle": -2.4447556
+    },
+    {
+      "frequency": 46.0,
+      "radius": 0.33788446,
+      "angle": -0.10896603
+    },
+    {
+      "frequency": -46.0,
+      "radius": 0.27351743,
+      "angle": -0.9999464
+    },
+    {
+      "frequency": 47.0,
+      "radius": 0.3167566,
+      "angle": -2.1993604
+    },
+    {
+      "frequency": -47.0,
+      "radius": 0.26074618,
+      "angle": 2.281311
+    },
+    {
+      "frequency": 48.0,
+      "radius": 0.24304442,
+      "angle": 1.5443414
+    },
+    {
+      "frequency": -48.0,
+      "radius": 0.1369472,
+      "angle": -0.9740892
+    },
+    {
+      "frequency": 49.0,
+      "radius": 0.09189881,
+      "angle": -1.2114371
+    },
+    {
+      "frequency": -49.0,
+      "radius": 0.29276285,
+      "angle": 1.8989381
+    },
+    {
+      "frequency": 50.0,
+      "radius": 0.14983864,
+      "angle": 1.4955239
+    },
+    {
+      "frequency": -50.0,
+      "radius": 0.32746938,
+      "angle": -1.1582441
+    },
+    {
+      "frequency": 51.0,
+      "radius": 0.21090709,
+      "angle": -1.9203969
+    },
+    {
+      "frequency": -51.0,
+      "radius": 0.102948904,
+      "angle": 2.064312
+    },
+    {
+      "frequency": 52.0,
+      "radius": 0.19028877,
+      "angle": 1.310143
+    },
+    {
+      "frequency": -52.0,
+      "radius": 0.08013372,
+      "angle": -0.87798244
+    },
+    {
+      "frequency": 53.0,
+      "radius": 0.20973498,
+      "angle": -1.3546208
+    },
+    {
+      "frequency": -53.0,
+      "radius": 0.2975143,
+      "angle": 1.9349229
+    },
+    {
+      "frequency": 54.0,
+      "radius": 0.23369218,
+      "angle": 2.4445271
+    },
+    {
+      "frequency": -54.0,
+      "radius": 0.29500347,
+      "angle": -1.3724997
+    },
+    {
+      "frequency": 55.0,
+      "radius": 0.15380323,
+      "angle": 0.054608643
+    },
+    {
+      "frequency": -55.0,
+      "radius": 0.04387085,
+      "angle": 0.7181091
+    },
+    {
+      "frequency": 56.0,
+      "radius": 0.123813525,
+      "angle": -1.36393
+    },
+    {
+      "frequency": -56.0,
+      "radius": 0.06918852,
+      "angle": -0.6260042
+    },
+    {
+      "frequency": 57.0,
+      "radius": 0.12849477,
+      "angle": -3.1190517
+    },
+    {
+      "frequency": -57.0,
+      "radius": 0.29644042,
+      "angle": 2.1889992
+    },
+    {
+      "frequency": 58.0,
+      "radius": 0.18318604,
+      "angle": 0.96467036
+    },
+    {
+      "frequency": -58.0,
+      "radius": 0.19647731,
+      "angle": -1.4264357
+    },
+    {
+      "frequency": 59.0,
+      "radius": 0.11747315,
+      "angle": -1.6628224
+    },
+    {
+      "frequency": -59.0,
+      "radius": 0.08433531,
+      "angle": 0.4205449
+    },
+    {
+      "frequency": 60.0,
+      "radius": 0.06058226,
+      "angle": 1.704301
+    },
+    {
+      "frequency": -60.0,
+      "radius": 0.1062758,
+      "angle": -1.3173716
+    },
+    {
+      "frequency": 61.0,
+      "radius": 0.09454424,
+      "angle": -1.7057434
+    },
+    {
+      "frequency": -61.0,
+      "radius": 0.23192355,
+      "angle": 1.8249232
+    },
+    {
+      "frequency": 62.0,
+      "radius": 0.1569286,
+      "angle": 1.6007315
+    },
+    {
+      "frequency": -62.0,
+      "radius": 0.11627451,
+      "angle": -2.4388282
+    },
+    {
+      "frequency": 63.0,
+      "radius": 0.12602732,
+      "angle": -1.2849272
+    },
+    {
+      "frequency": -63.0,
+      "radius": 0.15253544,
+      "angle": -0.53008604
+    },
+    {
+      "frequency": 64.0,
+      "radius": 0.1050653,
+      "angle": 2.3639388
+    },
+    {
+      "frequency": -64.0,
+      "radius": 0.022980658,
+      "angle": 0.20254612
+    },
+    {
+      "frequency": 65.0,
+      "radius": 0.08541882,
+      "angle": -0.77611136
+    },
+    {
+      "frequency": -65.0,
+      "radius": 0.0793413,
+      "angle": 2.3581953
+    },
+    {
+      "frequency": 66.0,
+      "radius": 0.032904804,
+      "angle": 2.6054804
+    },
+    {
+      "frequency": -66.0,
+      "radius": 0.0905023,
+      "angle": 2.965966
+    },
+    {
+      "frequency": 67.0,
+      "radius": 0.005470222,
+      "angle": -1.1169038
+    },
+    {
+      "frequency": -67.0,
+      "radius": 0.1614516,
+      "angle": -0.47704795
+    },
+    {
+      "frequency": 68.0,
+      "radius": 0.0122382175,
+      "angle": 1.3660727
+    },
+    {
+      "frequency": -68.0,
+      "radius": 0.10590231,
+      "angle": 1.917955
+    },
+    {
+      "frequency": 69.0,
+      "radius": 0.010728253,
+      "angle": -1.1651393
+    },
+    {
+      "frequency": -69.0,
+      "radius": 0.1730984,
+      "angle": -1.9062182
+    },
+    {
+      "frequency": 70.0,
+      "radius": 0.030414617,
+      "angle": -0.92458266
+    },
+    {
+      "frequency": -70.0,
+      "radius": 0.153368,
+      "angle": 1.0533742
+    },
+    {
+      "frequency": 71.0,
+      "radius": 0.041944925,
+      "angle": 1.9759117
+    },
+    {
+      "frequency": -71.0,
+      "radius": 0.08947697,
+      "angle": 2.7543693
+    },
+    {
+      "frequency": 72.0,
+      "radius": 0.020267572,
+      "angle": -0.058533072
+    },
+    {
+      "frequency": -72.0,
+      "radius": 0.097995125,
+      "angle": -1.0656545
+    },
+    {
+      "frequency": 73.0,
+      "radius": 0.03659271,
+      "angle": -2.676261
+    },
+    {
+      "frequency": -73.0,
+      "radius": 0.052544788,
+      "angle": -1.0787145
+    },
+    {
+      "frequency": 74.0,
+      "radius": 0.039230056,
+      "angle": 0.6033664
+    },
+    {
+      "frequency": -74.0,
+      "radius": 0.095872834,
+      "angle": 1.7384948
+    },
+    {
+      "frequency": 75.0,
+      "radius": 0.037906397,
+      "angle": -2.3691244
+    },
+    {
+      "frequency": -75.0,
+      "radius": 0.048575252,
+      "angle": 3.009673
+    },
+    {
+      "frequency": 76.0,
+      "radius": 0.028920751,
+      "angle": 1.4335421
+    },
+    {
+      "frequency": -76.0,
+      "radius": 0.044930544,
+      "angle": -0.90020585
+    },
+    {
+      "frequency": 77.0,
+      "radius": 0.010165908,
+      "angle": 1.0516224
+    },
+    {
+      "frequency": -77.0,
+      "radius": 0.054809228,
+      "angle": -0.41094485
+    },
+    {
+      "frequency": 78.0,
+      "radius": 0.05929219,
+      "angle": -1.3143066
+    },
+    {
+      "frequency": -78.0,
+      "radius": 0.073813,
+      "angle": -3.0767596
+    },
+    {
+      "frequency": 79.0,
+      "radius": 0.059337255,
+      "angle": 2.8477652
+    },
+    {
+      "frequency": -79.0,
+      "radius": 0.060730856,
+      "angle": 0.42251435
+    },
+    {
+      "frequency": 80.0,
+      "radius": 0.072085604,
+      "angle": 0.828776
+    },
+    {
+      "frequency": -80.0,
+      "radius": 0.099285595,
+      "angle": 2.1534324
+    },
+    {
+      "frequency": 81.0,
+      "radius": 0.043338273,
+      "angle": -1.0460162
+    },
+    {
+      "frequency": -81.0,
+      "radius": 0.13181838,
+      "angle": -1.3739655
+    },
+    {
+      "frequency": 82.0,
+      "radius": 0.06341266,
+      "angle": -2.1162944
+    },
+    {
+      "frequency": -82.0,
+      "radius": 0.027126102,
+      "angle": 0.7227031
+    },
+    {
+      "frequency": 83.0,
+      "radius": 0.098310836,
+      "angle": 2.1015716
+    },
+    {
+      "frequency": -83.0,
+      "radius": 0.04476256,
+      "angle": 1.514454
+    },
+    {
+      "frequency": 84.0,
+      "radius": 0.11303288,
+      "angle": -0.08095184
+    },
+    {
+      "frequency": -84.0,
+      "radius": 0.06980123,
+      "angle": 2.5683255
+    },
+    {
+      "frequency": 85.0,
+      "radius": 0.08840273,
+      "angle": -2.44127
+    },
+    {
+      "frequency": -85.0,
+      "radius": 0.07971213,
+      "angle": -0.9105886
+    },
+    {
+      "frequency": 86.0,
+      "radius": 0.046413664,
+      "angle": 1.4600058
+    },
+    {
+      "frequency": -86.0,
+      "radius": 0.022065608,
+      "angle": -1.4371245
+    },
+    {
+      "frequency": 87.0,
+      "radius": 0.02992323,
+      "angle": -2.5938618
+    },
+    {
+      "frequency": -87.0,
+      "radius": 0.040344536,
+      "angle": 0.65185297
+    },
+    {
+      "frequency": 88.0,
+      "radius": 0.07057014,
+      "angle": 0.43479633
+    },
+    {
+      "frequency": -88.0,
+      "radius": 0.11753118,
+      "angle": 2.6300082
+    },
+    {
+      "frequency": 89.0,
+      "radius": 0.07518065,
+      "angle": -2.179951
+    },
+    {
+      "frequency": -89.0,
+      "radius": 0.10089213,
+      "angle": -0.7766623
+    },
+    {
+      "frequency": 90.0,
+      "radius": 0.06422556,
+      "angle": 1.5916753
+    },
+    {
+      "frequency": -90.0,
+      "radius": 0.014639314,
+      "angle": 2.1115904
+    },
+    {
+      "frequency": 91.0,
+      "radius": 0.04319418,
+      "angle": -1.1150233
+    },
+    {
+      "frequency": -91.0,
+      "radius": 0.03534891,
+      "angle": -0.3905426
+    },
+    {
+      "frequency": 92.0,
+      "radius": 0.012503452,
+      "angle": 3.1287713
+    },
+    {
+      "frequency": -92.0,
+      "radius": 0.11263107,
+      "angle": 2.5594122
+    },
+    {
+      "frequency": 93.0,
+      "radius": 0.023314465,
+      "angle": 2.1135054
+    },
+    {
+      "frequency": -93.0,
+      "radius": 0.08794143,
+      "angle": -0.9041004
+    },
+    {
+      "frequency": 94.0,
+      "radius": 0.03766163,
+      "angle": 0.24080692
+    },
+    {
+      "frequency": -94.0,
+      "radius": 0.065694764,
+      "angle": 1.0351404
+    },
+    {
+      "frequency": 95.0,
+      "radius": 0.041627433,
+      "angle": -1.9459541
+    },
+    {
+      "frequency": -95.0,
+      "radius": 0.053191558,
+      "angle": -2.495062
+    },
+    {
+      "frequency": 96.0,
+      "radius": 0.030751375,
+      "angle": 2.6249108
+    },
+    {
+      "frequency": -96.0,
+      "radius": 0.014884289,
+      "angle": -1.8250741
+    },
+    {
+      "frequency": 97.0,
+      "radius": 0.021927778,
+      "angle": 1.128808
+    },
+    {
+      "frequency": -97.0,
+      "radius": 0.03349212,
+      "angle": 1.0422482
+    },
+    {
+      "frequency": 98.0,
+      "radius": 0.03701674,
+      "angle": -0.07618593
+    },
+    {
+      "frequency": -98.0,
+      "radius": 0.020176528,
+      "angle": 0.89665294
+    },
+    {
+      "frequency": 99.0,
+      "radius": 0.044519987,
+      "angle": -2.4076319
+    },
+    {
+      "frequency": -99.0,
+      "radius": 0.029407393,
+      "angle": -2.4413652
+    },
+    {
+      "frequency": 100.0,
+      "radius": 0.0142397275,
+      "angle": 1.7866702
+    },
+    {
+      "frequency": -100.0,
+      "radius": 0.061340608,
+      "angle": -1.580989
+    }
+  ]
+}

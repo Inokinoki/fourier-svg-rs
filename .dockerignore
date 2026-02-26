@@ -1,0 +1,10 @@
+target/
+**/*.rs.bk
+*.pdb
+.git/
+.gitignore
+.github/
+*.md
+.env
+output.*
+test.svg*

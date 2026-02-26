@@ -897,6 +897,7 @@ fn generate_html() -> String {
             <h1 style="margin: 0;">Fourier Visualizer</h1>
             <div style="display: flex; gap: 5px;">
                 <button id="themeToggleBtn" class="secondary" style="padding: 5px 10px; font-size: 16px;" title="Toggle dark/light theme">🌙</button>
+                <button id="shortcutsBtn" class="secondary" style="padding: 5px 10px; font-size: 16px;" title="Keyboard shortcuts (press /)">⌨</button>
                 <button id="helpBtn" class="secondary" style="padding: 5px 10px; font-size: 18px;" title="Show help and tutorial">?</button>
             </div>
         </div>
@@ -16440,6 +16441,69 @@ r##"
                     <button id="prevTourBtn" class="secondary" disabled>← Previous</button>
                     <button id="nextTourBtn" class="success">Next →</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcutsModal" class="help-modal hidden">
+        <div class="help-modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">⌨️ Keyboard Shortcuts</h2>
+                <button id="closeShortcutsBtn" class="secondary" style="padding: 5px 10px;">✕</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">🎮 Playback Controls</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Space</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Pause / Play animation</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">R</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Reset animation</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">N</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">New drawing</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">F</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Toggle full-screen</td></tr>
+                    </table>
+
+                    <h3 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">🔧 Zoom & Pan</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">+</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Zoom in</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">-</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Zoom out</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Right Mouse</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Pan canvas</td></tr>
+                    </table>
+
+                    <h3 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">💾 Export & Save</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">E</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Export as PNG</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Ctrl+S</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Save workspace</td></tr>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">✏️ Editing</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Ctrl+Z</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Undo</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Ctrl+Y</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Redo</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">C</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Collapse/Expand all</td></tr>
+                    </table>
+
+                    <h3 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">🎯 Workflow Modes</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Alt+1</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">General mode</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Alt+2</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Education mode</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Alt+3</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Art mode</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Alt+4</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Analysis mode</td></tr>
+                    </table>
+
+                    <h3 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">❓ Help & Info</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">?</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Open help</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">Ctrl+K</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee; background: #fafafa;">Feature search</td></tr>
+                        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><kbd class="key" style="background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace;">/</kbd></td><td style="padding: 8px; border-bottom: 1px solid #eee;">Shortcuts (this panel)</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>💡 Pro Tip:</strong> Most shortcuts work anywhere in the app. Shortcuts are disabled when typing in input fields.
             </div>
         </div>
     </div>
@@ -42666,6 +42730,10 @@ logActivity('Batch export completed');`
             } else if (e.key === '?' || (e.shiftKey && e.key === '/')) {
                 e.preventDefault();
                 document.getElementById('helpModal').classList.remove('hidden');
+            } else if (e.key === '/' && !e.shiftKey) {
+                // Forward slash - show keyboard shortcuts
+                e.preventDefault();
+                document.getElementById('shortcutsModal').classList.remove('hidden');
             } else if (e.ctrlKey && e.key === 'k') {
                 e.preventDefault();
                 document.getElementById('globalSearchInput').focus();
@@ -45257,6 +45325,22 @@ logActivity('Batch export completed');`
         // Theme toggle
         loadSavedTheme();
         document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+
+        // Keyboard shortcuts modal
+        document.getElementById('shortcutsBtn').addEventListener('click', () => {
+            document.getElementById('shortcutsModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeShortcutsBtn').addEventListener('click', () => {
+            document.getElementById('shortcutsModal').classList.add('hidden');
+        });
+
+        // Close shortcuts modal when clicking outside
+        document.getElementById('shortcutsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'shortcutsModal') {
+                document.getElementById('shortcutsModal').classList.add('hidden');
+            }
+        });
 
         // Feature search
         setupFeatureSearch();
