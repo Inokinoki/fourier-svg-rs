@@ -3,6 +3,40 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
+## Recent Updates (Iteration 15)
+
+### 46. Advanced Export Capabilities ⭐⭐⭐
+- **Expanded Export Formats**: More ways to save your work
+  - **SVG Export**: Vector graphics of Fourier epicycles
+    - Scalable and editable in vector software
+    - Preserves circle geometry perfectly
+    - Includes visualization metadata
+    - White background for easy viewing
+    - Standard SVG format compatibility
+  - **CSV Export**: Fourier coefficients data
+    - Spreadsheet-ready format
+    - Columns: Index, Frequency, Radius, Angle, Radius Sorted
+    - Sorted by importance (largest radius first)
+    - Perfect for data analysis
+    - Compatible with Excel, Google Sheets, etc.
+    - High precision (6 decimal places)
+  - Enhanced export button layout
+  - Toast notifications for successful exports
+  - Activity logging for all exports
+  - Error handling with user feedback
+
+### 47. Enhanced Export Workflow ⭐⭐
+- **Professional Export Experience**: Better export UX
+  - Organized export button layout
+  - PNG/JSON (primary) - top row
+  - SVG/CSV (secondary) - second row
+  - GIF/Image Series below
+  - Clear visual hierarchy
+  - Consistent styling
+  - Tooltip coverage for all exports
+  - File type validation
+  - Default filename suggestions
+
 ## Recent Updates (Iteration 14)
 
 ### 42. Smart Defaults System ⭐⭐⭐
