@@ -3,7 +3,91 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
-## Recent Updates (Iteration 18)
+## Recent Updates (Iteration 19)
+
+### 57. Comparison Mode ⭐⭐⭐
+- **Side-by-Side State Comparison**: Compare two visualization configurations
+  - **State Saving**: Save current settings as State A or State B
+    - Captures: wave count, speed, easing, zoom, color theme, visibility
+    - One-click save for each state
+    - Toast notifications on save
+  - **Visual Comparison**: Table format highlighting differences
+    - Side-by-side comparison table
+    - Yellow highlighting for different values
+    - All parameters compared at once
+  - **Preset Comparisons**: Quick comparison templates
+    - Before / After Settings
+    - Low Quality / High Quality
+    - Slow / Fast Animation
+    - Custom Comparison
+  - **Use Cases**:
+    - Comparing quality settings
+    - Testing animation speeds
+    - Validating configuration changes
+    - Educational demonstrations
+
+### 58. Animation Presets ⭐⭐
+- **Quick Animation Styles**: One-click animation configurations
+  - **6 Preset Animations**:
+    - **Smooth**: Linear, 1x speed - Constant, steady motion
+    - **Gentle**: Ease Out, 0.5x speed - Soft, gradual deceleration
+    - **Bounce**: Ease Out Quad, 1.5x speed - Playful, energetic
+    - **Dramatic**: Ease In-Out Cubic, 2x speed - Theatrical, pronounced
+    - **Cinematic**: Ease In-Out Quart, 0.75x speed - Film-like, professional
+    - **Snappy**: Ease Out Cubic, 2.5x speed - Quick, responsive
+  - **Automatic Application**: Applies easing and speed together
+  - **Preset Object**: JavaScript object defining all presets
+  - **Instant Feedback**: Toast notification on application
+  - **Time Saving**: No need to adjust multiple controls
+  - **Use Cases**:
+    - Quick style changes for presentations
+    - Finding optimal animation feel
+    - Demonstrating different motion styles
+
+### 59. Coefficient Search ⭐⭐
+- **Find Specific Fourier Coefficients**: Direct coefficient lookup
+  - **Search by Index**: Enter frequency index to find coefficient
+  - **Detailed Information Display**:
+    - Frequency value (s)
+    - Radius/amplitude (r)
+    - Angle in radians and degrees
+    - Power (r²)
+  - **Visual Feedback**: Results displayed in highlighted panel
+  - **Error Handling**: Validates index range
+  - **Use Cases**:
+    - Analyzing specific frequency components
+    - Understanding coefficient properties
+    - Educational exploration of Fourier data
+    - Debugging visualization issues
+
+### 60. Custom Theme Creator ⭐⭐⭐
+- **Create and Save Personal Color Schemes**: Full theme customization
+  - **4 Color Controls**:
+    - Epicycles color
+    - Trace color
+    - Background color
+    - Highlight color
+  - **Theme Management**:
+    - Save with custom name
+    - Load saved themes
+    - Delete unwanted themes
+    - localStorage persistence
+  - **Instant Apply**: Apply button to preview colors immediately
+  - **Theme Storage**: Browser localStorage (survives restarts)
+  - **Duplicate Handling**: Overwrites themes with same name
+  - **UI Feedback**:
+    - Dropdown lists all themes
+    - Buttons disable appropriately
+    - Toast notifications for all actions
+  - **Use Cases**:
+    - Personal branding colors
+    - Accessibility accommodations
+    - Presentation themes
+    - Mood-based visualization styles
+
+---
+
+## Previous Updates (Iteration 18)
 
 ### 54. Batch Export Functionality ⭐⭐⭐
 - **One-Click Multi-Format Export**: Export all formats simultaneously

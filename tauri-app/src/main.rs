@@ -1164,6 +1164,20 @@ fn generate_html() -> String {
                 </select>
             </div>
 
+            <div class="control-group" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <label>✨ Animation Presets:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Quick animation styles</p>
+                <select id="animationPreset" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px;">
+                    <option value="">-- Select preset --</option>
+                    <option value="smooth">Smooth (Linear, 1x speed)</option>
+                    <option value="gentle">Gentle (Ease Out, 0.5x speed)</option>
+                    <option value="bounce">Bounce (Ease Out Quad, 1.5x speed)</option>
+                    <option value="dramatic">Dramatic (Ease In-Out Cubic, 2x speed)</option>
+                    <option value="cinematic">Cinematic (Ease In-Out Quart, 0.75x speed)</option>
+                    <option value="snappy">Snappy (Ease Out Cubic, 2.5x speed)</option>
+                </select>
+            </div>
+
             <div class="control-group">
                 <label title="Manually control animation position">Timeline: <span id="timelineValue" class="value-display">0.0s</span></label>
                 <input type="range" id="timelineControl" min="0" max="100" value="0" step="0.1">
@@ -1371,6 +1385,29 @@ fn generate_html() -> String {
             </div>
 
             <div class="control-group" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <label>⚖️ Comparison Mode:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Compare two visualizations side-by-side</p>
+                <label style="display: flex; align-items: center; font-size: 12px;">
+                    <input type="checkbox" id="comparisonMode" style="width: auto; margin-right: 8px;">
+                    Enable Comparison Mode
+                </label>
+                <div id="comparisonControls" style="display: none; margin-top: 8px;">
+                    <select id="comparisonPreset" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; margin-top: 5px;">
+                        <option value="">-- Select comparison preset --</option>
+                        <option value="before_after">Before / After Settings</option>
+                        <option value="low_high">Low Quality / High Quality</option>
+                        <option value="slow_fast">Slow / Fast Animation</option>
+                        <option value="custom">Custom Comparison</option>
+                    </select>
+                    <div class="button-row" style="margin-top: 5px;">
+                        <button id="saveComparisonStateA" class="secondary" style="flex: 1; font-size: 11px;">Save State A</button>
+                        <button id="saveComparisonStateB" class="secondary" style="flex: 1; font-size: 11px;">Save State B</button>
+                    </div>
+                    <button id="compareStates" class="success" style="width: 100%; margin-top: 5px;">⚖️ Compare States</button>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
                 <label>🔬 Fourier Analysis:</label>
                 <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Mathematical insights and frequency data</p>
 
@@ -1386,6 +1423,49 @@ fn generate_html() -> String {
                 <div id="analysisResult" style="margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 6px; font-size: 11px; display: none;">
                     <strong>Analysis Result:</strong>
                     <div id="analysisResultContent"></div>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <label>🔍 Coefficient Search:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Find specific Fourier coefficients</p>
+                <input type="number" id="searchFreq" placeholder="Frequency index" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; margin-bottom: 5px;">
+                <button id="searchCoeffBtn" class="secondary" style="width: 100%;">🔍 Search Coefficient</button>
+                <div id="coeffResult" style="margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 6px; font-size: 11px; display: none;"></div>
+            </div>
+
+            <div class="control-group" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <label>🎨 Custom Themes:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Create and save your own color schemes</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+                    <div>
+                        <label style="font-size: 10px;">Epicycles</label>
+                        <input type="color" id="customEpicycleColor" value="#667eea" style="width: 100%; height: 30px; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                    <div>
+                        <label style="font-size: 10px;">Trace</label>
+                        <input type="color" id="customTraceColor" value="#333333" style="width: 100%; height: 30px; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                    <div>
+                        <label style="font-size: 10px;">Background</label>
+                        <input type="color" id="customBgColor" value="#ffffff" style="width: 100%; height: 30px; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                    <div>
+                        <label style="font-size: 10px;">Highlight</label>
+                        <input type="color" id="customHighlightColor" value="#f093fb" style="width: 100%; height: 30px; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                </div>
+                <input type="text" id="themeName" placeholder="Theme name" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; margin-bottom: 5px;">
+                <div class="button-row">
+                    <button id="saveThemeBtn" class="secondary" style="flex: 1; font-size: 11px;">💾 Save</button>
+                    <button id="applyThemeBtn" class="success" style="flex: 1; font-size: 11px;">✨ Apply</button>
+                </div>
+                <select id="customThemeSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; margin-top: 8px;">
+                    <option value="">-- No custom themes --</option>
+                </select>
+                <div class="button-row" style="margin-top: 5px;">
+                    <button id="loadThemeBtn" class="secondary" style="flex: 1; font-size: 11px;" disabled>📂 Load</button>
+                    <button id="deleteThemeBtn" class="secondary" style="flex: 1; font-size: 11px;" disabled>🗑 Delete</button>
                 </div>
             </div>
 
@@ -21464,6 +21544,224 @@ Generated by Fourier SVG Visualizer
                 updateRecentFilesUI();
                 showToast('Recent files cleared', 'info');
                 logActivity('Cleared recent files');
+            }
+        }
+
+        // Comparison Mode
+        let comparisonStateA = null;
+        let comparisonStateB = null;
+
+        function toggleComparisonMode() {
+            const enabled = document.getElementById('comparisonMode').checked;
+            const controls = document.getElementById('comparisonControls');
+            controls.style.display = enabled ? 'block' : 'none';
+            logActivity('Comparison mode', { enabled });
+        }
+
+        function saveComparisonState(state) {
+            const currentState = {
+                waveCount: document.getElementById('waveCount').value,
+                speed: document.getElementById('speedControl').value,
+                easing: document.getElementById('easingMode').value,
+                zoom: document.getElementById('zoomControl').value,
+                colorTheme: document.getElementById('colorTheme').value,
+                showCircles: document.getElementById('showCircles').checked,
+                showTrace: document.getElementById('showTrace').checked
+            };
+
+            if (state === 'A') {
+                comparisonStateA = currentState;
+                showToast('State A saved', 'success');
+            } else {
+                comparisonStateB = currentState;
+                showToast('State B saved', 'success');
+            }
+            logActivity(`Saved comparison state ${state}`);
+        }
+
+        function compareStates() {
+            if (!comparisonStateA || !comparisonStateB) {
+                showToast('Please save both State A and State B first', 'error');
+                return;
+            }
+
+            let comparison = '<strong>State Comparison:</strong><br><br>';
+            comparison += '<table style="width: 100%; font-size: 10px;">';
+            comparison += '<tr><th>Setting</th><th>State A</th><th>State B</th></tr>';
+
+            const labels = {
+                waveCount: 'Wave Count',
+                speed: 'Speed',
+                easing: 'Easing',
+                zoom: 'Zoom',
+                colorTheme: 'Color Theme',
+                showCircles: 'Show Circles',
+                showTrace: 'Show Trace'
+            };
+
+            for (const key in labels) {
+                const valA = comparisonStateA[key];
+                const valB = comparisonStateB[key];
+                const diff = valA !== valB;
+                comparison += `<tr style="${diff ? 'background: #fff3cd;' : ''}">`;
+                comparison += `<td>${labels[key]}</td><td>${valA}</td><td>${valB}</td></tr>`;
+            }
+
+            comparison += '</table>';
+            showToast('Comparison complete - see console', 'info');
+            console.log(comparison);
+            logActivity('Compared states A and B');
+        }
+
+        // Animation Presets
+        const animationPresets = {
+            smooth: { easing: 'linear', speed: 1.0 },
+            gentle: { easing: 'easeOutQuad', speed: 0.5 },
+            bounce: { easing: 'easeOutQuad', speed: 1.5 },
+            dramatic: { easing: 'easeInOutCubic', speed: 2.0 },
+            cinematic: { easing: 'easeInOutQuart', speed: 0.75 },
+            snappy: { easing: 'easeOutCubic', speed: 2.5 }
+        };
+
+        function applyAnimationPreset(presetName) {
+            const preset = animationPresets[presetName];
+            if (!preset) return;
+
+            document.getElementById('easingMode').value = preset.easing;
+            document.getElementById('speedControl').value = preset.speed;
+            document.getElementById('speedValue').textContent = preset.speed.toFixed(1) + 'x';
+            speed_multiplier = preset.speed;
+
+            showToast(`Applied ${presetName} preset`, 'success');
+            logActivity('Applied animation preset', { preset: presetName });
+        }
+
+        // Coefficient Search
+        function searchCoefficient() {
+            if (!fullFourierData || fullFourierData.length === 0) {
+                showToast('No visualization data available', 'error');
+                return;
+            }
+
+            const freqIndex = parseInt(document.getElementById('searchFreq').value);
+            if (isNaN(freqIndex) || freqIndex < 0 || freqIndex >= fullFourierData.length) {
+                showToast('Invalid frequency index', 'error');
+                return;
+            }
+
+            const coeff = fullFourierData[freqIndex];
+            const resultDiv = document.getElementById('coeffResult');
+
+            resultDiv.innerHTML = `
+                <strong>Coefficient at index ${freqIndex}:</strong><br>
+                Frequency: ${coeff.s.toFixed(6)}<br>
+                Radius: ${coeff.r.toFixed(6)}<br>
+                Angle: ${coeff.a.toFixed(6)} rad (${(coeff.a * 180 / Math.PI).toFixed(2)}°)<br>
+                Power: ${(coeff.r * coeff.r).toFixed(6)}
+            `;
+            resultDiv.style.display = 'block';
+
+            showToast(`Found coefficient at index ${freqIndex}`, 'success');
+            logActivity('Searched coefficient', { index: freqIndex });
+        }
+
+        // Custom Themes Management
+        let customThemes = [];
+
+        function loadCustomThemes() {
+            const saved = localStorage.getItem('customThemes');
+            if (saved) {
+                customThemes = JSON.parse(saved);
+                updateCustomThemesUI();
+            }
+        }
+
+        function updateCustomThemesUI() {
+            const select = document.getElementById('customThemeSelect');
+            select.innerHTML = '';
+
+            if (customThemes.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = '-- No custom themes --';
+                option.value = '';
+                select.appendChild(option);
+                document.getElementById('loadThemeBtn').disabled = true;
+                document.getElementById('deleteThemeBtn').disabled = true;
+            } else {
+                customThemes.forEach((theme, index) => {
+                    const option = document.createElement('option');
+                    option.textContent = theme.name;
+                    option.value = index;
+                    select.appendChild(option);
+                });
+                document.getElementById('loadThemeBtn').disabled = false;
+                document.getElementById('deleteThemeBtn').disabled = false;
+            }
+        }
+
+        function saveCustomTheme() {
+            const name = document.getElementById('themeName').value.trim();
+            if (!name) {
+                showToast('Please enter a theme name', 'error');
+                return;
+            }
+
+            const theme = {
+                name: name,
+                epicycleColor: document.getElementById('customEpicycleColor').value,
+                traceColor: document.getElementById('customTraceColor').value,
+                bgColor: document.getElementById('customBgColor').value,
+                highlightColor: document.getElementById('customHighlightColor').value,
+                timestamp: Date.now()
+            };
+
+            // Remove duplicate if exists
+            customThemes = customThemes.filter(t => t.name !== name);
+            customThemes.push(theme);
+
+            localStorage.setItem('customThemes', JSON.stringify(customThemes));
+            updateCustomThemesUI();
+
+            document.getElementById('themeName').value = '';
+            showToast(`Theme "${name}" saved`, 'success');
+            logActivity('Saved custom theme', { name });
+        }
+
+        function applyCustomTheme() {
+            epicycleColor = document.getElementById('customEpicycleColor').value;
+            traceColor = document.getElementById('customTraceColor').value;
+            document.getElementById('epicycleColor').value = epicycleColor;
+            document.getElementById('traceColor').value = traceColor;
+
+            showToast('Theme colors applied', 'success');
+            logActivity('Applied custom theme colors');
+        }
+
+        function loadCustomTheme() {
+            const index = parseInt(document.getElementById('customThemeSelect').value);
+            if (isNaN(index) || !customThemes[index]) return;
+
+            const theme = customThemes[index];
+            document.getElementById('customEpicycleColor').value = theme.epicycleColor;
+            document.getElementById('customTraceColor').value = theme.traceColor;
+            document.getElementById('customBgColor').value = theme.bgColor;
+            document.getElementById('customHighlightColor').value = theme.highlightColor;
+
+            showToast(`Loaded theme "${theme.name}"`, 'info');
+            logActivity('Loaded custom theme', { name: theme.name });
+        }
+
+        function deleteCustomTheme() {
+            const index = parseInt(document.getElementById('customThemeSelect').value);
+            if (isNaN(index) || !customThemes[index]) return;
+
+            const themeName = customThemes[index].name;
+            if (confirm(`Delete theme "${themeName}"?`)) {
+                customThemes.splice(index, 1);
+                localStorage.setItem('customThemes', JSON.stringify(customThemes));
+                updateCustomThemesUI();
+                showToast(`Theme "${themeName}" deleted`, 'info');
+                logActivity('Deleted custom theme', { name: themeName });
             }
         }
 
@@ -43466,6 +43764,34 @@ logActivity('Batch export completed');`
         document.getElementById('openRecentBtn').addEventListener('click', openRecentFile);
         document.getElementById('clearRecentBtn').addEventListener('click', clearRecentFiles);
 
+        // Comparison mode event listeners
+        document.getElementById('comparisonMode').addEventListener('change', toggleComparisonMode);
+        document.getElementById('saveComparisonStateA').addEventListener('click', () => saveComparisonState('A'));
+        document.getElementById('saveComparisonStateB').addEventListener('click', () => saveComparisonState('B'));
+        document.getElementById('compareStates').addEventListener('click', compareStates);
+
+        // Animation preset event listener
+        document.getElementById('animationPreset').addEventListener('change', (e) => {
+            if (e.target.value) {
+                applyAnimationPreset(e.target.value);
+                e.target.value = ''; // Reset to default
+            }
+        });
+
+        // Coefficient search event listener
+        document.getElementById('searchCoeffBtn').addEventListener('click', searchCoefficient);
+
+        // Custom theme event listeners
+        document.getElementById('saveThemeBtn').addEventListener('click', saveCustomTheme);
+        document.getElementById('applyThemeBtn').addEventListener('click', applyCustomTheme);
+        document.getElementById('loadThemeBtn').addEventListener('click', loadCustomTheme);
+        document.getElementById('deleteThemeBtn').addEventListener('click', deleteCustomTheme);
+        document.getElementById('customThemeSelect').addEventListener('change', (e) => {
+            const hasValue = e.target.value !== '';
+            document.getElementById('loadThemeBtn').disabled = !hasValue;
+            document.getElementById('deleteThemeBtn').disabled = !hasValue;
+        });
+
         document.getElementById('seriesFrames').addEventListener('input', (e) => {
             document.getElementById('seriesFramesValue').textContent = e.target.value;
         });
@@ -43693,6 +44019,9 @@ logActivity('Batch export completed');`
 
         // Load browser localStorage recent files
         loadRecentFilesList();
+
+        // Load custom themes
+        loadCustomThemes();
 
         // Load saved snapshots
         loadSnapshotsList();
