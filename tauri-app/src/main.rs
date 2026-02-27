@@ -1303,6 +1303,119 @@ fn generate_html() -> String {
             </div>
 
             <div class="control-group">
+                <label>📚 Layers System:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Manage multiple Fourier visualizations</p>
+
+                <!-- Layer Controls -->
+                <div class="button-row" style="margin-bottom: 8px;">
+                    <button id="addLayerBtn" class="secondary" style="flex: 1; font-size: 11px;" title="Add current visualization as new layer">+ Add Layer</button>
+                    <button id="mergeLayersBtn" class="secondary" style="flex: 1; font-size: 11px;" title="Merge all visible layers">🔗 Merge</button>
+                    <button id="clearLayersBtn" class="secondary" style="flex: 1; font-size: 11px;" title="Remove all layers">🗑 Clear</button>
+                </div>
+
+                <!-- Layers List -->
+                <div id="layersList" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 8px; background: #f9f9f9;">
+                    <div style="text-align: center; color: #999; font-size: 11px; padding: 20px;">
+                        No layers yet<br>
+                        <span style="font-size: 10px;">Add current visualization to create layers</span>
+                    </div>
+                </div>
+
+                <!-- Layer Options -->
+                <div style="margin-top: 8px;">
+                    <label style="font-size: 11px; font-weight: 600;">Blend Mode:</label>
+                    <select id="layerBlendMode" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 11px; margin-top: 4px;">
+                        <option value="normal">Normal</option>
+                        <option value="multiply">Multiply</option>
+                        <option value="screen">Screen</option>
+                        <option value="overlay">Overlay</option>
+                        <option value="darken">Darken</option>
+                        <option value="lighten">Lighten</option>
+                        <option value="color-dodge">Color Dodge</option>
+                        <option value="color-burn">Color Burn</option>
+                        <option value="hard-light">Hard Light</option>
+                        <option value="soft-light">Soft Light</option>
+                        <option value="difference">Difference</option>
+                        <option value="exclusion">Exclusion</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 8px;">
+                    <label style="font-size: 11px; font-weight: 600;">Layer Opacity: <span id="layerOpacityValue">100%</span></label>
+                    <input type="range" id="layerOpacity" min="0" max="100" value="100" step="5" style="width: 100%; margin-top: 4px;">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>🔗 Composite Operations:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Mathematical operations between visualizations</p>
+
+                <select id="compositeOperation" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; margin-bottom: 8px;">
+                    <option value="">-- Select operation --</option>
+                    <option value="add">➕ Addition (Combine shapes)</option>
+                    <option value="subtract">➖ Subtraction (Difference)</option>
+                    <option value="multiply">✖️ Multiplication (Intersection)</option>
+                    <option value="divide">➗ Division (Ratio)</option>
+                    <option value="average">📊 Average (Blend)</option>
+                    <option value="difference">🔀 Difference (XOR-like)</option>
+                    <option value="interpolate">🎨 Interpolation (Morph)</option>
+                </select>
+
+                <div id="compositeLayers" style="margin-bottom: 8px;">
+                    <label style="font-size: 11px;">Layer A:</label>
+                    <select id="compositeLayerA" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 11px; margin-bottom: 4px;">
+                        <option value="">-- Select layer --</option>
+                    </select>
+
+                    <label style="font-size: 11px;">Layer B:</label>
+                    <select id="compositeLayerB" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 11px;">
+                        <option value="">-- Select layer --</option>
+                    </select>
+                </div>
+
+                <div id="interpolationControl" style="display: none; margin-bottom: 8px;">
+                    <label style="font-size: 11px;">Interpolation: <span id="interpolationValue">50%</span></label>
+                    <input type="range" id="interpolationAmount" min="0" max="100" value="50" step="1" style="width: 100%;">
+                </div>
+
+                <button id="applyCompositeBtn" class="secondary" style="width: 100%;" disabled>Apply Operation</button>
+            </div>
+
+            <div class="control-group">
+                <label>🎬 Path Morphing:</label>
+                <p style="font-size: 10px; color: #999; margin: 4px 0 8px 0;">Animate smooth transitions between shapes</p>
+
+                <div class="button-row" style="margin-bottom: 8px;">
+                    <button id="startMorphBtn" class="success" style="flex: 1; font-size: 11px;" disabled>▶ Start Morph</button>
+                    <button id="stopMorphBtn" class="secondary" style="flex: 1; font-size: 11px;" disabled>⏹ Stop</button>
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size: 11px;">Morph Duration: <span id="morphDurationValue">2.0s</span></label>
+                    <input type="range" id="morphDuration" min="0.5" max="5.0" value="2.0" step="0.1" style="width: 100%;">
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size: 11px;">Easing:</label>
+                    <select id="morphEasing" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 11px;">
+                        <option value="linear">Linear</option>
+                        <option value="easeInOut" selected>Ease In-Out</option>
+                        <option value="easeIn">Ease In</option>
+                        <option value="easeOut">Ease Out</option>
+                        <option value="bounce">Bounce</option>
+                    </select>
+                </div>
+
+                <label style="font-size: 11px;">Loop Morph:</label>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                    <label style="display: flex; align-items: center; font-size: 11px; margin: 0;">
+                        <input type="checkbox" id="morphLoop" style="width: auto; margin-right: 4px;">
+                        Ping-Pong
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
                 <label style="display: flex; align-items: center; font-size: 13px; margin: 0;">
                     <input type="checkbox" id="comparisonMode" style="width: auto; margin-right: 8px;">
                     Comparison Mode (Side-by-Side)
@@ -24667,6 +24780,641 @@ plt.show()
             }
         }
 
+        // Layers System
+        let layers = [];
+        let nextLayerId = 1;
+        let currentBlendMode = 'normal';
+        let currentLayerOpacity = 1.0;
+
+        function addLayer() {
+            if (!fullFourierData || fullFourierData.length === 0) {
+                showToast('No visualization to add as layer', 'error');
+                return;
+            }
+
+            const layer = {
+                id: nextLayerId++,
+                name: `Layer ${layers.length + 1}`,
+                fourierData: JSON.parse(JSON.stringify(fullFourierData)),
+                waveCount: parseInt(document.getElementById('waveCount').value),
+                visible: true,
+                locked: false,
+                opacity: 1.0,
+                blendMode: 'normal',
+                color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                timestamp: Date.now()
+            };
+
+            layers.push(layer);
+            updateLayersList();
+            saveLayersToStorage();
+            showToast(`Added "${layer.name}"`, 'success');
+            logActivity('Layer added', { layerId: layer.id, name: layer.name });
+            unlockAchievement('explorer'); // Track feature usage
+        }
+
+        function toggleLayerVisibility(layerId) {
+            const layer = layers.find(l => l.id === layerId);
+            if (layer) {
+                layer.visible = !layer.visible;
+                updateLayersList();
+                saveLayersToStorage();
+                logActivity('Layer visibility toggled', { layerId, visible: layer.visible });
+            }
+        }
+
+        function toggleLayerLock(layerId) {
+            const layer = layers.find(l => l.id === layerId);
+            if (layer) {
+                layer.locked = !layer.locked;
+                updateLayersList();
+                saveLayersToStorage();
+                logActivity('Layer lock toggled', { layerId, locked: layer.locked });
+            }
+        }
+
+        function selectLayer(layerId) {
+            const layer = layers.find(l => l.id === layerId);
+            if (layer && !layer.locked) {
+                // Load layer data as current visualization
+                fullFourierData = layer.fourierData;
+                document.getElementById('waveCount').value = layer.waveCount;
+                document.getElementById('waveValue').textContent = layer.waveCount;
+                updateLayersList();
+                showToast(`Selected "${layer.name}"`, 'info');
+                logActivity('Layer selected', { layerId, name: layer.name });
+            }
+        }
+
+        function deleteLayer(layerId) {
+            const layer = layers.find(l => l.id === layerId);
+            if (!layer) return;
+
+            if (layer.locked) {
+                showToast('Cannot delete locked layer', 'error');
+                return;
+            }
+
+            const name = layer.name;
+            layers = layers.filter(l => l.id !== layerId);
+            updateLayersList();
+            saveLayersToStorage();
+            showToast(`Deleted "${name}"`, 'info');
+            logActivity('Layer deleted', { layerId, name });
+        }
+
+        function mergeLayers() {
+            const visibleLayers = layers.filter(l => l.visible);
+            if (visibleLayers.length < 2) {
+                showToast('Need at least 2 visible layers to merge', 'error');
+                return;
+            }
+
+            // Combine all visible layers
+            const mergedData = [];
+            visibleLayers.forEach(layer => {
+                mergedData.push(...layer.fourierData);
+            });
+
+            // Sort by radius (largest first)
+            mergedData.sort((a, b) => b.r - a.r);
+
+            // Create merged layer
+            const mergedLayer = {
+                id: nextLayerId++,
+                name: `Merged Layer (${visibleLayers.length} layers)`,
+                fourierData: mergedData,
+                waveCount: mergedData.length,
+                visible: true,
+                locked: false,
+                opacity: 1.0,
+                blendMode: 'normal',
+                color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                timestamp: Date.now()
+            };
+
+            // Remove original layers and add merged
+            const visibleIds = visibleLayers.map(l => l.id);
+            layers = layers.filter(l => !visibleIds.includes(l.id));
+            layers.push(mergedLayer);
+
+            updateLayersList();
+            saveLayersToStorage();
+            showToast(`Merged ${visibleLayers.length} layers`, 'success');
+            logActivity('Layers merged', { layerCount: visibleLayers.length });
+        }
+
+        function clearLayers() {
+            if (layers.length === 0) {
+                showToast('No layers to clear', 'info');
+                return;
+            }
+
+            if (!confirm(`Clear all ${layers.length} layers?`)) return;
+
+            layers = [];
+            updateLayersList();
+            saveLayersToStorage();
+            showToast('All layers cleared', 'info');
+            logActivity('All layers cleared');
+        }
+
+        function updateLayerBlendMode() {
+            currentBlendMode = document.getElementById('layerBlendMode').value;
+            logActivity('Layer blend mode changed', { mode: currentBlendMode });
+        }
+
+        function updateLayerOpacity() {
+            const opacity = parseInt(document.getElementById('layerOpacity').value);
+            currentLayerOpacity = opacity / 100;
+            document.getElementById('layerOpacityValue').textContent = `${opacity}%`;
+            logActivity('Layer opacity changed', { opacity });
+        }
+
+        function updateLayersList() {
+            const container = document.getElementById('layersList');
+            if (!container) return;
+
+            if (layers.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #999; font-size: 11px; padding: 20px;">
+                        No layers yet<br>
+                        <span style="font-size: 10px;">Add current visualization to create layers</span>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = layers
+                .slice()
+                .reverse()
+                .map(layer => `
+                    <div class="layer-item" data-layer-id="${layer.id}"
+                         style="display: flex; align-items: center; gap: 6px; padding: 8px; margin-bottom: 6px;
+                                background: ${layer.visible ? 'white' : '#f0f0f0'}; border: 1px solid #ddd;
+                                border-radius: 4px; cursor: pointer; ${layer.locked ? 'opacity: 0.6;' : ''}"
+                         onclick="selectLayer(${layer.id})">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: ${layer.color};
+                                    border: 2px solid ${layer.visible ? layer.color : '#999'};"></div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${layer.locked ? '🔒 ' : ''}${layer.name}
+                            </div>
+                            <div style="font-size: 9px; color: #666;">
+                                ${layer.fourierData.length} components • ${layer.visible ? 'Visible' : 'Hidden'}
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleLayerVisibility(${layer.id})"
+                                style="background: none; border: none; font-size: 14px; cursor: pointer; padding: 2px 6px;"
+                                title="${layer.visible ? 'Hide' : 'Show'}">
+                            ${layer.visible ? '👁️' : '👁️‍🗨️'}
+                        </button>
+                        <button onclick="event.stopPropagation(); toggleLayerLock(${layer.id})"
+                                style="background: none; border: none; font-size: 14px; cursor: pointer; padding: 2px 6px;"
+                                title="${layer.locked ? 'Unlock' : 'Lock'}">
+                            ${layer.locked ? '🔒' : '🔓'}
+                        </button>
+                        <button onclick="event.stopPropagation(); deleteLayer(${layer.id})"
+                                style="background: none; border: none; font-size: 14px; cursor: pointer; padding: 2px 6px; color: #cc0000;"
+                                title="Delete layer">
+                            🗑
+                        </button>
+                    </div>
+                `).join('');
+
+            // Update composite layer selects
+            updateCompositeLayerSelects();
+        }
+
+        function saveLayersToStorage() {
+            try {
+                localStorage.setItem('fourierLayers', JSON.stringify(layers));
+            } catch (e) {
+                console.warn('Could not save layers to localStorage:', e);
+            }
+        }
+
+        function loadLayersFromStorage() {
+            try {
+                const saved = localStorage.getItem('fourierLayers');
+                if (saved) {
+                    layers = JSON.parse(saved);
+                    if (layers.length > 0) {
+                        nextLayerId = Math.max(...layers.map(l => l.id)) + 1;
+                    }
+                    updateLayersList();
+                }
+            } catch (e) {
+                console.warn('Could not load layers from localStorage:', e);
+            }
+        }
+
+        // Render all visible layers with blend modes
+        function renderLayers() {
+            if (layers.length === 0) return;
+
+            const visibleLayers = layers.filter(l => l.visible);
+            if (visibleLayers.length === 0) return;
+
+            // Apply blend mode
+            context.globalCompositeOperation = currentBlendMode;
+            context.globalAlpha = currentLayerOpacity;
+
+            // Draw each layer
+            visibleLayers.forEach(layer => {
+                if (layer.locked) return;
+
+                // Draw layer's Fourier data
+                const x = context.canvas.width / 2;
+                const y = context.canvas.height / 2;
+
+                let prevX = x;
+                let prevY = y;
+
+                for (let i = 0; i < layer.fourierData.length; i++) {
+                    const freq = layer.fourierData[i].freq;
+                    const radius = layer.fourierData[i].r;
+                    const phase = layer.fourierData[i].phase;
+
+                    prevX += radius * Math.cos(freq * time + phase);
+                    prevY += radius * Math.sin(freq * time + phase);
+
+                    // Draw circle
+                    context.beginPath();
+                    context.strokeStyle = layer.color;
+                    context.globalAlpha = layer.opacity * currentLayerOpacity * 0.3;
+                    context.lineWidth = 1;
+                    context.arc(prevX - radius * Math.cos(freq * time + phase),
+                               prevY - radius * Math.sin(freq * time + phase),
+                               radius, 0, Math.PI * 2);
+                    context.stroke();
+                }
+            });
+
+            // Reset composition mode
+            context.globalCompositeOperation = 'source-over';
+            context.globalAlpha = 1.0;
+        }
+
+        // Composite Operations System
+        function updateCompositeLayerSelects() {
+            const selectA = document.getElementById('compositeLayerA');
+            const selectB = document.getElementById('compositeLayerB');
+            if (!selectA || !selectB) return;
+
+            const options = layers.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+
+            selectA.innerHTML = '<option value="">-- Select layer --</option>' + options;
+            selectB.innerHTML = '<option value="">-- Select layer --</option>' + options;
+
+            // Enable/disable apply button
+            const operation = document.getElementById('compositeOperation').value;
+            const layerA = selectA.value;
+            const layerB = selectB.value;
+            const applyBtn = document.getElementById('applyCompositeBtn');
+            if (applyBtn) {
+                applyBtn.disabled = !operation || !layerA || !layerB;
+            }
+
+            // Update morph buttons
+            updateMorphButtons();
+        }
+
+        function onCompositeOperationChange() {
+            const operation = document.getElementById('compositeOperation').value;
+            const interpolationControl = document.getElementById('interpolationControl');
+
+            if (interpolationControl) {
+                interpolationControl.style.display = operation === 'interpolate' ? 'block' : 'none';
+            }
+
+            updateCompositeLayerSelects();
+            logActivity('Composite operation selected', { operation });
+        }
+
+        function onInterpolationAmountChange() {
+            const value = document.getElementById('interpolationAmount').value;
+            document.getElementById('interpolationValue').textContent = `${value}%`;
+        }
+
+        function applyCompositeOperation() {
+            const operation = document.getElementById('compositeOperation').value;
+            const layerAId = parseInt(document.getElementById('compositeLayerA').value);
+            const layerBId = parseInt(document.getElementById('compositeLayerB').value);
+
+            if (!operation || !layerAId || !layerBId) {
+                showToast('Please select operation and both layers', 'error');
+                return;
+            }
+
+            const layerA = layers.find(l => l.id === layerAId);
+            const layerB = layers.find(l => l.id === layerBId);
+
+            if (!layerA || !layerB) {
+                showToast('Invalid layers selected', 'error');
+                return;
+            }
+
+            let resultData = [];
+            const maxLength = Math.max(layerA.fourierData.length, layerB.fourierData.length);
+
+            switch (operation) {
+                case 'add':
+                    // Add coefficients
+                    for (let i = 0; i < maxLength; i++) {
+                        const coeffA = layerA.fourierData[i] || { freq: i, r: 0, phase: 0 };
+                        const coeffB = layerB.fourierData[i] || { freq: i, r: 0, phase: 0 };
+
+                        // Vector addition in complex plane
+                        const realA = coeffA.r * Math.cos(coeffA.phase);
+                        const imagA = coeffA.r * Math.sin(coeffA.phase);
+                        const realB = coeffB.r * Math.cos(coeffB.phase);
+                        const imagB = coeffB.r * Math.sin(coeffB.phase);
+
+                        const realSum = realA + realB;
+                        const imagSum = imagA + imagB;
+
+                        resultData.push({
+                            freq: coeffA.freq || coeffB.freq,
+                            r: Math.sqrt(realSum * realSum + imagSum * imagSum),
+                            phase: Math.atan2(imagSum, realSum)
+                        });
+                    }
+                    break;
+
+                case 'subtract':
+                    // Subtract coefficients
+                    for (let i = 0; i < maxLength; i++) {
+                        const coeffA = layerA.fourierData[i] || { freq: i, r: 0, phase: 0 };
+                        const coeffB = layerB.fourierData[i] || { freq: i, r: 0, phase: 0 };
+
+                        const realA = coeffA.r * Math.cos(coeffA.phase);
+                        const imagA = coeffA.r * Math.sin(coeffA.phase);
+                        const realB = coeffB.r * Math.cos(coeffB.phase);
+                        const imagB = coeffB.r * Math.sin(coeffB.phase);
+
+                        const realDiff = realA - realB;
+                        const imagDiff = imagA - imagB;
+
+                        resultData.push({
+                            freq: coeffA.freq || coeffB.freq,
+                            r: Math.sqrt(realDiff * realDiff + imagDiff * imagDiff),
+                            phase: Math.atan2(imagDiff, realDiff)
+                        });
+                    }
+                    break;
+
+                case 'multiply':
+                    // Multiply amplitudes, add phases
+                    for (let i = 0; i < maxLength; i++) {
+                        const coeffA = layerA.fourierData[i] || { freq: i, r: 1, phase: 0 };
+                        const coeffB = layerB.fourierData[i] || { freq: i, r: 1, phase: 0 };
+
+                        resultData.push({
+                            freq: coeffA.freq || coeffB.freq,
+                            r: coeffA.r * coeffB.r * 0.01, // Scale down
+                            phase: coeffA.phase + coeffB.phase
+                        });
+                    }
+                    break;
+
+                case 'divide':
+                    // Divide amplitudes, subtract phases
+                    for (let i = 0; i < maxLength; i++) {
+                        const coeffA = layerA.fourierData[i] || { freq: i, r: 1, phase: 0 };
+                        const coeffB = layerB.fourierData[i] || { freq: i, r: 1, phase: 0 };
+
+                        if (coeffB.r < 0.001) coeffB.r = 0.001; // Prevent division by zero
+
+                        resultData.push({
+                            freq: coeffA.freq || coeffB.freq,
+                            r: (coeffA.r / coeffB.r) * 100, // Scale up
+                            phase: coeffA.phase - coeffB.phase
+                        });
+                    }
+                    break;
+
+                case 'average':
+                    // Average coefficients
+                    for (let i = 0; i < maxLength; i++) {
+                        const coeffA = layerA.fourierData[i] || { freq: i, r: 0, phase: 0 };
+                        const coeffB = layerB.fourierData[i] || { freq: i, r: 0, phase: 0 };
+
+                        const realA = coeffA.r * Math.cos(coeffA.phase);
+                        const imagA = coeffA.r * Math.sin(coeffA.phase);
+                        const realB = coeffB.r * Math.cos(coeffB.phase);
+                        const imagB = coeffB.r * Math.sin(coeffB.phase);
+
+                        const realAvg = (realA + realB) / 2;
+                        const imagAvg = (imagA + imagB) / 2;
+
+                        resultData.push({
+                            freq: coeffA.freq || coeffB.freq,
+                            r: Math.sqrt(realAvg * realAvg + imagAvg * imagAvg),
+                            phase: Math.atan2(imagAvg, realAvg)
+                        });
+                    }
+                    break;
+
+                case 'difference':
+                    // Absolute difference
+                    for (let i = 0; i < maxLength; i++) {
+                        const coeffA = layerA.fourierData[i] || { freq: i, r: 0, phase: 0 };
+                        const coeffB = layerB.fourierData[i] || { freq: i, r: 0, phase: 0 };
+
+                        resultData.push({
+                            freq: coeffA.freq || coeffB.freq,
+                            r: Math.abs(coeffA.r - coeffB.r),
+                            phase: Math.abs(coeffA.phase - coeffB.phase)
+                        });
+                    }
+                    break;
+
+                case 'interpolate':
+                    // Interpolate between layers
+                    const t = parseInt(document.getElementById('interpolationAmount').value) / 100;
+
+                    for (let i = 0; i < maxLength; i++) {
+                        const coeffA = layerA.fourierData[i] || { freq: i, r: 0, phase: 0 };
+                        const coeffB = layerB.fourierData[i] || { freq: i, r: 0, phase: 0 };
+
+                        // Linear interpolation of radius and phase
+                        const r = coeffA.r * (1 - t) + coeffB.r * t;
+                        const phase = coeffA.phase * (1 - t) + coeffB.phase * t;
+
+                        resultData.push({
+                            freq: coeffA.freq || coeffB.freq,
+                            r: r,
+                            phase: phase
+                        });
+                    }
+                    break;
+            }
+
+            // Sort by radius
+            resultData.sort((a, b) => b.r - a.r);
+
+            // Create new layer with result
+            const newLayer = {
+                id: nextLayerId++,
+                name: `Composite: ${operation} (${layerA.name} + ${layerB.name})`,
+                fourierData: resultData,
+                waveCount: resultData.length,
+                visible: true,
+                locked: false,
+                opacity: 1.0,
+                blendMode: 'normal',
+                color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                timestamp: Date.now()
+            };
+
+            layers.push(newLayer);
+            updateLayersList();
+            updateCompositeLayerSelects();
+            saveLayersToStorage();
+
+            showToast(`Created composite: ${operation}`, 'success');
+            logActivity('Composite operation applied', { operation, layerA: layerA.name, layerB: layerB.name });
+        }
+
+        // Path Morphing System
+        let morphAnimation = null;
+        let morphDirection = 1; // 1 = forward, -1 = backward
+        let morphProgress = 0; // 0 to 1
+
+        function updateMorphDuration() {
+            const value = document.getElementById('morphDuration').value;
+            document.getElementById('morphDurationValue').textContent = `${parseFloat(value).toFixed(1)}s`;
+        }
+
+        function getEasingValue(t, easing) {
+            switch (easing) {
+                case 'linear':
+                    return t;
+                case 'easeIn':
+                    return t * t;
+                case 'easeOut':
+                    return t * (2 - t);
+                case 'easeInOut':
+                    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                case 'bounce':
+                    if (t < 1 / 2.75) {
+                        return 7.5625 * t * t;
+                    } else if (t < 2 / 2.75) {
+                        return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+                    } else if (t < 2.5 / 2.75) {
+                        return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+                    } else {
+                        return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+                    }
+                default:
+                    return t;
+            }
+        }
+
+        function startMorph() {
+            const layerAId = parseInt(document.getElementById('compositeLayerA').value);
+            const layerBId = parseInt(document.getElementById('compositeLayerB').value);
+
+            if (!layerAId || !layerBId) {
+                showToast('Please select two layers to morph between', 'error');
+                return;
+            }
+
+            const layerA = layers.find(l => l.id === layerAId);
+            const layerB = layers.find(l => l.id === layerBId);
+
+            if (!layerA || !layerB) {
+                showToast('Invalid layers selected', 'error');
+                return;
+            }
+
+            // Stop any existing morph
+            stopMorph();
+
+            // Initialize morph state
+            morphProgress = 0;
+            morphDirection = 1;
+
+            const duration = parseFloat(document.getElementById('morphDuration').value) * 1000;
+            const easing = document.getElementById('morphEasing').value;
+            const loop = document.getElementById('morphLoop').checked;
+
+            const startTime = performance.now();
+
+            function animateMorph(currentTime) {
+                const elapsed = currentTime - startTime;
+                let rawProgress = (elapsed % duration) / duration;
+
+                // Apply easing
+                morphProgress = getEasingValue(rawProgress, easing);
+
+                // Interpolate between layers
+                const maxLength = Math.max(layerA.fourierData.length, layerB.fourierData.length);
+                const morphedData = [];
+
+                for (let i = 0; i < maxLength; i++) {
+                    const coeffA = layerA.fourierData[i] || { freq: i, r: 0, phase: 0 };
+                    const coeffB = layerB.fourierData[i] || { freq: i, r: 0, phase: 0 };
+
+                    // Handle ping-pong looping
+                    let t = morphProgress;
+                    if (loop && Math.floor(elapsed / duration) % 2 === 1) {
+                        t = 1 - t; // Reverse direction
+                    }
+
+                    // Interpolate
+                    const r = coeffA.r * (1 - t) + coeffB.r * t;
+                    const phase = coeffA.phase * (1 - t) + coeffB.phase * t;
+
+                    morphedData.push({
+                        freq: coeffA.freq || coeffB.freq,
+                        r: r,
+                        phase: phase
+                    });
+                }
+
+                // Update current visualization
+                fullFourierData = morphedData;
+                fourierData = morphedData.slice(0, parseInt(document.getElementById('waveCount').value));
+
+                // Continue animation
+                morphAnimation = requestAnimationFrame(animateMorph);
+            }
+
+            // Start animation
+            morphAnimation = requestAnimationFrame(animateMorph);
+
+            // Update UI
+            document.getElementById('startMorphBtn').disabled = true;
+            document.getElementById('stopMorphBtn').disabled = false;
+
+            showToast(`Morphing: ${layerA.name} ↔ ${layerB.name}`, 'success');
+            logActivity('Morph started', { from: layerA.name, to: layerB.name, duration, easing, loop });
+        }
+
+        function stopMorph() {
+            if (morphAnimation) {
+                cancelAnimationFrame(morphAnimation);
+                morphAnimation = null;
+            }
+
+            document.getElementById('startMorphBtn').disabled = false;
+            document.getElementById('stopMorphBtn').disabled = true;
+
+            showToast('Morph stopped', 'info');
+            logActivity('Morph stopped');
+        }
+
+        // Enable/disable morph buttons based on layer selection
+        function updateMorphButtons() {
+            const layerA = document.getElementById('compositeLayerA').value;
+            const layerB = document.getElementById('compositeLayerB').value;
+            const canMorph = layerA && layerB && layerA !== layerB;
+
+            document.getElementById('startMorphBtn').disabled = !canMorph;
+        }
+
         // Global search functionality
         const searchableItems = [
             { category: 'Drawing', name: 'New Drawing', description: 'Start a fresh drawing', action: () => document.getElementById('newDrawBtn').click(), shortcut: 'N' },
@@ -46049,6 +46797,28 @@ logActivity('Batch export completed');`
 
         // Start smart tips system (check every 2 minutes, start after 30 seconds)
         setTimeout(showSmartTip, 30000);
+
+        // Layers system event listeners
+        document.getElementById('addLayerBtn').addEventListener('click', addLayer);
+        document.getElementById('mergeLayersBtn').addEventListener('click', mergeLayers);
+        document.getElementById('clearLayersBtn').addEventListener('click', clearLayers);
+        document.getElementById('layerBlendMode').addEventListener('change', updateLayerBlendMode);
+        document.getElementById('layerOpacity').addEventListener('input', updateLayerOpacity);
+
+        // Initialize layers from localStorage
+        loadLayersFromStorage();
+
+        // Composite operations event listeners
+        document.getElementById('compositeOperation').addEventListener('change', onCompositeOperationChange);
+        document.getElementById('compositeLayerA').addEventListener('change', updateCompositeLayerSelects);
+        document.getElementById('compositeLayerB').addEventListener('change', updateCompositeLayerSelects);
+        document.getElementById('interpolationAmount').addEventListener('input', onInterpolationAmountChange);
+        document.getElementById('applyCompositeBtn').addEventListener('click', applyCompositeOperation);
+
+        // Morphing event listeners
+        document.getElementById('startMorphBtn').addEventListener('click', startMorph);
+        document.getElementById('stopMorphBtn').addEventListener('click', stopMorph);
+        document.getElementById('morphDuration').addEventListener('input', updateMorphDuration);
 
         document.getElementById('seriesFrames').addEventListener('input', (e) => {
             document.getElementById('seriesFramesValue').textContent = e.target.value;

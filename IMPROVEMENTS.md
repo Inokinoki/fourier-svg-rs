@@ -3,7 +3,103 @@
 ## Overview
 This document summarizes the significant improvements made to the Tauri-based Fourier SVG Visualizer application to enhance usability, functionality, and user experience.
 
-## Recent Updates (Iteration 26)
+## Recent Updates (Iteration 27)
+
+### 89. Layers System ⭐⭐⭐
+- **Multi-Layer Visualization**: Manage multiple Fourier visualizations
+  - **Layer Management**:
+    - Add current visualization as new layer
+    - Toggle visibility per layer
+    - Lock/unlock layers to prevent changes
+    - Delete individual layers
+    - Select layer to load as active visualization
+  - **Layer Properties**:
+    - Unique color per layer
+    - Component count display
+    - Timestamp tracking
+    - Persistent storage
+  - **Layer Operations**:
+    - Merge visible layers into single layer
+    - Clear all layers
+    - Visual layer list with controls
+  - **Use Cases**:
+    - Compare different shapes
+    - Build complex composite visualizations
+    - Organize multiple projects
+
+### 90. Blend Modes ⭐⭐⭐
+- **12 Blend Modes**: Professional composition options
+  - **Standard Modes**:
+    - Normal, Multiply, Screen, Overlay
+    - Darken, Lighten
+  - **Advanced Modes**:
+    - Color Dodge, Color Burn
+    - Hard Light, Soft Light
+    - Difference, Exclusion
+  - **Opacity Control**:
+    - 0-100% opacity slider
+    - Real-time preview
+    - Per-layer application
+  - **Canvas Integration**:
+    - Uses globalCompositeOperation API
+    - Proper alpha blending
+    - Visual feedback
+  - **Use Cases**:
+    - Artistic effects
+    - Layer composition
+    - Visual emphasis
+
+### 91. Composite Operations ⭐⭐⭐
+- **Mathematical Layer Operations**: Combine layers with math
+  - **7 Operations**:
+    - ➕ Addition: Vector addition in complex plane
+    - ➖ Subtraction: Difference between layers
+    - ✖️ Multiplication: Amplitude multiplication, phase addition
+    - ➗ Division: Amplitude division, phase subtraction
+    - 📊 Average: Blend layers equally
+    - 🔀 Difference: Absolute difference (XOR-like)
+    - 🎨 Interpolation: Smooth morph between layers
+  - **Interpolation Control**:
+    - 0-100% blend amount
+    - Creates intermediate shapes
+    - Adjustable morphing
+  - **Result Handling**:
+    - Creates new layer with result
+    - Auto-sorted by radius
+    - Assigns random color
+  - **Use Cases**:
+    - Mathematical exploration
+    - Shape combination
+    - Create hybrid forms
+
+### 92. Path Morphing ⭐⭐⭐
+- **Smooth Animation**: Morph between shapes over time
+  - **Morph Controls**:
+    - Start/Stop morph animation
+    - Duration: 0.5s to 5.0s
+    - Select any two layers
+  - **5 Easing Functions**:
+    - Linear: Constant speed
+    - Ease In: Gradual acceleration
+    - Ease Out: Gradual deceleration
+    - Ease In-Out: Accelerate then decelerate
+    - Bounce: Bouncy effect
+  - **Loop Options**:
+    - Ping-pong looping
+    - Continuous morphing
+    - Auto-reverse direction
+  - **Real-time Interpolation**:
+    - Smooth coefficient transitions
+    - Live animation preview
+    - Frame-by-frame updates
+  - **Use Cases**:
+    - Animated transitions
+    - Educational demonstrations
+    - Artistic animations
+
+---
+
+## Previous Updates (Iteration 26)
 
 ### 85. Achievement System ⭐⭐⭐
 - **Gamification Features**: Unlock badges for completing tasks
