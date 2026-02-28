@@ -10,43 +10,30 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # Build CLI tools (fourier-cli, gpui-app) for multiple platforms
-  build-cli:
-    name: Build CLI on ${{ matrix.os }}
+  build:
+    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name_cli: fourier-cli
+            artifact_name_cli: fourier-svg
             artifact_name_gpui: gpui-app
             asset_name: fourier-cli-linux-x86_64
             asset_name_gpui: gpui-app-linux-x86_64
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            artifact_name_cli: fourier-cli
-            artifact_name_gpui: gpui-app
-            asset_name: fourier-cli-linux-aarch64
-            asset_name_gpui: gpui-app-linux-aarch64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name_cli: fourier-cli.exe
+            artifact_name_cli: fourier-svg.exe
             artifact_name_gpui: gpui-app.exe
             asset_name: fourier-cli-windows-x86_64.exe
             asset_name_gpui: gpui-app-windows-x86_64.exe
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name_cli: fourier-cli
+            artifact_name_cli: fourier-svg
             artifact_name_gpui: gpui-app
-            asset_name: fourier-cli-macos-x86_64
-            asset_name_gpui: gpui-app-macos-x86_64
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            artifact_name_cli: fourier-cli
-            artifact_name_gpui: gpui-app
-            asset_name: fourier-cli-macos-aarch64
-            asset_name_gpui: gpui-app-macos-aarch64
+            asset_name: fourier-cli-macos-universal
+            asset_name_gpui: gpui-app-macos-universal
 
     steps:
       - name: Checkout code
@@ -56,13 +43,6 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-
-      - name: Install cross-compilation tools (Linux ARM64)
-        if: matrix.os == 'ubuntu-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
 
       - name: Cache cargo registry
         uses: actions/cache@v4
@@ -94,7 +74,7 @@ jobs:
           strip target/${{ matrix.target }}/release/${{ matrix.artifact_name_cli }}
           strip target/${{ matrix.target }}/release/${{ matrix.artifact_name_gpui }}
 
-      - name: Strip binary (Linux aarch64)
+      - name: Strip binary (Linux ARM64)
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           aarch64-linux-gnu-strip target/${{ matrix.target }}/release/${{ matrix.artifact_name_cli }}
@@ -140,10 +120,10 @@ jobs:
           name: ${{ matrix.asset_name_gpui }}
           path: ${{ matrix.asset_name_gpui }}.*
 
-  # Build GPUI app for multiple platforms
+  # Build GPUI desktop app for multiple platforms
   build-gpui:
     name: Build GPUI on ${{ matrix.platform }}
-    needs: build-cli
+    needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -151,19 +131,12 @@ jobs:
           - platform: 'linux-x86_64'
             os: 'ubuntu-latest'
             target: 'x86_64-unknown-linux-gnu'
-            artifact_name: gpui-app-linux-x86_64.AppImage
-          - platform: 'linux-aarch64'
-            os: 'ubuntu-latest'
-            target: 'aarch64-unknown-linux-gnu'
-            artifact_name: gpui-app-linux-aarch64.AppImage
-          - platform: 'macos-universal'
-            os: 'macos-latest'
-            target: 'universal-apple-darwin'
-            artifact_name: gpui-app-macos-universal.app
           - platform: 'windows-x86_64'
             os: 'windows-latest'
             target: 'x86_64-pc-windows-msvc'
-            artifact_name: gpui-app-windows-x86_64.exe
+          - platform: 'macos-universal'
+            os: 'macos-latest'
+            target: 'x86_64-apple-darwin'
 
     runs-on: ${{ matrix.os }}
 
@@ -176,104 +149,84 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install cross-compilation tools (Linux ARM64)
-        if: matrix.os == 'ubuntu-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-
-      - name: Install cargo-appimage (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: cargo install cargo-appimage
-
-      - name: Install cargo-gpui (macOS)
-        if: matrix.os == 'macos-latest'
-        run: cargo install cargo-gpui
-
       - name: Cache cargo registry
         uses: actions/cache@v4
         with:
           path: ~/.cargo/registry
-          key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache cargo index
         uses: actions/cache@v4
         with:
           path: ~/.cargo/git
-          key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache cargo build
         uses: actions/cache@v4
         with:
           path: target
-          key: ${{ matrix.os }}-${{ matrix.target }}-cargo-build-gpui-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-build-gpui-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build GPUI AppImage (Linux x86_64)
-        if: matrix.platform == 'linux-x86_64'
-        run: cargo appimage --release --target ${{ matrix.target }} -p gpui-app
+      - name: Install cargo-bundle
+        if: matrix.os == 'macos-latest'
+        run: cargo install cargo-bundle
 
-      - name: Build GPUI AppImage (Linux aarch64)
-        if: matrix.platform == 'linux-aarch64'
-        run: cargo appimage --release --target ${{ matrix.target }} -p gpui-app
+      - name: Build GPUI macOS bundle
+        if: matrix.os == 'macos-latest'
+        run: cargo bundle --release --target ${{ matrix.target }} -p gpui-app
 
-      - name: Build GPUI macOS bundle (universal)
-        if: matrix.platform == 'macos-universal'
-        run: |
-          # Build both architectures
-          cargo build --release --target x86_64-apple-darwin -p gpui-app
-          cargo build --release --target aarch64-apple-darwin -p gpui-app
-          # Create universal binary
-          mkdir -p target/universal-apple-darwin/release
-          lipo -create -output target/universal-apple-darwin/release/gpui-app \
-            target/x86_64-apple-darwin/release/gpui-app \
-            target/aarch64-apple-darwin/release/gpui-app
-          # Create .app bundle
-          cargo gpui macos-bundle --release --target universal-apple-darwin -p gpui-app
-
-      - name: Build GPUI Windows binary
-        if: matrix.platform == 'windows-x86_64'
+      - name: Build GPUI Linux binary
+        if: matrix.os == 'ubuntu-latest'
         run: cargo build --release --target ${{ matrix.target }} -p gpui-app
 
-      - name: Package Windows binary
-        if: matrix.platform == 'windows-x86_64'
+      - name: Build GPUI Windows binary
+        if: matrix.os == 'windows-latest'
+        run: cargo build --release --target ${{ matrix.target }} -p gpui-app
+
+      - name: Prepare GPUI macOS artifact
+        if: matrix.os == 'macos-latest'
+        run: |
+          # cargo bundle creates .app in bundle/macos directory
+          if [ -d target/${{ matrix.target }}/release/bundle/macos/gpui-app.app ]; then
+            cd target/${{ matrix.target }}/release/bundle/macos
+            tar czf ../../../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app.app
+            cd ../../../../../..
+          elif [ -d target/${{ matrix.target }}/release/gpui-app.app ]; then
+            # Fallback to direct release directory
+            cd target/${{ matrix.target }}/release
+            tar czf ../../../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app.app
+            cd ../../../../../..
+          else
+            echo "Warning: No .app bundle found"
+            ls -R target/${{ matrix.target }}/release/ || true
+          fi
+
+      - name: Prepare GPUI Linux artifact
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar czf ../../../gpui-app-${{ matrix.platform }}.tar.gz gpui-app
+          cd ../../..
+
+      - name: Prepare GPUI Windows artifact
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../${{ matrix.artifact_name }}.zip gpui-app.exe
+          7z a ../../../gpui-app-${{ matrix.platform }}.zip gpui-app.exe
           cd ../../..
 
-      - name: Find AppImage artifact (Linux)
-        if: startsWith(matrix.platform, 'linux-')
-        run: |
-          find target -name "*.AppImage" -exec cp {} . \;
-          ls -la *.AppImage
-
-      - name: Upload GPUI artifact (Linux)
-        if: startsWith(matrix.platform, 'linux-')
+      - name: Upload GPUI artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: "*.AppImage"
-
-      - name: Upload GPUI artifact (macOS)
-        if: matrix.platform == 'macos-universal'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: target/universal-apple-darwin/release/*.app
-
-      - name: Upload GPUI artifact (Windows)
-        if: matrix.platform == 'windows-x86_64'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_name }}.zip
+          name: gpui-${{ matrix.platform }}
+          path: |
+            gpui-app-${{ matrix.platform }}.*
 
   # Build Tauri desktop app for multiple platforms
   build-tauri:
     name: Build Tauri on ${{ matrix.platform }}
-    needs: build-cli
+    needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -281,18 +234,12 @@ jobs:
           - platform: 'linux-x86_64'
             os: 'ubuntu-latest'
             target: 'x86_64-unknown-linux-gnu'
-          - platform: 'linux-aarch64'
-            os: 'ubuntu-latest'
-            target: 'aarch64-unknown-linux-gnu'
           - platform: 'windows-x86_64'
             os: 'windows-latest'
             target: 'x86_64-pc-windows-msvc'
-          - platform: 'macos-x86_64'
+          - platform: 'macos-universal'
             os: 'macos-latest'
             target: 'x86_64-apple-darwin'
-          - platform: 'macos-aarch64'
-            os: 'macos-latest'
-            target: 'aarch64-apple-darwin'
 
     runs-on: ${{ matrix.os }}
 
@@ -316,12 +263,23 @@ jobs:
         run: |
           brew install gtk+3
 
-      - name: Install cross-compilation tools (Linux ARM64)
-        if: matrix.os == 'ubuntu-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
+      - name: Generate macOS icon (.icns)
+        if: matrix.os == 'macos-latest'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          cd tauri-app/icons
+          mkdir -p icon.iconset
+          sips -z 16 16 icon.png --out icon.iconset/icon_16x16.png
+          sips -z 32 32 icon.png --out icon.iconset/icon_16x16@2x.png
+          sips -z 32 32 icon.png --out icon.iconset/icon_32x32.png
+          sips -z 64 64 icon.png --out icon.iconset/icon_32x32@2x.png
+          sips -z 128 128 icon.png --out icon.iconset/icon_128x128.png
+          sips -z 256 256 icon.png --out icon.iconset/icon_128x128@2x.png
+          sips -z 256 256 icon.png --out icon.iconset/icon_256x256.png
+          sips -z 512 512 icon.png --out icon.iconset/icon_256x256@2x.png
+          sips -z 512 512 icon.png --out icon.iconset/icon_512x512.png
+          sips -z 1024 1024 icon.png --out icon.iconset/icon_512x512@2x.png
+          iconutil -c icns icon.iconset
+          cd ../../..
 
       - name: Cache cargo registry
         uses: actions/cache@v4
@@ -341,17 +299,64 @@ jobs:
           path: target
           key: ${{ runner.os }}-${{ matrix.target }}-cargo-build-tauri-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2.0"
+
+      - name: Build Tauri bundles
+        run: cargo tauri build --features tauri --target ${{ matrix.target }}
+
+      - name: Sign macOS app bundle (ad-hoc)
+        if: matrix.os == 'macos-latest'
+        run: |
+          # Sign the app bundle with ad-hoc signature
+          if [ -d target/${{ matrix.target }}/release/bundle/macos/*.app ]; then
+            find target/${{ matrix.target }}/release/bundle/macos -name "*.app" -exec codesign --force --deep --sign - {} \;
+            echo "App bundle signed with ad-hoc signature"
+          fi
+
+      - name: Upload Tauri bundles (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p artifacts/${{ matrix.platform }}
+          # Copy AppImage if it exists
+          find target/${{ matrix.target }}/release/bundle/appimage -type f -name "*.AppImage" -exec cp {} artifacts/${{ matrix.platform }}/ \;
+          # Copy deb packages if they exist
+          find target/${{ matrix.target }}/release/bundle/deb -type f -name "*.deb" -exec cp {} artifacts/${{ matrix.platform }}/ \;
+
+      - name: Upload Tauri bundles (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          mkdir -p artifacts/${{ matrix.platform }}
+          # Copy NSIS installer if it exists
+          find target/${{ matrix.target }}/release/bundle/nsis -type f -name "*.exe" -exec cp {} artifacts/${{ matrix.platform }}/ \;
+          # Copy MSI installer if it exists
+          find target/${{ matrix.target }}/release/bundle/msi -type f -name "*.msi" -exec cp {} artifacts/${{ matrix.platform }}/ \;
+
+      - name: Upload Tauri bundles (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p artifacts/${{ matrix.platform }}
+          # Copy DMG if it exists
+          if [ -f target/${{ matrix.target }}/release/bundle/dmg/*.dmg ]; then
+            cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg artifacts/${{ matrix.platform }}/
+          fi
+          # Copy app bundle if it exists
+          if [ -d target/${{ matrix.target }}/release/bundle/macos/*.app ]; then
+            cd target/${{ matrix.target }}/release/bundle/macos
+            tar czf ../../../../../artifacts/${{ matrix.platform }}/app-bundle.tar.gz *.app
+            cd ../../../../../..
+          fi
+
+      - name: Upload Tauri artifacts
+        uses: actions/upload-artifact@v4
         with:
-          tauriScript: cargo build --features tauri
-          args: --target ${{ matrix.target }}
+          name: tauri-${{ matrix.platform }}
+          path: artifacts
 
   release:
     name: Create Release
-    needs: [build-cli, build-gpui, build-tauri]
+    needs: [build, build-gpui, build-tauri]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
@@ -380,40 +385,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-docker:
-    name: Build Docker image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKER_USERNAME }}/fourier-svg
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
