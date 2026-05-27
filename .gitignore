@@ -1,0 +1,6 @@
+/target
+*.html
+*.gif
+*.json
+!package.json
+!tauri.conf.json

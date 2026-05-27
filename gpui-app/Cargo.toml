@@ -1,0 +1,19 @@
+[package]
+name = "gpui-app"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Native GPU-accelerated GUI for Fourier SVG visualization"
+
+[[bin]]
+name = "gpui-app"
+path = "src/main.rs"
+
+[dependencies]
+fourier-svg = { path = "../fourier-svg" }
+gpui = "0.2.2"
+serde_json = { workspace = true }
+chrono = { workspace = true }
+anyhow = "1"

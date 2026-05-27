@@ -1,0 +1,23 @@
+services:
+  fourier-tauri-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fourier-tauri-builder
+    volumes:
+      # Mount source for development
+      - .:/app
+      # Cache cargo registry
+      - cargo-cache:/root/.cargo/registry
+      # Cache cargo build
+      - cargo-build:/app/target
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+    # For development, keep container running
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+volumes:
+  cargo-cache:
+  cargo-build:
