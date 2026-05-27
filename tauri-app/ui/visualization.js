@@ -9,9 +9,9 @@ function initFourierVisualization() {
     wave = [];
     time = 0;
     
-    // Use canvas center as visualization origin
-    // Fourier coefficients already contain position information
-    center = { x: canvas.width / 2, y: canvas.height / 2 };
+    // Fourier coefficients already contain position information (DC component)
+    // Do not add center offset - it would double-count the position
+    center = { x: 0, y: 0 };
     
     if (animation_id) {
         cancelAnimationFrame(animation_id);
