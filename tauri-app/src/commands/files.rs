@@ -11,6 +11,12 @@ pub struct RecentFile {
     pub timestamp: i64,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct FileFilter {
+    pub name: String,
+    pub extensions: Vec<String>,
+}
+
 #[cfg(feature = "tauri")]
 #[tauri::command]
 pub async fn open_file_dialog(
@@ -20,13 +26,13 @@ pub async fn open_file_dialog(
     use tauri_plugin_dialog::DialogExt;
 
     let mut dialog = window.dialog().file();
-
     for filter in &filters {
-        dialog = dialog.add_filter(&filter.name, &filter.extensions);
+        let ext_refs: Vec<&str> = filter.extensions.iter().map(|s| s.as_str()).collect();
+        dialog = dialog.add_filter(&filter.name, &ext_refs);
     }
 
-    let path = dialog.pick_file(|path| path.map(|p| p.to_string_lossy().to_string()));
-    Ok(path)
+    let result = dialog.pick_file(|path| path.map(|p| p.to_string()));
+    Ok(result)
 }
 
 #[cfg(feature = "tauri")]
@@ -38,23 +44,14 @@ pub async fn save_file_dialog(
 ) -> Result<Option<String>, String> {
     use tauri_plugin_dialog::DialogExt;
 
-    let mut dialog = window
-        .dialog()
-        .file()
-        .set_file_name(&default_name);
-
+    let mut dialog = window.dialog().file().set_file_name(&default_name);
     for filter in &filters {
-        dialog = dialog.add_filter(&filter.name, &filter.extensions);
+        let ext_refs: Vec<&str> = filter.extensions.iter().map(|s| s.as_str()).collect();
+        dialog = dialog.add_filter(&filter.name, &ext_refs);
     }
 
-    let path = dialog.save_file(|path| path.map(|p| p.to_string_lossy().to_string()));
-    Ok(path)
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct FileFilter {
-    pub name: String,
-    pub extensions: Vec<String>,
+    let result = dialog.save_file(|path| path.map(|p| p.to_string()));
+    Ok(result)
 }
 
 #[tauri::command]
@@ -63,7 +60,11 @@ pub async fn save_canvas_as_png(data_url: String, file_path: String) -> Result<(
         .strip_prefix("data:image/png;base64,")
         .ok_or("Invalid data URL")?;
 
-    let image_bytes = base64::decode(base64_data).map_err(|e| e.to_string())?;
+    let image_bytes = base64::Engine::decode(
+        &base64::engine::general_purpose::STANDARD,
+        base64_data,
+    )
+    .map_err(|e| e.to_string())?;
 
     let mut file = File::create(&file_path).map_err(|e| e.to_string())?;
     file.write_all(&image_bytes).map_err(|e| e.to_string())?;
@@ -125,9 +126,7 @@ fn load_recent_files() -> Result<Vec<RecentFile>, String> {
 
 #[cfg(not(feature = "tauri"))]
 #[tauri::command]
-pub async fn open_file_dialog(
-    _filters: Vec<FileFilter>,
-) -> Result<Option<String>, String> {
+pub async fn open_file_dialog(_filters: Vec<FileFilter>) -> Result<Option<String>, String> {
     Err("Tauri not enabled".to_string())
 }
 
