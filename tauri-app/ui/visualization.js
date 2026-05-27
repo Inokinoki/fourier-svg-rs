@@ -9,10 +9,9 @@ function initFourierVisualization() {
     wave = [];
     time = 0;
     
-    // Auto-center on drawing bounds
-    if (drawingBounds) {
-        center = { x: drawingBounds.centerX, y: drawingBounds.centerY };
-    }
+    // Use canvas center as visualization origin
+    // Fourier coefficients already contain position information
+    center = { x: canvas.width / 2, y: canvas.height / 2 };
     
     if (animation_id) {
         cancelAnimationFrame(animation_id);
