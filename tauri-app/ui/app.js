@@ -107,13 +107,22 @@ async function tauriInvoke(command, args) {
 
 // Tauri v2 dialog wrapper
 async function tauriDialogOpen(options) {
-    if (window.__TAURI_INTERNALS__) {
-        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|open', options);
-    } else if (window.__TAURI__ && window.__TAURI__.dialog) {
-        return await window.__TAURI__.dialog.open(options);
+    if (window.__TAURI__ && window.__TAURI__.dialog) {
+        const { open } = window.__TAURI__.dialog;
+        return await open(options);
     } else {
         throw new Error('Tauri dialog not available');
     }
+}
+
+async function tauriDialogSave(options) {
+    if (window.__TAURI__ && window.__TAURI__.dialog) {
+        const { save } = window.__TAURI__.dialog;
+        return await save(options);
+    } else {
+        throw new Error('Tauri dialog not available');
+    }
+}
 }
 
 async function tauriDialogSave(options) {

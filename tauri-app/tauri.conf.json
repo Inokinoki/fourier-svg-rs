@@ -6,7 +6,8 @@
   "build": {
     "frontendDist": "./ui",
     "beforeDevCommand": "",
-    "beforeBuildCommand": ""
+    "beforeBuildCommand": "",
+    "withGlobalTauri": true
   },
   "app": {
     "windows": [
