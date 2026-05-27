@@ -4,7 +4,7 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             overflow: hidden;
         }
@@ -14,7 +14,8 @@
             padding: 15px;
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            height: 100vh;
+            height: 100%;
+            flex-shrink: 0;
         }
         .main-content {
             flex: 1;
