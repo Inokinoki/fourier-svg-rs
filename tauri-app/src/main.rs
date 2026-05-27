@@ -49,6 +49,8 @@ struct Args {
 #[cfg(feature = "tauri")]
 fn run_tauri_app() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             commands::drawing::process_drawing,
             commands::svg::parse_svg_file,
