@@ -38,7 +38,7 @@ let traceColor = '#333333';
 // Visibility controls
 let showCircles = true;
 let showTrace = true;
-let showCirclesOutline = false;
+let showOriginalPath = true;
 
 // Default parameters
 let defaultSampleRate = 10240;

@@ -173,6 +173,19 @@ document.getElementById('traceColor').addEventListener('input', (e) => {
     traceColor = e.target.value;
 });
 
+// Display controls
+document.getElementById('showCircles').addEventListener('change', (e) => {
+    showCircles = e.target.checked;
+});
+
+document.getElementById('showTrace').addEventListener('change', (e) => {
+    showTrace = e.target.checked;
+});
+
+document.getElementById('showOriginalPath').addEventListener('change', (e) => {
+    showOriginalPath = e.target.checked;
+});
+
 // Pause/Resume
 document.getElementById('pauseBtn').addEventListener('click', () => {
     is_paused = !is_paused;

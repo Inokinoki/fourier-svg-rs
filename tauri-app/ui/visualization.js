@@ -68,7 +68,7 @@ function draw() {
     drawWave(context);
     
     // Draw original path for comparison
-    if (drawingPoints.length > 1) {
+    if (showOriginalPath && drawingPoints.length > 1) {
         context.beginPath();
         context.moveTo(drawingPoints[0].x, drawingPoints[0].y);
         for (let i = 1; i < drawingPoints.length; i++) {
