@@ -62,6 +62,8 @@ fn run_tauri_app() {
             commands::files::save_canvas_as_png,
             commands::files::add_recent_file,
             commands::files::get_recent_files,
+            commands::files::open_file_dialog,
+            commands::files::save_file_dialog,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

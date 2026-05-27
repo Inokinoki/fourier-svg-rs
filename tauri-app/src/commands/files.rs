@@ -11,9 +11,54 @@ pub struct RecentFile {
     pub timestamp: i64,
 }
 
+#[cfg(feature = "tauri")]
+#[tauri::command]
+pub async fn open_file_dialog(
+    filters: Vec<FileFilter>,
+    window: tauri::Window,
+) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+
+    let mut dialog = window.dialog().file();
+
+    for filter in &filters {
+        dialog = dialog.add_filter(&filter.name, &filter.extensions);
+    }
+
+    let path = dialog.pick_file(|path| path.map(|p| p.to_string_lossy().to_string()));
+    Ok(path)
+}
+
+#[cfg(feature = "tauri")]
+#[tauri::command]
+pub async fn save_file_dialog(
+    default_name: String,
+    filters: Vec<FileFilter>,
+    window: tauri::Window,
+) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+
+    let mut dialog = window
+        .dialog()
+        .file()
+        .set_file_name(&default_name);
+
+    for filter in &filters {
+        dialog = dialog.add_filter(&filter.name, &filter.extensions);
+    }
+
+    let path = dialog.save_file(|path| path.map(|p| p.to_string_lossy().to_string()));
+    Ok(path)
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct FileFilter {
+    pub name: String,
+    pub extensions: Vec<String>,
+}
+
 #[tauri::command]
 pub async fn save_canvas_as_png(data_url: String, file_path: String) -> Result<(), String> {
-    // Remove the data:image/png;base64, prefix
     let base64_data = data_url
         .strip_prefix("data:image/png;base64,")
         .ok_or("Invalid data URL")?;
@@ -31,10 +76,8 @@ pub async fn add_recent_file(file_path: String, file_name: String) -> Result<Vec
     let recent_files_path = get_recent_files_path()?;
     let mut recent_files = load_recent_files()?;
 
-    // Remove if already exists
     recent_files.retain(|f| f.path != file_path);
 
-    // Add to front
     let timestamp = chrono::Utc::now().timestamp();
     recent_files.insert(
         0,
@@ -45,10 +88,8 @@ pub async fn add_recent_file(file_path: String, file_name: String) -> Result<Vec
         },
     );
 
-    // Keep only last 10
     recent_files.truncate(10);
 
-    // Save to file
     let json_str = serde_json::to_string_pretty(&recent_files).map_err(|e| e.to_string())?;
     let mut file = File::create(&recent_files_path).map_err(|e| e.to_string())?;
     file.write_all(json_str.as_bytes())
@@ -80,4 +121,21 @@ fn load_recent_files() -> Result<Vec<RecentFile>, String> {
     } else {
         Ok(Vec::new())
     }
+}
+
+#[cfg(not(feature = "tauri"))]
+#[tauri::command]
+pub async fn open_file_dialog(
+    _filters: Vec<FileFilter>,
+) -> Result<Option<String>, String> {
+    Err("Tauri not enabled".to_string())
+}
+
+#[cfg(not(feature = "tauri"))]
+#[tauri::command]
+pub async fn save_file_dialog(
+    _default_name: String,
+    _filters: Vec<FileFilter>,
+) -> Result<Option<String>, String> {
+    Err("Tauri not enabled".to_string())
 }

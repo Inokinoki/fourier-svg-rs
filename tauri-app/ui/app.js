@@ -103,21 +103,24 @@ async function tauriInvoke(command, args) {
     }
 }
 
-// Tauri v2 dialog wrapper
+// Tauri v2 dialog wrapper — uses custom Rust commands
 async function tauriDialogOpen(options) {
-    if (window.__TAURI_INTERNALS__) {
-        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|open', options);
-    } else {
-        throw new Error('Tauri dialog not available');
-    }
+    const filters = (options.filters || []).map(f => ({
+        name: f.name,
+        extensions: f.extensions
+    }));
+    return await tauriInvoke('open_file_dialog', { filters });
 }
 
 async function tauriDialogSave(options) {
-    if (window.__TAURI_INTERNALS__) {
-        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|save', options);
-    } else {
-        throw new Error('Tauri dialog not available');
-    }
+    const filters = (options.filters || []).map(f => ({
+        name: f.name,
+        extensions: f.extensions
+    }));
+    return await tauriInvoke('save_file_dialog', {
+        defaultName: options.defaultPath || '',
+        filters
+    });
 }
 // Resize canvas to fill container
 function resizeCanvas() {
