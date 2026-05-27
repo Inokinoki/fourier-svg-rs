@@ -20,8 +20,20 @@
     ],
     "security": {
       "csp": null
-    }
+    },
+    "capabilities": [
+      {
+        "identifier": "main-capability",
+        "windows": ["main"],
+        "permissions": [
+          "core:default",
+          "dialog:default",
+          "fs:default"
+        ]
+      }
+    ]
   },
+  "bundle": {
   "bundle": {
     "active": true,
     "targets": "all",
