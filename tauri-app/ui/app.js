@@ -66,8 +66,8 @@ const Point = class {
 const FourierCircle = class {
     constructor(idx, speed, radius, initial_angle) {
         this.idx = idx;
-        this.speed = speed / 20;
-        this.radius = radius / 2;
+        this.speed = speed;
+        this.radius = radius;
         this.initial_angle = initial_angle;
     }
     draw(ctx, at) {

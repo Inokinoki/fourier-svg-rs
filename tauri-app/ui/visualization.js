@@ -9,6 +9,11 @@ function initFourierVisualization() {
     wave = [];
     time = 0;
     
+    // Auto-center on drawing bounds
+    if (drawingBounds) {
+        center = { x: drawingBounds.centerX, y: drawingBounds.centerY };
+    }
+    
     if (animation_id) {
         cancelAnimationFrame(animation_id);
     }
@@ -102,7 +107,7 @@ function draw() {
     }
     
     if (!is_paused) {
-        time += 0.01 * speed_multiplier;
+        time += 0.001 * speed_multiplier;
     }
     
     if (wave.length > 400) {
