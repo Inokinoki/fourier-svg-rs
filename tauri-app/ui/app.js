@@ -96,10 +96,8 @@ function updateStatus(message) {
 
 // Tauri v2 invoke wrapper
 async function tauriInvoke(command, args) {
-    if (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke) {
+    if (window.__TAURI_INTERNALS__) {
         return await window.__TAURI_INTERNALS__.invoke(command, args);
-    } else if (window.__TAURI__ && window.__TAURI__.core) {
-        return await window.__TAURI__.core.invoke(command, args);
     } else {
         throw new Error('Tauri bridge not available');
     }
@@ -107,18 +105,16 @@ async function tauriInvoke(command, args) {
 
 // Tauri v2 dialog wrapper
 async function tauriDialogOpen(options) {
-    if (window.__TAURI__ && window.__TAURI__.dialog) {
-        const { open } = window.__TAURI__.dialog;
-        return await open(options);
+    if (window.__TAURI_INTERNALS__) {
+        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|open', options);
     } else {
         throw new Error('Tauri dialog not available');
     }
 }
 
 async function tauriDialogSave(options) {
-    if (window.__TAURI__ && window.__TAURI__.dialog) {
-        const { save } = window.__TAURI__.dialog;
-        return await save(options);
+    if (window.__TAURI_INTERNALS__) {
+        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|save', options);
     } else {
         throw new Error('Tauri dialog not available');
     }
