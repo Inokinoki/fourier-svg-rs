@@ -7,13 +7,13 @@ document.getElementById('exportPngBtn').addEventListener('click', async () => {
     
     try {
         const dataUrl = canvas.toDataURL('image/png');
-        if (window.__TAURI__ && window.__TAURI__.core) {
-            const filePath = await window.__TAURI__.dialog.save({
+        if (true) {
+            const filePath = await tauriDialogSave({
                 defaultPath: 'fourier_visualization.png',
                 filters: [{ name: 'PNG', extensions: ['png'] }]
             });
             if (filePath) {
-                await window.__TAURI__.core.invoke('save_canvas_as_png', {
+                await tauriInvoke('save_canvas_as_png', {
                     dataUrl: dataUrl,
                     filePath: filePath
                 });
@@ -34,13 +34,13 @@ document.getElementById('exportJsonBtn').addEventListener('click', async () => {
     }
     
     try {
-        if (window.__TAURI__ && window.__TAURI__.core) {
-            const filePath = await window.__TAURI__.dialog.save({
+        if (true) {
+            const filePath = await tauriDialogSave({
                 defaultPath: 'fourier_data.json',
                 filters: [{ name: 'JSON', extensions: ['json'] }]
             });
             if (filePath) {
-                await window.__TAURI__.core.invoke('export_fourier_data', {
+                await tauriInvoke('export_fourier_data', {
                     data: fullFourierData,
                     filePath: filePath,
                     numSamples: fullFourierData.length
@@ -62,14 +62,14 @@ document.getElementById('exportGifBtn').addEventListener('click', async () => {
     }
     
     try {
-        if (window.__TAURI__ && window.__TAURI__.core) {
-            const filePath = await window.__TAURI__.dialog.save({
+        if (true) {
+            const filePath = await tauriDialogSave({
                 defaultPath: 'fourier_animation.gif',
                 filters: [{ name: 'GIF', extensions: ['gif'] }]
             });
             if (filePath) {
                 updateStatus('Generating GIF...');
-                await window.__TAURI__.core.invoke('export_as_gif', {
+                await tauriInvoke('export_as_gif', {
                     data: fullFourierData,
                     filePath: filePath,
                     frames: 100,
@@ -92,13 +92,13 @@ document.getElementById('exportHtmlBtn').addEventListener('click', async () => {
     }
     
     try {
-        if (window.__TAURI__ && window.__TAURI__.core) {
-            const filePath = await window.__TAURI__.dialog.save({
+        if (true) {
+            const filePath = await tauriDialogSave({
                 defaultPath: 'fourier_visualization.html',
                 filters: [{ name: 'HTML', extensions: ['html'] }]
             });
             if (filePath) {
-                await window.__TAURI__.core.invoke('export_as_html', {
+                await tauriInvoke('export_as_html', {
                     data: fullFourierData,
                     filePath: filePath
                 });

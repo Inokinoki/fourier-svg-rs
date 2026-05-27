@@ -47,9 +47,9 @@ document.getElementById('visualizeBtn').addEventListener('click', () => {
     console.log('Sample Rate:', sampleRate);
     updateStatus('Computing Fourier Transform...');
     
-    if (window.__TAURI__ && window.__TAURI__.core) {
+    if (true) {
         console.log('Calling Tauri invoke...');
-        window.__TAURI__.core.invoke('process_drawing', {
+        tauriInvoke('process_drawing', {
             path: svgPath,
             numSample: sampleRate
         })
@@ -116,9 +116,9 @@ document.getElementById('showTrace').addEventListener('change', (e) => {
 
 // SVG file loading
 document.getElementById('loadSvgBtn').addEventListener('click', async () => {
-    if (window.__TAURI__ && window.__TAURI__.dialog) {
+    if (true) {
         try {
-            const selected = await window.__TAURI__.dialog.open({
+            const selected = await tauriDialogOpen({
                 multiple: false,
                 filters: [{ name: 'SVG', extensions: ['svg'] }]
             });
@@ -126,7 +126,7 @@ document.getElementById('loadSvgBtn').addEventListener('click', async () => {
             if (selected) {
                 currentFilePath = selected;
                 updateStatus('Parsing SVG file...');
-                const result = await window.__TAURI__.core.invoke('parse_svg_file', {
+                const result = await tauriInvoke('parse_svg_file', {
                     filePath: selected
                 });
                 
@@ -163,8 +163,8 @@ document.getElementById('visualizeSvgBtn').addEventListener('click', () => {
     const sampleRate = parseInt(document.getElementById('sampleRateSvg').value);
     updateStatus('Processing SVG path...');
     
-    if (window.__TAURI__ && window.__TAURI__.core) {
-        window.__TAURI__.core.invoke('process_svg_path', {
+    if (true) {
+        tauriInvoke('process_svg_path', {
             pathData: selectedPathData,
             numSample: sampleRate
         })

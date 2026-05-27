@@ -91,6 +91,38 @@ function updateStatus(message) {
     if (statusEl) statusEl.textContent = message;
 }
 
+// Tauri v2 invoke wrapper
+async function tauriInvoke(command, args) {
+    if (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke) {
+        return await window.__TAURI_INTERNALS__.invoke(command, args);
+    } else if (window.__TAURI__ && window.__TAURI__.core) {
+        return await window.__TAURI__.core.invoke(command, args);
+    } else {
+        throw new Error('Tauri bridge not available');
+    }
+}
+
+// Tauri v2 dialog wrapper
+async function tauriDialogOpen(options) {
+    if (window.__TAURI_INTERNALS__) {
+        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|open', options);
+    } else if (window.__TAURI__ && window.__TAURI__.dialog) {
+        return await window.__TAURI__.dialog.open(options);
+    } else {
+        throw new Error('Tauri dialog not available');
+    }
+}
+
+async function tauriDialogSave(options) {
+    if (window.__TAURI_INTERNALS__) {
+        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|save', options);
+    } else if (window.__TAURI__ && window.__TAURI__.dialog) {
+        return await window.__TAURI__.dialog.save(options);
+    } else {
+        throw new Error('Tauri dialog not available');
+    }
+}
+
 // Initialize on load
 window.addEventListener('DOMContentLoaded', () => {
     canvas.width = 700;
