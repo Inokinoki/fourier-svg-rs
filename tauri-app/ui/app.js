@@ -119,18 +119,6 @@ async function tauriDialogSave(options) {
         throw new Error('Tauri dialog not available');
     }
 }
-}
-
-async function tauriDialogSave(options) {
-    if (window.__TAURI_INTERNALS__) {
-        return await window.__TAURI_INTERNALS__.invoke('plugin:dialog|save', options);
-    } else if (window.__TAURI__ && window.__TAURI__.dialog) {
-        return await window.__TAURI__.dialog.save(options);
-    } else {
-        throw new Error('Tauri dialog not available');
-    }
-}
-
 // Resize canvas to fill container
 function resizeCanvas() {
     const container = canvas.parentElement;
