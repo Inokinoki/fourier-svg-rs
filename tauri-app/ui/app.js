@@ -28,6 +28,9 @@ let panOffset = { x: 0, y: 0 };
 let isPanning = false;
 let lastPanPos = null;
 
+// Drawing bounds for auto-centering
+let drawingBounds = null;
+
 // Color customization
 let epicycleColor = '#667eea';
 let traceColor = '#333333';
@@ -130,3 +133,27 @@ window.addEventListener('DOMContentLoaded', () => {
     center = { x: 350, y: 300 };
     redrawCanvas();
 });
+
+// Calculate drawing bounds
+function calculateDrawingBounds(points) {
+    if (points.length === 0) return null;
+    
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+    
+    for (const p of points) {
+        minX = Math.min(minX, p.x);
+        minY = Math.min(minY, p.y);
+        maxX = Math.max(maxX, p.x);
+        maxY = Math.max(maxY, p.y);
+    }
+    
+    return {
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY,
+        centerX: (minX + maxX) / 2,
+        centerY: (minY + maxY) / 2
+    };
+}

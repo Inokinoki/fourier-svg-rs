@@ -36,6 +36,12 @@ document.getElementById('visualizeBtn').addEventListener('click', () => {
         return;
     }
     
+    // Calculate drawing bounds and center
+    drawingBounds = calculateDrawingBounds(drawingPoints);
+    if (drawingBounds) {
+        center = { x: drawingBounds.centerX, y: drawingBounds.centerY };
+    }
+    
     let svgPath = 'M ' + drawingPoints[0].x + ' ' + drawingPoints[0].y;
     for (let i = 1; i < drawingPoints.length; i++) {
         svgPath += ' L ' + drawingPoints[i].x + ' ' + drawingPoints[i].y;
@@ -45,6 +51,7 @@ document.getElementById('visualizeBtn').addEventListener('click', () => {
     const sampleRate = parseInt(document.getElementById('sampleRate').value);
     console.log('SVG Path:', svgPath.substring(0, 100) + '...');
     console.log('Sample Rate:', sampleRate);
+    console.log('Center:', center);
     updateStatus('Computing Fourier Transform...');
     
     if (true) {
