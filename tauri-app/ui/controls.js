@@ -30,7 +30,11 @@ document.getElementById('redoBtn').addEventListener('click', redo);
 
 // Visualize button
 document.getElementById('visualizeBtn').addEventListener('click', () => {
-    if (drawingPoints.length < 3) return;
+    console.log('Visualize clicked, drawingPoints:', drawingPoints.length);
+    if (drawingPoints.length < 3) {
+        updateStatus('Need at least 3 points to visualize (current: ' + drawingPoints.length + ')');
+        return;
+    }
     
     let svgPath = 'M ' + drawingPoints[0].x + ' ' + drawingPoints[0].y;
     for (let i = 1; i < drawingPoints.length; i++) {
@@ -39,14 +43,18 @@ document.getElementById('visualizeBtn').addEventListener('click', () => {
     svgPath += ' Z';
     
     const sampleRate = parseInt(document.getElementById('sampleRate').value);
+    console.log('SVG Path:', svgPath.substring(0, 100) + '...');
+    console.log('Sample Rate:', sampleRate);
     updateStatus('Computing Fourier Transform...');
     
     if (window.__TAURI__ && window.__TAURI__.core) {
+        console.log('Calling Tauri invoke...');
         window.__TAURI__.core.invoke('process_drawing', {
             path: svgPath,
             numSample: sampleRate
         })
         .then((data) => {
+            console.log('Got data:', data.length, 'components');
             fullFourierData = data;
             document.getElementById('waveCount').max = data.length;
             initFourierVisualization();
@@ -61,6 +69,7 @@ document.getElementById('visualizeBtn').addEventListener('click', () => {
             updateStatus('Error: ' + err);
         });
     } else {
+        console.error('Tauri bridge not available');
         updateStatus('Tauri bridge not available');
     }
 });
