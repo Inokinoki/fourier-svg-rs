@@ -71,20 +71,35 @@ const FourierCircle = class {
         this.initial_angle = initial_angle;
     }
     draw(ctx, at) {
+        const angle = this.initial_angle + 2 * Math.PI * time * this.speed;
+        const x = at.x + this.radius * Math.cos(angle);
+        const y = at.y + this.radius * Math.sin(angle);
+
+        // Draw envelope circle
+        if (showCircles) {
+            ctx.beginPath();
+            ctx.arc(at.x, at.y, this.radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = 'rgba(150, 150, 150, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // Draw arm line
         ctx.beginPath();
-        const x = at.x + this.radius * Math.cos(this.initial_angle + 2 * Math.PI * time * this.speed);
-        const y = at.y + this.radius * Math.sin(this.initial_angle + 2 * Math.PI * time * this.speed);
         ctx.moveTo(at.x, at.y);
         ctx.lineTo(x, y);
-        ctx.closePath();
         ctx.strokeStyle = epicycleColor;
         ctx.lineWidth = 1;
         ctx.stroke();
+
+        return new Point(x, y);
     }
     nextCenter(at) {
-        const x = at.x + this.radius * Math.cos(this.initial_angle + 2 * Math.PI * time * this.speed);
-        const y = at.y + this.radius * Math.sin(this.initial_angle + 2 * Math.PI * time * this.speed);
-        return new Point(x, y);
+        const angle = this.initial_angle + 2 * Math.PI * time * this.speed;
+        return new Point(
+            at.x + this.radius * Math.cos(angle),
+            at.y + this.radius * Math.sin(angle)
+        );
     }
 };
 

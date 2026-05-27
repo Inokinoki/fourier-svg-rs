@@ -58,9 +58,7 @@ function draw() {
     let new_center = circles[0] ? circles[0].nextCenter(center) : center;
     
     for (let i = 1; i < circles.length; i++) {
-        if (showCircles) {
-            circles[i].draw(context, new_center);
-        }
+        circles[i].draw(context, new_center);
         new_center = circles[i].nextCenter(new_center);
     }
     
