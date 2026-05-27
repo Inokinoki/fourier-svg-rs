@@ -126,12 +126,23 @@ async function tauriDialogSave(options) {
     }
 }
 
+// Resize canvas to fill container
+function resizeCanvas() {
+    const container = canvas.parentElement;
+    const rect = container.getBoundingClientRect();
+    const padding = 20; // container padding
+    canvas.width = rect.width - padding;
+    canvas.height = rect.height - padding;
+    center = { x: canvas.width / 2, y: canvas.height / 2 };
+    redrawCanvas();
+}
+
 // Initialize on load
 window.addEventListener('DOMContentLoaded', () => {
-    canvas.width = 700;
-    canvas.height = 600;
-    center = { x: 350, y: 300 };
-    redrawCanvas();
+    resizeCanvas();
+    // Resize observer for responsive canvas
+    const observer = new ResizeObserver(() => resizeCanvas());
+    observer.observe(canvas.parentElement);
 });
 
 // Calculate drawing bounds
