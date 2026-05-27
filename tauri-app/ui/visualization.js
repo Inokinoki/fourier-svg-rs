@@ -18,32 +18,17 @@ function initFourierVisualization() {
     }
     animation_id = window.requestAnimationFrame(draw);
     updateCoefficientsList();
-    document.getElementById('coefficientsPanel').classList.remove('hidden');
 }
 
 // Update coefficients list
 function updateCoefficientsList() {
-    const list = document.getElementById('coefficientsList');
-    if (!list) return;
-    list.innerHTML = '';
-    for (let i = 0; i < Math.min(10, fourierData.length); i++) {
-        const d = fourierData[i];
-        const item = document.createElement('div');
-        item.className = 'coefficient-item';
-        item.innerHTML = '<span>ω=' + d.s.toFixed(1) + '</span><span>r=' + (d.r * 2).toFixed(1) + '</span>';
-        list.appendChild(item);
-    }
-    if (fourierData.length > 10) {
-        const more = document.createElement('div');
-        more.className = 'coefficient-item';
-        more.textContent = '... (' + fourierData.length + ' total)';
-        list.appendChild(more);
-    }
+    // Currently just a placeholder - coefficients shown via wave count slider
 }
 
 // Update wave count
 function updateWaveCount(newCount) {
-    current_wave_count = Math.max(1, Math.min(newCount, fullFourierData ? fullFourierData.length : 201));
+    const max = fullFourierData ? fullFourierData.length : 201;
+    current_wave_count = Math.max(1, Math.min(newCount, max));
     document.getElementById('waveCount').value = current_wave_count;
     document.getElementById('waveValue').textContent = current_wave_count;
     if (fullFourierData) {
@@ -70,11 +55,6 @@ function drawWave(ctx) {
 function draw() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw grid if enabled
-    if (document.getElementById('showGrid') && document.getElementById('showGrid').checked) {
-        drawGrid();
-    }
-    
     let new_center = circles[0] ? circles[0].nextCenter(center) : center;
     
     for (let i = 1; i < circles.length; i++) {
@@ -97,12 +77,6 @@ function draw() {
         context.strokeStyle = 'rgba(255, 0, 0, 0.3)';
         context.lineWidth = 1;
         context.stroke();
-    }
-    
-    // Update timeline
-    const timeline = document.getElementById('timelineControl');
-    if (timeline) {
-        timeline.value = (time % 10) / 10 * 100;
     }
     
     if (!is_paused) {

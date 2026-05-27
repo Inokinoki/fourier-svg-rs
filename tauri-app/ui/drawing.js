@@ -87,7 +87,6 @@ function loadPresetShape(shapeName) {
     if (shapeFunc) {
         drawingPoints = shapeFunc();
         redrawCanvas();
-        document.getElementById('visualizeBtn').disabled = false;
         updateStatus('Loaded preset: ' + shapeName);
     }
 }
@@ -180,14 +179,14 @@ canvas.addEventListener('mouseup', (e) => {
         previewPoints = [];
     }
     
-    document.getElementById('visualizeBtn').disabled = drawingPoints.length < 3;
+    updateUI();
     redrawCanvas();
 });
 
 canvas.addEventListener('mouseleave', (e) => {
     if (isDrawing && document.getElementById('drawingTool').value === 'freehand') {
         isDrawing = false;
-        document.getElementById('visualizeBtn').disabled = drawingPoints.length < 3;
+        updateUI();
     }
     // Clear hover state for SVG mode
     if (currentMode === 'svg') {
@@ -212,8 +211,8 @@ canvas.addEventListener('click', (e) => {
         selectedPathData = svgPaths[pathIndex].d;
         
         // Update UI
-        document.getElementById('visualizeSvgBtn').disabled = false;
-        updateStatus('Selected path: ' + (svgPaths[pathIndex].id || 'Path ' + pathIndex));
+        updateUI();
+        updateStatus('Selected: ' + (svgPaths[pathIndex].id || 'Path ' + (pathIndex + 1)));
         
         redrawCanvas();
     }
@@ -277,11 +276,6 @@ function drawPreview(points) {
 // Redraw canvas
 function redrawCanvas() {
     context.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw grid if enabled
-    if (document.getElementById('showGrid') && document.getElementById('showGrid').checked) {
-        drawGrid();
-    }
     
     // Draw hint when canvas is empty and not in SVG mode
     if (drawingPoints.length === 0 && !fourierData && svgPathElements.length === 0) {
@@ -378,8 +372,7 @@ function clearCanvas() {
     hoveredPathIndex = -1;
     updateUndoRedoButtons();
     redrawCanvas();
-    document.getElementById('visualizeBtn').disabled = true;
-    document.getElementById('coefficientsPanel').classList.add('hidden');
+    updateUI();
     updateStatus('Canvas cleared');
 }
 

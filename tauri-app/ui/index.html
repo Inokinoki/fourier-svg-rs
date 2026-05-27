@@ -10,63 +10,16 @@
     <div class="sidebar">
         <h1>Fourier Visualizer</h1>
 
-        <div class="control-group">
-            <label>Input Mode:</label>
-            <div class="button-row">
-                <button id="modeFileBtn" class="secondary">Load SVG</button>
-                <button id="modeDrawBtn" class="secondary">Draw</button>
-            </div>
+        <!-- Mode Switcher (always visible) -->
+        <div class="mode-switcher">
+            <button id="modeDrawBtn" class="mode-btn active">Draw</button>
+            <button id="modeFileBtn" class="mode-btn">SVG File</button>
         </div>
 
-        <div class="control-group">
-            <h2>Quick Templates</h2>
-            <p style="font-size: 11px; color: #666; margin-bottom: 8px;">Load preset shapes instantly</p>
-            <select id="presetSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
-                <option value="">-- Select a template --</option>
-                <option value="circle">Circle</option>
-                <option value="square">Square</option>
-                <option value="triangle">Triangle</option>
-                <option value="star">Star (5-point)</option>
-                <option value="heart">Heart</option>
-                <option value="infinity">Infinity Symbol</option>
-                <option value="spiral">Spiral</option>
-                <option value="sine">Sine Wave</option>
-            </select>
-            <button id="loadPresetBtn" disabled>Load Template</button>
-        </div>
-
-        <div id="recentFilesGroup" class="control-group hidden">
-            <h2>Recent Files</h2>
-            <div class="recent-files" id="recentFilesList"></div>
-        </div>
-
-        <div id="svgControls" class="hidden">
-            <h2>SVG File Mode</h2>
-            <p style="font-size: 12px; color: #666;">Load an SVG file and click on a path to select it</p>
-
+        <!-- Draw Mode Panel -->
+        <div id="drawPanel">
             <div class="control-group">
-                <button id="loadSvgBtn">Load SVG File</button>
-            </div>
-
-            <div class="control-group">
-                <label>Sample Rate: <span id="sampleValueSvg" class="value-display">10240</span></label>
-                <input type="range" id="sampleRateSvg" min="1000" max="20000" value="10240" step="500">
-            </div>
-
-            <div class="control-group">
-                <label>Duration (seconds): <span id="durationValueSvg" class="value-display">10.0</span></label>
-                <input type="range" id="durationSvg" min="1" max="60" value="10" step="0.5">
-            </div>
-
-            <button id="visualizeSvgBtn" disabled>Visualize SVG Path</button>
-        </div>
-
-        <div id="drawingControls">
-            <h2>Drawing Mode</h2>
-            <p style="font-size: 12px; color: #666;">Click and drag on the canvas to draw a shape</p>
-
-            <div class="control-group">
-                <label>Drawing Tool:</label>
+                <label>Drawing Tool</label>
                 <select id="drawingTool" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
                     <option value="freehand">Freehand</option>
                     <option value="line">Line</option>
@@ -76,13 +29,19 @@
             </div>
 
             <div class="control-group">
-                <label>Sample Rate: <span id="sampleValue" class="value-display">10240</span></label>
-                <input type="range" id="sampleRate" min="1000" max="20000" value="10240" step="500">
-            </div>
-
-            <div class="control-group">
-                <label>Duration (seconds): <span id="durationValue" class="value-display">10.0</span></label>
-                <input type="range" id="durationDraw" min="1" max="60" value="10" step="0.5">
+                <label>Quick Templates</label>
+                <select id="presetSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                    <option value="">-- Select a template --</option>
+                    <option value="circle">Circle</option>
+                    <option value="square">Square</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="star">Star (5-point)</option>
+                    <option value="heart">Heart</option>
+                    <option value="infinity">Infinity Symbol</option>
+                    <option value="spiral">Spiral</option>
+                    <option value="sine">Sine Wave</option>
+                </select>
+                <button id="loadPresetBtn" disabled>Load Template</button>
             </div>
 
             <div class="button-row">
@@ -90,15 +49,34 @@
                 <button id="redoBtn" disabled>Redo</button>
             </div>
 
-            <button id="visualizeBtn" disabled>Visualize</button>
             <button id="clearBtn" class="secondary">Clear Canvas</button>
         </div>
 
-        <div id="visualizeControls" class="hidden">
-            <h2>Visualization Mode</h2>
-
+        <!-- SVG Mode Panel -->
+        <div id="svgPanel" class="hidden">
             <div class="control-group">
-                <label>Components: <span id="waveValue" class="value-display">201</span></label>
+                <button id="loadSvgBtn" style="width: 100%;">Load SVG File</button>
+            </div>
+            <p class="hint">Click on a path in the canvas to select it</p>
+        </div>
+
+        <!-- Common: Sample Settings (shown when ready to visualize) -->
+        <div id="samplePanel" class="hidden">
+            <div class="control-group">
+                <label>Sample Rate: <span id="sampleValue" class="value-display">10240</span></label>
+                <input type="range" id="sampleRate" min="1000" max="20000" value="10240" step="500">
+            </div>
+        </div>
+
+        <!-- Visualize Button (shown when input is ready) -->
+        <div id="visualizeAction" class="hidden">
+            <button id="visualizeBtn">Visualize</button>
+        </div>
+
+        <!-- Visualization Mode Panel (shown during animation) -->
+        <div id="vizPanel" class="hidden">
+            <div class="control-group">
+                <label>Components: <span id="waveValue" class="value-display">201</span> / <span id="maxWaveValue" class="value-display">201</span></label>
                 <input type="range" id="waveCount" min="1" max="500" value="201" step="1">
             </div>
 
@@ -108,17 +86,12 @@
             </div>
 
             <div class="control-group">
-                <label>Timeline: <span id="timelineValue" class="value-display">0.0s</span></label>
+                <label>Timeline</label>
                 <input type="range" id="timelineControl" min="0" max="100" value="0" step="0.1">
             </div>
 
             <div class="control-group">
-                <label>Zoom: <span id="zoomValue" class="value-display">1.0x</span></label>
-                <input type="range" id="zoomControl" min="0.5" max="3.0" value="1.0" step="0.1">
-            </div>
-
-            <div class="control-group">
-                <label>Colors:</label>
+                <label>Colors</label>
                 <div class="button-row">
                     <div style="flex: 1">
                         <label style="font-size: 10px;">Epicycles</label>
@@ -131,24 +104,6 @@
                 </div>
             </div>
 
-            <div class="control-group">
-                <label>Visibility:</label>
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
-                    <label style="display: flex; align-items: center; font-size: 12px; margin: 0;">
-                        <input type="checkbox" id="showCircles" checked style="width: auto; margin-right: 8px;">
-                        Show Epicycles
-                    </label>
-                    <label style="display: flex; align-items: center; font-size: 12px; margin: 0;">
-                        <input type="checkbox" id="showTrace" checked style="width: auto; margin-right: 8px;">
-                        Show Trace
-                    </label>
-                    <label style="display: flex; align-items: center; font-size: 12px; margin: 0;">
-                        <input type="checkbox" id="showCirclesOutline" style="width: auto; margin-right: 8px;">
-                        Show Circle Outlines
-                    </label>
-                </div>
-            </div>
-
             <div class="button-row">
                 <button id="pauseBtn">Pause</button>
                 <button id="resetBtn" class="secondary">Reset</button>
@@ -156,45 +111,13 @@
 
             <h2>Export</h2>
             <div class="button-row">
-                <button id="exportPngBtn" class="success">Save PNG</button>
-                <button id="exportJsonBtn" class="success">Save JSON</button>
+                <button id="exportPngBtn" class="success">PNG</button>
+                <button id="exportJsonBtn" class="success">JSON</button>
+                <button id="exportGifBtn" class="success">GIF</button>
+                <button id="exportHtmlBtn" class="success">HTML</button>
             </div>
-
-            <div class="control-group">
-                <label>GIF Frames: <span id="gifFramesValue" class="value-display">100</span></label>
-                <input type="range" id="gifFrames" min="50" max="300" value="100" step="10">
-            </div>
-
-            <div class="control-group">
-                <label>GIF Duration (seconds): <span id="gifDurationValue" class="value-display">5.0</span></label>
-                <input type="range" id="gifDuration" min="2" max="20" value="5" step="0.5">
-            </div>
-
-            <button id="exportGifBtn" class="success">Export GIF</button>
-
-            <button id="exportHtmlBtn" class="success">Export HTML</button>
-
-            <button id="fullscreenBtn" class="secondary">Toggle Full Screen</button>
 
             <button id="newDrawBtn" class="danger">New Drawing</button>
-        </div>
-
-        <div id="coefficientsPanel" class="hidden">
-            <h2>Coefficients</h2>
-            <div class="coefficients" id="coefficientsList"></div>
-        </div>
-
-        <div class="shortcuts-info">
-            <strong>Keyboard Shortcuts:</strong>
-            <div class="shortcut"><span>Play/Pause</span><span class="key">Space</span></div>
-            <div class="shortcut"><span>Reset</span><span class="key">R</span></div>
-            <div class="shortcut"><span>Undo</span><span class="key">Ctrl+Z</span></div>
-            <div class="shortcut"><span>Redo</span><span class="key">Ctrl+Y</span></div>
-            <div class="shortcut"><span>New Drawing</span><span class="key">N</span></div>
-            <div class="shortcut"><span>Full Screen</span><span class="key">F</span></div>
-            <div class="shortcut"><span>Export PNG</span><span class="key">E</span></div>
-            <div class="shortcut"><span>Zoom In</span><span class="key">+</span></div>
-            <div class="shortcut"><span>Zoom Out</span><span class="key">-</span></div>
         </div>
 
         <div class="status" id="status">Ready to draw</div>
@@ -205,7 +128,6 @@
             <canvas id="fourier_canvas"></canvas>
         </div>
     </div>
-
 
 <script src="app.js"></script>
 <script src="drawing.js"></script>
