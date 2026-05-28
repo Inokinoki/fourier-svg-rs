@@ -257,7 +257,7 @@ mod tests {
     #[test]
     fn test_combine_layers_preserves_independence() {
         let config = FourierConfig::new(1024, 51);
-        
+
         // Create two layers with different paths
         let layer1 = PathLayer {
             id: "layer1".to_string(),
@@ -266,7 +266,7 @@ mod tests {
             visible: true,
             opacity: 1.0,
         };
-        
+
         let layer2 = PathLayer {
             id: "layer2".to_string(),
             path_data: "M 50 50 L 60 60 L 70 50 Z".to_string(),
@@ -274,26 +274,32 @@ mod tests {
             visible: true,
             opacity: 0.5,
         };
-        
+
         let layers = vec![layer1.clone(), layer2.clone()];
         let combined = combine_layers(&layers);
-        
+
         // Combined should have coefficients from both layers
-        assert_eq!(combined.len(), layers[0].fourier_data.len() + layers[1].fourier_data.len());
-        
+        assert_eq!(
+            combined.len(),
+            layers[0].fourier_data.len() + layers[1].fourier_data.len()
+        );
+
         // Verify total coefficient count is correct
         let expected_count = layer1.fourier_data.len() + layer2.fourier_data.len();
         assert_eq!(combined.len(), expected_count);
-        
+
         // Verify that opacity was applied (some coefficients should have reduced radius)
         // Count coefficients that match layer2's reduced radii
-        let layer2_reduced_count = combined.iter().filter(|c| {
-            layer2.fourier_data.iter().any(|l2| {
-                let expected = l2.radius * 0.5;
-                (c.radius - expected).abs() < 0.001
+        let layer2_reduced_count = combined
+            .iter()
+            .filter(|c| {
+                layer2.fourier_data.iter().any(|l2| {
+                    let expected = l2.radius * 0.5;
+                    (c.radius - expected).abs() < 0.001
+                })
             })
-        }).count();
-        
+            .count();
+
         // At least some coefficients from layer2 should have reduced radius
         assert!(layer2_reduced_count > 0);
     }

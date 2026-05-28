@@ -105,7 +105,8 @@ pub fn get_svg_paths(file_path: String) -> Result<Vec<SvgPathInfo>, String> {
         Ok(parser) => {
             let mut path_index = 0;
             for event in parser {
-                if let svg::parser::Event::Tag(svg::node::element::tag::Path, _, attributes) = event {
+                if let svg::parser::Event::Tag(svg::node::element::tag::Path, _, attributes) = event
+                {
                     if let Some(d) = attributes.get("d") {
                         paths.push(SvgPathInfo {
                             id: if let Some(id) = attributes.get("id") {

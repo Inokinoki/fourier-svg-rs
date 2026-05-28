@@ -60,11 +60,9 @@ pub async fn save_canvas_as_png(data_url: String, file_path: String) -> Result<(
         .strip_prefix("data:image/png;base64,")
         .ok_or("Invalid data URL")?;
 
-    let image_bytes = base64::Engine::decode(
-        &base64::engine::general_purpose::STANDARD,
-        base64_data,
-    )
-    .map_err(|e| e.to_string())?;
+    let image_bytes =
+        base64::Engine::decode(&base64::engine::general_purpose::STANDARD, base64_data)
+            .map_err(|e| e.to_string())?;
 
     let mut file = File::create(&file_path).map_err(|e| e.to_string())?;
     file.write_all(&image_bytes).map_err(|e| e.to_string())?;
@@ -73,7 +71,10 @@ pub async fn save_canvas_as_png(data_url: String, file_path: String) -> Result<(
 }
 
 #[tauri::command]
-pub async fn add_recent_file(file_path: String, file_name: String) -> Result<Vec<RecentFile>, String> {
+pub async fn add_recent_file(
+    file_path: String,
+    file_name: String,
+) -> Result<Vec<RecentFile>, String> {
     let recent_files_path = get_recent_files_path()?;
     let mut recent_files = load_recent_files()?;
 
