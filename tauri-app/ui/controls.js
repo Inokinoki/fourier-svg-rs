@@ -264,3 +264,12 @@ document.getElementById('newDrawBtn').addEventListener('click', () => {
     updateUI();
     updateStatus('Ready to draw');
 });
+
+// GIF export params
+document.getElementById('gifFrames').addEventListener('input', (e) => {
+    document.getElementById('gifFramesValue').textContent = e.target.value;
+});
+
+document.getElementById('gifDuration').addEventListener('input', (e) => {
+    document.getElementById('gifDurationValue').textContent = parseFloat(e.target.value).toFixed(1);
+});

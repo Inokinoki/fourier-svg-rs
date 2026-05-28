@@ -8,6 +8,16 @@ use fourier_svg::Visualizer;
 
 use super::drawing::FourierData;
 
+fn to_draw_data_vec(data: &[FourierData]) -> Vec<DrawData> {
+    data.iter()
+        .map(|d| DrawData {
+            frequency: d.frequency,
+            radius: d.radius,
+            angle: d.angle,
+        })
+        .collect()
+}
+
 #[tauri::command]
 pub async fn export_fourier_data(
     data: Vec<FourierData>,
@@ -16,15 +26,7 @@ pub async fn export_fourier_data(
 ) -> Result<(), String> {
     use fourier_svg::FourierExport;
 
-    // Convert FourierData back to DrawData
-    let draw_data: Vec<DrawData> = data
-        .iter()
-        .map(|d| DrawData {
-            frequency: d.s,
-            radius: d.r,
-            angle: d.a,
-        })
-        .collect();
+    let draw_data = to_draw_data_vec(&data);
 
     let export = FourierExport {
         version: "1.0".to_string(),
@@ -60,27 +62,16 @@ pub async fn export_as_gif(
     frames: usize,
     duration: f32,
 ) -> Result<(), String> {
-    // Convert FourierData back to DrawData
-    let draw_data: Vec<DrawData> = data
-        .iter()
-        .map(|d| DrawData {
-            frequency: d.s,
-            radius: d.r,
-            angle: d.a,
-        })
-        .collect();
+    let draw_data = to_draw_data_vec(&data);
 
-    // Calculate delay from duration
-    let delay = ((duration * 1000.0) / frames as f32) as u16 / 10; // Convert to centiseconds
+    let delay = ((duration * 1000.0) / frames as f32) as u16 / 10;
 
     let visualizer = GIFVisualizer::new(file_path.clone())
         .with_dimensions(800, 600)
         .with_frames(frames)
         .with_delay(delay.max(1));
 
-    let success = visualizer.render(draw_data);
-
-    if success {
+    if visualizer.render(draw_data) {
         Ok(())
     } else {
         Err("Failed to create GIF".to_string())
@@ -89,20 +80,10 @@ pub async fn export_as_gif(
 
 #[tauri::command]
 pub async fn export_as_html(data: Vec<FourierData>, file_path: String) -> Result<(), String> {
-    // Convert FourierData back to DrawData
-    let draw_data: Vec<DrawData> = data
-        .iter()
-        .map(|d| DrawData {
-            frequency: d.s,
-            radius: d.r,
-            angle: d.a,
-        })
-        .collect();
+    let draw_data = to_draw_data_vec(&data);
 
     let visualizer = HTMLVisualizer::new(file_path.clone());
-    let success = visualizer.render(draw_data);
-
-    if success {
+    if visualizer.render(draw_data) {
         Ok(())
     } else {
         Err("Failed to create HTML".to_string())

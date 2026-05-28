@@ -10,7 +10,7 @@
     <div class="sidebar">
         <h1>Fourier Visualizer</h1>
 
-        <!-- Mode Switcher (always visible) -->
+        <!-- Mode Switcher -->
         <div class="mode-switcher">
             <button id="modeDrawBtn" class="mode-btn active">Draw</button>
             <button id="modeFileBtn" class="mode-btn">SVG File</button>
@@ -20,7 +20,7 @@
         <div id="drawPanel">
             <div class="control-group">
                 <label>Drawing Tool</label>
-                <select id="drawingTool" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                <select id="drawingTool" class="control-select">
                     <option value="freehand">Freehand</option>
                     <option value="line">Line</option>
                     <option value="rectangle">Rectangle</option>
@@ -30,7 +30,7 @@
 
             <div class="control-group">
                 <label>Quick Templates</label>
-                <select id="presetSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                <select id="presetSelect" class="control-select">
                     <option value="">-- Select a template --</option>
                     <option value="circle">Circle</option>
                     <option value="square">Square</option>
@@ -55,38 +55,38 @@
         <!-- SVG Mode Panel -->
         <div id="svgPanel" class="hidden">
             <div class="control-group">
-                <button id="loadSvgBtn" style="width: 100%;">Load SVG File</button>
+                <button id="loadSvgBtn" class="full-width">Load SVG File</button>
             </div>
             <p class="hint">Click on a path in the canvas to select it</p>
         </div>
 
-        <!-- Common: Sample Settings (shown when ready to visualize) -->
+        <!-- Sample Settings -->
         <div id="samplePanel" class="hidden">
             <div class="control-group">
                 <label>Sample Rate: <span id="sampleValue" class="value-display">8192</span></label>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button id="sampleMinus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">−</button>
-                    <input type="number" id="sampleInput" min="256" max="65536" value="8192" style="width: 80px; text-align: center; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                    <button id="samplePlus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">+</button>
+                <div class="stepper-row">
+                    <button id="sampleMinus" class="stepper-btn">&minus;</button>
+                    <input type="number" id="sampleInput" class="stepper-input" min="256" max="65536" value="8192">
+                    <button id="samplePlus" class="stepper-btn">+</button>
                 </div>
                 <input type="range" id="sampleRate" min="256" max="65536" value="8192" step="128">
                 <p class="hint" id="sampleHint">Higher rate = smoother curves, more Fourier components</p>
             </div>
         </div>
 
-        <!-- Visualize Button (shown when input is ready) -->
+        <!-- Visualize Button -->
         <div id="visualizeAction" class="hidden">
             <button id="visualizeBtn">Visualize</button>
         </div>
 
-        <!-- Visualization Mode Panel (shown during animation) -->
+        <!-- Visualization Mode Panel -->
         <div id="vizPanel" class="hidden">
             <div class="control-group">
                 <label>Components</label>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button id="waveMinus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">−</button>
-                    <input type="number" id="waveInput" min="1" max="500" value="201" style="width: 70px; text-align: center; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                    <button id="wavePlus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">+</button>
+                <div class="stepper-row">
+                    <button id="waveMinus" class="stepper-btn">&minus;</button>
+                    <input type="number" id="waveInput" class="stepper-input" min="1" max="500" value="201">
+                    <button id="wavePlus" class="stepper-btn">+</button>
                 </div>
                 <input type="range" id="waveCount" min="1" max="500" value="201" step="1" style="margin-top: 8px;">
                 <p class="hint">Total: <span id="maxWaveValue">0</span> available</p>
@@ -104,12 +104,12 @@
 
             <div class="control-group">
                 <label>Colors</label>
-                <div class="button-row">
-                    <div style="flex: 1">
+                <div class="color-row">
+                    <div class="color-col">
                         <label style="font-size: 10px;">Epicycles</label>
                         <input type="color" id="epicycleColor" value="#667eea">
                     </div>
-                    <div style="flex: 1">
+                    <div class="color-col">
                         <label style="font-size: 10px;">Trace</label>
                         <input type="color" id="traceColor" value="#333333">
                     </div>
@@ -118,16 +118,16 @@
 
             <div class="control-group">
                 <label>Display</label>
-                <label style="display: flex; align-items: center; font-size: 12px; margin: 4px 0;">
-                    <input type="checkbox" id="showCircles" checked style="width: auto; margin-right: 8px;">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showCircles" checked>
                     Show Envelope Circles
                 </label>
-                <label style="display: flex; align-items: center; font-size: 12px; margin: 4px 0;">
-                    <input type="checkbox" id="showTrace" checked style="width: auto; margin-right: 8px;">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showTrace" checked>
                     Show Trace
                 </label>
-                <label style="display: flex; align-items: center; font-size: 12px; margin: 4px 0;">
-                    <input type="checkbox" id="showOriginalPath" checked style="width: auto; margin-right: 8px;">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showOriginalPath" checked>
                     Show Original Path
                 </label>
             </div>
@@ -143,6 +143,13 @@
                 <button id="exportJsonBtn" class="success">JSON</button>
                 <button id="exportGifBtn" class="success">GIF</button>
                 <button id="exportHtmlBtn" class="success">HTML</button>
+            </div>
+
+            <div class="control-group">
+                <label>GIF Frames: <span id="gifFramesValue" class="value-display">100</span></label>
+                <input type="range" id="gifFrames" min="50" max="300" value="100" step="10">
+                <label>GIF Duration (seconds): <span id="gifDurationValue" class="value-display">2.0</span></label>
+                <input type="range" id="gifDuration" min="1" max="10" value="2" step="0.5">
             </div>
 
             <button id="newDrawBtn" class="danger">New Drawing</button>

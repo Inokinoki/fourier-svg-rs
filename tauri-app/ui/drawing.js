@@ -1,8 +1,13 @@
-// Preset shapes library
+// Preset shapes library (uses canvas center dynamically)
+function getCanvasCenter() {
+    return { x: canvas.width / 2, y: canvas.height / 2 };
+}
+
 const presetShapes = {
     circle: () => {
+        const { x: cx, y: cy } = getCanvasCenter();
         const points = [];
-        const cx = 350, cy = 300, r = 100;
+        const r = 100;
         for (let i = 0; i <= 100; i++) {
             const angle = (i / 100) * 2 * Math.PI;
             points.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
@@ -10,8 +15,8 @@ const presetShapes = {
         return points;
     },
     square: () => {
+        const { x: cx, y: cy } = getCanvasCenter();
         const size = 200;
-        const cx = 350, cy = 300;
         const half = size / 2;
         return [
             { x: cx - half, y: cy - half },
@@ -22,7 +27,8 @@ const presetShapes = {
         ];
     },
     triangle: () => {
-        const cx = 350, cy = 300, r = 120;
+        const { x: cx, y: cy } = getCanvasCenter();
+        const r = 120;
         return [
             { x: cx, y: cy - r },
             { x: cx + r * Math.cos(Math.PI / 6), y: cy + r * Math.sin(Math.PI / 6) },
@@ -31,8 +37,9 @@ const presetShapes = {
         ];
     },
     star: () => {
+        const { x: cx, y: cy } = getCanvasCenter();
         const points = [];
-        const cx = 350, cy = 300, r = 100;
+        const r = 100;
         for (let i = 0; i <= 10; i++) {
             const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
             const radius = i % 2 === 0 ? r : r / 2;
@@ -41,8 +48,8 @@ const presetShapes = {
         return points;
     },
     heart: () => {
+        const { x: cx, y: cy } = getCanvasCenter();
         const points = [];
-        const cx = 350, cy = 280;
         for (let t = 0; t <= 2 * Math.PI; t += 0.05) {
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
@@ -51,8 +58,8 @@ const presetShapes = {
         return points;
     },
     spiral: () => {
+        const { x: cx, y: cy } = getCanvasCenter();
         const points = [];
-        const cx = 350, cy = 300;
         for (let t = 0; t <= 6 * Math.PI; t += 0.1) {
             const r = t * 5;
             points.push({ x: cx + r * Math.cos(t), y: cy + r * Math.sin(t) });
@@ -60,8 +67,8 @@ const presetShapes = {
         return points;
     },
     infinity: () => {
+        const { x: cx, y: cy } = getCanvasCenter();
         const points = [];
-        const cx = 350, cy = 300;
         const a = 100;
         for (let t = 0; t <= 2 * Math.PI; t += 0.05) {
             const x = a * Math.sin(t) / (1 + Math.pow(Math.cos(t), 2));
@@ -71,8 +78,8 @@ const presetShapes = {
         return points;
     },
     sine: () => {
+        const { x: cx, y: cy } = getCanvasCenter();
         const points = [];
-        const cx = 350, cy = 300;
         for (let x = -150; x <= 150; x += 3) {
             const y = 50 * Math.sin(x * 0.05);
             points.push({ x: cx + x, y: cy + y });
@@ -339,24 +346,6 @@ function drawCanvasHint() {
     context.fillText('or select a template from the left panel', cx, cy + 75);
 }
 
-// Draw grid
-function drawGrid() {
-    const gridSize = 20;
-    context.strokeStyle = '#eee';
-    context.lineWidth = 0.5;
-    for (let x = 0; x < canvas.width; x += gridSize) {
-        context.beginPath();
-        context.moveTo(x, 0);
-        context.lineTo(x, canvas.height);
-        context.stroke();
-    }
-    for (let y = 0; y < canvas.height; y += gridSize) {
-        context.beginPath();
-        context.moveTo(0, y);
-        context.lineTo(canvas.width, y);
-        context.stroke();
-    }
-}
 
 // Clear canvas
 function clearCanvas() {

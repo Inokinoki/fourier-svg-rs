@@ -4,7 +4,7 @@ function initFourierVisualization() {
     circles = [];
     for (let i = 0; i < fourierData.length; i++) {
         const d = fourierData[i];
-        circles.push(new FourierCircle(i, d.s, d.r, d.a));
+        circles.push(new FourierCircle(i, d.frequency, d.radius, d.angle));
     }
     wave = [];
     time = 0;
@@ -17,12 +17,6 @@ function initFourierVisualization() {
         cancelAnimationFrame(animation_id);
     }
     animation_id = window.requestAnimationFrame(draw);
-    updateCoefficientsList();
-}
-
-// Update coefficients list
-function updateCoefficientsList() {
-    // Currently just a placeholder - coefficients shown via wave count slider
 }
 
 // Update wave count

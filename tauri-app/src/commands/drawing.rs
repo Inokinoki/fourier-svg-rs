@@ -1,32 +1,50 @@
 use fourier_svg::process_svg_path;
+use fourier_svg::DrawData;
 use fourier_svg::FourierConfig;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct FourierData {
-    pub s: f32,
-    pub r: f32,
-    pub a: f32,
+    pub frequency: f32,
+    pub radius: f32,
+    pub angle: f32,
     pub idx: usize,
 }
 
+impl FourierData {
+    pub fn from_draw_data(d: &DrawData, idx: usize) -> Self {
+        Self {
+            frequency: d.frequency,
+            radius: d.radius,
+            angle: d.angle,
+            idx,
+        }
+    }
+
+    pub fn from_draw_data_vec(data: &[DrawData]) -> Vec<Self> {
+        let mut result: Vec<_> = data
+            .iter()
+            .enumerate()
+            .map(|(idx, d)| Self::from_draw_data(d, idx))
+            .collect();
+        result.sort_by(|a, b| {
+            b.radius
+                .partial_cmp(&a.radius)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+        result
+    }
+}
+
 #[tauri::command]
-pub fn process_drawing(path: String, num_sample: usize) -> Vec<FourierData> {
+pub fn process_drawing(path: String, num_sample: usize) -> Result<Vec<FourierData>, String> {
     let config = FourierConfig::new(num_sample, num_sample);
     let result = process_svg_path(&path, &config);
 
-    // Convert to FourierData for JSON serialization, sorted by radius
-    let mut sorted: Vec<_> = result
-        .iter()
-        .enumerate()
-        .map(|(idx, d)| FourierData {
-            s: d.frequency,
-            r: d.radius,
-            a: d.angle,
-            idx,
-        })
-        .collect();
-    sorted.sort_by(|a, b| b.r.partial_cmp(&a.r).unwrap_or(std::cmp::Ordering::Equal));
+    if result.is_empty() {
+        return Err("No Fourier components computed — check the SVG path".into());
+    }
 
-    sorted
+    Ok(FourierData::from_draw_data_vec(&result))
 }

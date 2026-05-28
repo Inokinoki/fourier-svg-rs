@@ -159,4 +159,22 @@ button.success:hover { background: #218838; }
     color: #888;
     margin: 0 0 10px 0;
 }
-.hidden { display: none !important; }
+.hidden { display: none; }
+.stepper-row { display: flex; align-items: center; gap: 8px; }
+.stepper-btn {
+    width: 36px; min-width: 36px; margin: 0; padding: 6px;
+    font-size: 18px; line-height: 1;
+}
+.stepper-input {
+    width: 80px; text-align: center; padding: 6px;
+    border: 1px solid #ddd; border-radius: 4px; font-size: 14px;
+}
+.checkbox-label {
+    display: flex; align-items: center; font-size: 12px; margin: 4px 0;
+}
+.checkbox-label input { width: auto; margin-right: 8px; }
+.hint { font-size: 11px; color: #888; margin: 0 0 10px 0; }
+.color-row { display: flex; gap: 8px; }
+.color-col { flex: 1; }
+.control-select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; }
+.full-width { width: 100%; }

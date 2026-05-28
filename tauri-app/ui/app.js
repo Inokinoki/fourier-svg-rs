@@ -23,10 +23,6 @@ let current_wave_count = 201;
 let circles = [];
 let wave = [];
 let center = { x: 350, y: 300 };
-let zoom = 1.0;
-let panOffset = { x: 0, y: 0 };
-let isPanning = false;
-let lastPanPos = null;
 
 // Drawing bounds for auto-centering
 let drawingBounds = null;
@@ -39,10 +35,6 @@ let traceColor = '#333333';
 let showCircles = true;
 let showTrace = true;
 let showOriginalPath = true;
-
-// Default parameters
-let defaultSampleRate = 8192;
-let defaultDuration = 10.0;
 
 // Canvas references
 const canvas = document.getElementById('fourier_canvas');
@@ -179,3 +171,42 @@ function calculateDrawingBounds(points) {
         centerY: (minY + maxY) / 2
     };
 }
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Don't trigger shortcuts when typing in inputs
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    // Space: pause/resume
+    if (e.code === 'Space' && fullFourierData) {
+        e.preventDefault();
+        document.getElementById('pauseBtn').click();
+    }
+    // R: reset
+    if (e.code === 'KeyR' && fullFourierData && !e.ctrlKey) {
+        document.getElementById('resetBtn').click();
+    }
+    // Ctrl+Z: undo
+    if (e.code === 'KeyZ' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+    }
+    // Ctrl+Shift+Z or Ctrl+Y: redo
+    if ((e.code === 'KeyZ' && (e.ctrlKey || e.metaKey) && e.shiftKey) ||
+        (e.code === 'KeyY' && (e.ctrlKey || e.metaKey))) {
+        e.preventDefault();
+        redo();
+    }
+    // N: new drawing
+    if (e.code === 'KeyN' && !e.ctrlKey) {
+        document.getElementById('newDrawBtn').click();
+    }
+    // E: export PNG
+    if (e.code === 'KeyE' && !e.ctrlKey && fullFourierData) {
+        document.getElementById('exportPngBtn').click();
+    }
+    // Delete/Backspace: clear canvas (in draw mode)
+    if ((e.code === 'Delete' || e.code === 'Backspace') && currentMode === 'draw' && !fullFourierData) {
+        clearCanvas();
+    }
+});

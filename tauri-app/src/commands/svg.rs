@@ -24,7 +24,6 @@ pub async fn parse_svg_file(file_path: String) -> Result<SvgPathsResponse, Strin
     let mut width: Option<f32> = None;
     let mut height: Option<f32> = None;
 
-    // Read and parse the SVG file
     match svg::open(&file_path, &mut content) {
         Ok(parser) => {
             let mut path_index = 0;
@@ -33,11 +32,10 @@ pub async fn parse_svg_file(file_path: String) -> Result<SvgPathsResponse, Strin
                     svg::parser::Event::Tag(svg::node::element::tag::Path, _, attributes) => {
                         if let Some(d) = attributes.get("d") {
                             paths.push(SvgPathInfo {
-                                id: if let Some(id) = attributes.get("id") {
-                                    id.to_string()
-                                } else {
-                                    format!("path_{}", path_index)
-                                },
+                                id: attributes
+                                    .get("id")
+                                    .map(|v| v.to_string())
+                                    .unwrap_or_else(|| format!("path_{}", path_index)),
                                 d: d.to_string(),
                             });
                             path_index += 1;
@@ -65,7 +63,6 @@ pub async fn parse_svg_file(file_path: String) -> Result<SvgPathsResponse, Strin
     }
 }
 
-/// Parse SVG dimension attribute to float
 fn parse_svg_dimension(value: &str) -> Option<f32> {
     let value = value
         .trim()
@@ -76,52 +73,13 @@ fn parse_svg_dimension(value: &str) -> Option<f32> {
 }
 
 #[tauri::command]
-pub fn process_svg_path(path_data: String, num_sample: usize) -> Vec<FourierData> {
+pub fn process_svg_path(path_data: String, num_sample: usize) -> Result<Vec<FourierData>, String> {
     let config = FourierConfig::new(num_sample, num_sample);
     let result = fft_process_svg_path(&path_data, &config);
 
-    // Convert to FourierData for JSON serialization, sorted by radius
-    let mut sorted: Vec<_> = result
-        .iter()
-        .enumerate()
-        .map(|(idx, d)| FourierData {
-            s: d.frequency,
-            r: d.radius,
-            a: d.angle,
-            idx,
-        })
-        .collect();
-    sorted.sort_by(|a, b| b.r.partial_cmp(&a.r).unwrap_or(std::cmp::Ordering::Equal));
-
-    sorted
-}
-
-#[tauri::command]
-pub fn get_svg_paths(file_path: String) -> Result<Vec<SvgPathInfo>, String> {
-    let mut content = String::new();
-    let mut paths = Vec::new();
-
-    match svg::open(&file_path, &mut content) {
-        Ok(parser) => {
-            let mut path_index = 0;
-            for event in parser {
-                if let svg::parser::Event::Tag(svg::node::element::tag::Path, _, attributes) = event
-                {
-                    if let Some(d) = attributes.get("d") {
-                        paths.push(SvgPathInfo {
-                            id: if let Some(id) = attributes.get("id") {
-                                id.to_string()
-                            } else {
-                                format!("path_{}", path_index)
-                            },
-                            d: d.to_string(),
-                        });
-                        path_index += 1;
-                    }
-                }
-            }
-            Ok(paths)
-        }
-        Err(e) => Err(format!("Failed to parse SVG: {}", e)),
+    if result.is_empty() {
+        return Err("No Fourier components computed — check the SVG path".into());
     }
+
+    Ok(FourierData::from_draw_data_vec(&result))
 }

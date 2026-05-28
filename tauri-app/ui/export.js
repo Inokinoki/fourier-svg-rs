@@ -34,7 +34,7 @@ document.getElementById('exportGifBtn').addEventListener('click', async () => {
         const filePath = await tauriDialogSave({ defaultName: 'fourier_animation.gif', filters: [{ name: 'GIF', extensions: ['gif'] }] });
         if (filePath) {
             updateStatus('Generating GIF...');
-            await tauriInvoke('export_as_gif', { data: fullFourierData, filePath, frames: 100, duration: 10.0 });
+            await tauriInvoke('export_as_gif', { data: fullFourierData, filePath, frames: parseInt(document.getElementById('gifFrames').value), duration: parseFloat(document.getElementById('gifDuration').value) });
             updateStatus('GIF saved: ' + filePath);
         }
     } catch (err) {
