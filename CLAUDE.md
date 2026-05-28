@@ -90,7 +90,6 @@ The project is a Cargo workspace with 4 packages sharing dependencies defined in
 fourier-svg-rs/
 ├── fourier-svg/      # Core library - all FFT and SVG processing logic
 ├── fourier-cli/      # CLI tool for HTML/GIF/JSON output
-├── gpui-app/         # CLI with coefficient display
 └── tauri-app/        # Interactive desktop application
 ```
 
@@ -199,7 +198,7 @@ Runs on every push and pull request to `master`, `main`, `develop`:
 Triggered on version tags (`v*.*.*`) or manual workflow dispatch:
 
 **CLI Tools Build (`build-cli`):**
-- Builds `fourier-cli` and `gpui-app` for:
+- Builds `fourier-cli` for:
   - Linux x86_64 and aarch64
   - Windows x86_64
   - macOS x86_64 and aarch64 (universal)

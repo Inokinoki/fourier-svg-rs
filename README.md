@@ -10,7 +10,6 @@ This is a Cargo workspace containing multiple packages:
 
 - **`fourier-svg`** - Core library with FFT and SVG processing
 - **`fourier-cli`** - CLI tool for generating HTML, GIF, and JSON exports
-- **`gpui-app`** - CLI tool with coefficient display and HTML output
 - **`tauri-app`** - Interactive desktop application with drawing capabilities
 
 ## Features
@@ -82,12 +81,6 @@ cargo run -p fourier-cli -- -f ./test.svg --backend export
 
 # Load from exported JSON
 cargo run -p fourier-cli -- -i fourier_data.json --backend html
-```
-
-### CLI Tool with Coefficients (gpui-app)
-
-```bash
-cargo run -p gpui-app -- -f ./test.svg
 ```
 
 ### Interactive Desktop App (tauri-app)

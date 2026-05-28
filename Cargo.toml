@@ -2,7 +2,6 @@
 members = [
     "fourier-svg",
     "fourier-cli",
-    "gpui-app",
     "tauri-app",
 ]
 resolver = "2"
