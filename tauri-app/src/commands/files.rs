@@ -31,8 +31,8 @@ pub async fn open_file_dialog(
         dialog = dialog.add_filter(&filter.name, &ext_refs);
     }
 
-    let result = dialog.pick_file(|path| path.map(|p| p.to_string()));
-    Ok(result)
+    let result = dialog.blocking_pick_file();
+    Ok(result.map(|p| p.to_string()))
 }
 
 #[cfg(feature = "tauri")]
@@ -50,8 +50,8 @@ pub async fn save_file_dialog(
         dialog = dialog.add_filter(&filter.name, &ext_refs);
     }
 
-    let result = dialog.save_file(|path| path.map(|p| p.to_string()));
-    Ok(result)
+    let result = dialog.blocking_save_file();
+    Ok(result.map(|p| p.to_string()))
 }
 
 #[tauri::command]
