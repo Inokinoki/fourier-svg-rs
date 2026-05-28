@@ -65,6 +65,7 @@
             <div class="control-group">
                 <label>Sample Rate: <span id="sampleValue" class="value-display">10240</span></label>
                 <input type="range" id="sampleRate" min="1000" max="20000" value="10240" step="500">
+                <p class="hint">Higher rate = smoother curves, more Fourier components</p>
             </div>
         </div>
 
@@ -76,8 +77,14 @@
         <!-- Visualization Mode Panel (shown during animation) -->
         <div id="vizPanel" class="hidden">
             <div class="control-group">
-                <label>Components: <span id="waveValue" class="value-display">201</span> / <span id="maxWaveValue" class="value-display">201</span></label>
-                <input type="range" id="waveCount" min="1" max="500" value="201" step="1">
+                <label>Components</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button id="waveMinus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">−</button>
+                    <input type="number" id="waveInput" min="1" max="500" value="201" style="width: 70px; text-align: center; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <button id="wavePlus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">+</button>
+                </div>
+                <input type="range" id="waveCount" min="1" max="500" value="201" step="1" style="margin-top: 8px;">
+                <p class="hint">Total: <span id="maxWaveValue">0</span> available</p>
             </div>
 
             <div class="control-group">

@@ -144,16 +144,43 @@ document.getElementById('visualizeBtn').addEventListener('click', () => {
 
 function startVisualization(data) {
     fullFourierData = data;
+    current_wave_count = Math.min(current_wave_count, data.length);
     document.getElementById('waveCount').max = data.length;
+    document.getElementById('waveCount').value = current_wave_count;
+    document.getElementById('waveInput').value = current_wave_count;
+    document.getElementById('waveInput').max = data.length;
     document.getElementById('maxWaveValue').textContent = data.length;
     initFourierVisualization();
     updateUI();
-    updateStatus('Visualizing with ' + data.length + ' Fourier components');
+    updateStatus('Visualizing with ' + current_wave_count + ' / ' + data.length + ' Fourier components');
 }
 
 // === Visualization Controls ===
+function syncWaveCount(value) {
+    const max = fullFourierData ? fullFourierData.length : 201;
+    const clamped = Math.max(1, Math.min(value, max));
+    document.getElementById('waveCount').value = clamped;
+    document.getElementById('waveInput').value = clamped;
+    document.getElementById('maxWaveValue').textContent = max;
+    updateWaveCount(clamped);
+}
+
 document.getElementById('waveCount').addEventListener('input', (e) => {
-    updateWaveCount(parseInt(e.target.value));
+    syncWaveCount(parseInt(e.target.value));
+});
+
+document.getElementById('waveInput').addEventListener('change', (e) => {
+    syncWaveCount(parseInt(e.target.value) || 1);
+});
+
+document.getElementById('waveMinus').addEventListener('click', () => {
+    const cur = parseInt(document.getElementById('waveInput').value) || 1;
+    syncWaveCount(cur - 1);
+});
+
+document.getElementById('wavePlus').addEventListener('click', () => {
+    const cur = parseInt(document.getElementById('waveInput').value) || 1;
+    syncWaveCount(cur + 1);
 });
 
 document.getElementById('speedControl').addEventListener('input', (e) => {

@@ -30,7 +30,7 @@ function updateWaveCount(newCount) {
     const max = fullFourierData ? fullFourierData.length : 201;
     current_wave_count = Math.max(1, Math.min(newCount, max));
     document.getElementById('waveCount').value = current_wave_count;
-    document.getElementById('waveValue').textContent = current_wave_count;
+    document.getElementById('waveInput').value = current_wave_count;
     if (fullFourierData) {
         initFourierVisualization();
     }
