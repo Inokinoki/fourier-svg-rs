@@ -52,11 +52,9 @@ pub async fn save_canvas_as_png(data_url: String, file_path: String) -> Result<(
         .strip_prefix("data:image/png;base64,")
         .ok_or("Invalid data URL")?;
 
-    let image_bytes = base64::Engine::decode(
-        &base64::engine::general_purpose::STANDARD,
-        base64_data,
-    )
-    .map_err(|e| e.to_string())?;
+    let image_bytes =
+        base64::Engine::decode(&base64::engine::general_purpose::STANDARD, base64_data)
+            .map_err(|e| e.to_string())?;
 
     let mut file = File::create(&file_path).map_err(|e| e.to_string())?;
     file.write_all(&image_bytes).map_err(|e| e.to_string())?;
