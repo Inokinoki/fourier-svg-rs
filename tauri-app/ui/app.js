@@ -41,7 +41,7 @@ let showTrace = true;
 let showOriginalPath = true;
 
 // Default parameters
-let defaultSampleRate = 10240;
+let defaultSampleRate = 8192;
 let defaultDuration = 10.0;
 
 // Canvas references
