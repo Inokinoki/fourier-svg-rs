@@ -189,7 +189,8 @@ document.getElementById('speedControl').addEventListener('input', (e) => {
 });
 
 document.getElementById('timelineControl').addEventListener('input', (e) => {
-    time = parseFloat(e.target.value) / 100 * 10;
+    time = parseFloat(e.target.value) / 100;
+    wave = [];
 });
 
 document.getElementById('epicycleColor').addEventListener('input', (e) => {

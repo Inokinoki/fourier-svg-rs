@@ -52,6 +52,9 @@ function drawWave(ctx) {
 }
 
 // Main draw loop
+// One complete cycle = time 0 to 1
+const CYCLE_PERIOD = 1;
+
 function draw() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -78,7 +81,16 @@ function draw() {
     }
     
     if (!is_paused) {
-        time += 0.001 * speed_multiplier;
+        time += (0.001 * speed_multiplier);
+        if (time >= CYCLE_PERIOD) {
+            time = time - CYCLE_PERIOD;
+        }
+    }
+    
+    // Update timeline slider to reflect current progress
+    const timeline = document.getElementById('timelineControl');
+    if (timeline) {
+        timeline.value = time * 100;
     }
     
     if (wave.length > 400) {

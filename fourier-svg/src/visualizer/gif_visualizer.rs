@@ -166,7 +166,7 @@ impl Visualizer for GIFVisualizer {
             return false;
         }
 
-        let time_step = 0.04;
+        let time_step = 1.0 / self.frames as f32;
         let mut wave = Vec::new();
 
         for frame in 0..self.frames {
