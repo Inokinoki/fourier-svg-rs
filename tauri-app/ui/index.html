@@ -64,8 +64,13 @@
         <div id="samplePanel" class="hidden">
             <div class="control-group">
                 <label>Sample Rate: <span id="sampleValue" class="value-display">8192</span></label>
-                <input type="range" id="sampleRate" min="1024" max="16384" value="8192" step="1024">
-                <p class="hint">Higher rate = smoother curves, more Fourier components</p>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button id="sampleMinus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">−</button>
+                    <input type="number" id="sampleInput" min="256" max="65536" value="8192" style="width: 80px; text-align: center; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <button id="samplePlus" style="width: 36px; min-width: 36px; margin: 0; padding: 6px; font-size: 18px;">+</button>
+                </div>
+                <input type="range" id="sampleRate" min="256" max="65536" value="8192" step="128">
+                <p class="hint" id="sampleHint">Higher rate = smoother curves, more Fourier components</p>
             </div>
         </div>
 

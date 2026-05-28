@@ -102,8 +102,36 @@ document.getElementById('loadPresetBtn').addEventListener('click', () => {
 });
 
 // === Sample Rate ===
+function isPowerOf2(n) { return n > 0 && (n & (n - 1)) === 0; }
+
+function syncSampleRate(value) {
+    const v = Math.max(256, Math.min(65536, value));
+    document.getElementById('sampleRate').value = v;
+    document.getElementById('sampleInput').value = v;
+    document.getElementById('sampleValue').textContent = v;
+    const hint = document.getElementById('sampleHint');
+    if (hint) {
+        hint.textContent = isPowerOf2(v)
+            ? 'Higher rate = smoother curves, more Fourier components'
+            : 'Warning: not a power of 2, FFT may be slower';
+        hint.style.color = isPowerOf2(v) ? '#888' : '#dc3545';
+    }
+}
+
 document.getElementById('sampleRate').addEventListener('input', (e) => {
-    document.getElementById('sampleValue').textContent = e.target.value;
+    syncSampleRate(parseInt(e.target.value));
+});
+
+document.getElementById('sampleInput').addEventListener('change', (e) => {
+    syncSampleRate(parseInt(e.target.value) || 8192);
+});
+
+document.getElementById('sampleMinus').addEventListener('click', () => {
+    syncSampleRate(parseInt(document.getElementById('sampleInput').value) - 128);
+});
+
+document.getElementById('samplePlus').addEventListener('click', () => {
+    syncSampleRate(parseInt(document.getElementById('sampleInput').value) + 128);
 });
 
 // === Visualize Button (handles both Draw and SVG modes) ===
